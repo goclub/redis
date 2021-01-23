@@ -33,6 +33,9 @@ type SET struct {
 	XX bool
 }
 func (data SET) Do(ctx context.Context, doer Doer) (result Result,err error) {
+	if len(data.Key) == 0 {
+		return result, errors.New("goclub/redis: SET{} Key cannot be empty")
+	}
 	args := []string{"SET", data.Key, data.Value}
 	if data.Expires != 0 {
 		px := strconv.FormatInt(int64(data.Expires / time.Millisecond), 10)
@@ -45,6 +48,20 @@ func (data SET) Do(ctx context.Context, doer Doer) (result Result,err error) {
 		args = append(args, "XX")
 	}
 	return doer.RedisDo(ctx, nil, args)
+}
+type DEL struct {
+	Keys []string
+}
+func (data DEL) Do(ctx context.Context, doer Doer) (delCount uint, err error) {
+	args := []string{"DEL"}
+	if len(data.Keys) == 0 {
+		return 0, errors.New("goclub/redis: DEL{} Keys cannot be empty")
+	}
+	args = append(args, data.Keys...)
+	_, err = doer.RedisDo(ctx, &delCount, args) ; if err != nil {
+		return
+	}
+	return
 }
 // 不要使用 DECR 做库存超卖，因为 DECR -1 后的 INCR 无法保证原子性，
 // 在需要使用 INCR 撤销 DECR 时可能因为网络进程等各种原因导致执行失败

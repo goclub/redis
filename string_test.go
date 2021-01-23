@@ -47,6 +47,62 @@ func TestGET_Do(t *testing.T) {
 		assert.EqualError(t, err, "WRONGTYPE Operation against a key holding the wrong kind of value")
 	}
 }
+func TestDEL_Do(t *testing.T) {
+	name := "test_del"
+	name2 := "test_del_2"
+	{
+		_, err := red.DEL{
+			Keys: nil,
+		}.Do(context.TODO(), Test{t, ""})
+		assert.EqualError(t, err, "goclub/redis: DEL{} Keys cannot be empty")
+	}
+	{
+		_, err := red.DEL{
+			Keys: []string{},
+		}.Do(context.TODO(), Test{t, ""})
+		assert.EqualError(t, err, "goclub/redis: DEL{} Keys cannot be empty")
+	}
+	{
+		_, _ = red.DEL{
+			Keys: []string{name},
+		}.Do(context.TODO(), Test{t, "DEL test_del"})
+	}
+	{
+		_, _ = red.DEL{
+			Keys: []string{name, name2,},
+		}.Do(context.TODO(), Test{t, "DEL test_del test_del_2"})
+	}
+	{
+		_, err := red.SET{
+			Key: name,
+			Value: "a",
+		}.Do(context.TODO(), radixClient)
+		assert.NoError(t, err)
+		delCount, err := red.DEL{
+			Keys:[]string{name},
+		}.Do(context.TODO(), radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, delCount, uint(1))
+	}
+	{
+		_, err := red.Do(context.TODO(), radixClient, nil, []string{"DEL", name2})
+		assert.NoError(t, err)
+		delCount, err := red.DEL{
+			Keys:[]string{name2},
+		}.Do(context.TODO(), radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, delCount, uint(0))
+	}
+	{
+		_, err := red.Do(context.TODO(), radixClient, nil, []string{"DEL", name, name2})
+		assert.NoError(t, err)
+		delCount, err := red.DEL{
+			Keys:[]string{name, name2},
+		}.Do(context.TODO(), radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, delCount, uint(0))
+	}
+}
 func TestDECR_Do(t *testing.T) {
 	name := "test_decr"
 	{
