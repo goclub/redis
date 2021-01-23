@@ -47,6 +47,7 @@ func TestGET_Do(t *testing.T) {
 		assert.EqualError(t, err, "WRONGTYPE Operation against a key holding the wrong kind of value")
 	}
 }
+
 func TestDEL_Do(t *testing.T) {
 	name := "test_del"
 	name2 := "test_del_2"
@@ -73,7 +74,7 @@ func TestDEL_Do(t *testing.T) {
 		}.Do(context.TODO(), Test{t, "DEL test_del test_del_2"})
 	}
 	{
-		_, err := red.SET{
+		err := red.SET{
 			Key: name,
 			Value: "a",
 		}.Do(context.TODO(), radixClient)

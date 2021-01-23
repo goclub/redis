@@ -29,10 +29,63 @@ type SET struct {
 	Key string
 	Value string
 	Expires time.Duration
+}
+func (data SET) Do(ctx context.Context, doer Doer) (err error) {
+	_, err = coreSET{
+		Key: data.Key,
+		Value: data.Value,
+		Expires: data.Expires,
+	}.Do(ctx, doer) ; if err != nil {
+		return
+	}
+	return
+}
+type SETNX struct {
+	Key string
+	Value string
+	Expires time.Duration
+}
+func (data SETNX) Do(ctx context.Context, doer Doer) (ok bool,err error) {
+	result, err := coreSET{
+		Key: data.Key,
+		Value: data.Value,
+		Expires: data.Expires,
+	}.Do(ctx, doer) ; if err != nil {
+		return
+	}
+	if result.IsNil {
+		return false, nil
+	} else {
+		return true, nil
+	}
+}
+type SETXX struct {
+	Key string
+	Value string
+	Expires time.Duration
+}
+func (data SETXX) Do(ctx context.Context, doer Doer) (ok bool,err error) {
+	result, err := coreSET{
+		Key: data.Key,
+		Value: data.Value,
+		Expires: data.Expires,
+	}.Do(ctx, doer) ; if err != nil {
+		return
+	}
+	if result.IsNil {
+		return false, nil
+	} else {
+		return true, nil
+	}
+}
+type coreSET struct {
+	Key string
+	Value string
+	Expires time.Duration
 	NX bool
 	XX bool
 }
-func (data SET) Do(ctx context.Context, doer Doer) (result Result,err error) {
+func (data coreSET) Do(ctx context.Context, doer Doer) (result Result,err error) {
 	if len(data.Key) == 0 {
 		return result, errors.New("goclub/redis: SET{} Key cannot be empty")
 	}
