@@ -132,3 +132,16 @@ func (data DECR) Do(ctx context.Context, doer Doer) (value int64 ,err error) {
 	}
 	return
 }
+type INCR struct {
+	Key string
+}
+func (data INCR) Do(ctx context.Context, doer Doer) (value int64 ,err error) {
+	if len(data.Key) == 0 {
+		return 0, errors.New("goclub/redis: INCR{} Key cannot be empty")
+	}
+	args := []string{"INCR", data.Key}
+	_, err = doer.RedisDo(ctx, &value, args) ; if err != nil {
+		return 0, err
+	}
+	return
+}

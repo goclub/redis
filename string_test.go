@@ -141,3 +141,41 @@ func TestDECR_Do(t *testing.T) {
 		assert.EqualError(t, err, "ERR value is not an integer or out of range")
 	}
 }
+
+func TestINCR_Do(t *testing.T) {
+	name := "test_INCR"
+	{
+		_,_ = red.INCR{
+			Key: name,
+		}.Do(context.TODO(), Test{t, "INCR test_INCR"})
+	}
+	{
+		_,err := red.INCR{
+			Key: "",
+		}.Do(context.TODO(), Test{t, "INCR test_INCR"})
+		assert.EqualError(t, err, "goclub/redis: INCR{} Key cannot be empty")
+	}
+	{// INCR empty key
+		err := radixClient.Do(context.TODO(), radix.Cmd(nil, "DEL", name))
+		assert.NoError(t, err)
+		value, err := red.INCR{Key:name}.Do(context.TODO(), radixClient)
+		assert.Equal(t, value, int64(1))
+		assert.NoError(t, err)
+	}
+	{// INCR valid key
+		validKey := "test_valid_INCR"
+		err := radixClient.Do(context.TODO(), radix.Cmd(nil, "SET", validKey, "100"))
+		assert.NoError(t, err)
+		value, err := red.INCR{Key:validKey}.Do(context.TODO(), radixClient)
+		assert.Equal(t, value, int64(101))
+		assert.NoError(t, err)
+	}
+	{// INCR invalid key
+		invalidKey := "test_invalid_INCR"
+		err := radixClient.Do(context.TODO(), radix.Cmd(nil, "SET", invalidKey, "234293482390480948029348230948"))
+		assert.NoError(t, err)
+		value, err := red.INCR{Key:invalidKey}.Do(context.TODO(), radixClient)
+		assert.Equal(t, value, int64(0))
+		assert.EqualError(t, err, "ERR value is not an integer or out of range")
+	}
+}
