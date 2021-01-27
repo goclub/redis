@@ -103,10 +103,14 @@ func (data coreSET) Do(ctx context.Context, doer Doer) (result Result,err error)
 	return doer.RedisDo(ctx, nil, args)
 }
 type DEL struct {
+	Key string
 	Keys []string
 }
 func (data DEL) Do(ctx context.Context, doer Doer) (delCount uint, err error) {
 	args := []string{"DEL"}
+	if len(data.Key) != 0 {
+		data.Keys = append(data.Keys, data.Key)
+	}
 	if len(data.Keys) == 0 {
 		return 0, errors.New("goclub/redis: DEL{} Keys cannot be empty")
 	}
