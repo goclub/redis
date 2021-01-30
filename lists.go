@@ -26,6 +26,63 @@ func (data LPUSH) Do(ctx context.Context, doer Doer) (length uint, err error) {
 	}
 	return
 }
+type LPUSHX struct {
+	Key string
+	Value string
+	Values []string
+}
+func (data LPUSHX) Do(ctx context.Context, doer Doer) (length uint, err error) {
+	cmd := "LPUSHX"
+	err = checkKey(cmd, "", data.Key) ; if err != nil {
+		return
+	}
+	if len(data.Value) != 0 {
+		data.Values = append(data.Values, data.Value)
+	}
+	args := append([]string{cmd, data.Key}, data.Values...)
+	_, err = doer.RedisDo(ctx, &length, args) ; if err != nil {
+		return
+	}
+	return
+}
+type RPUSH struct {
+	Key string
+	Value string
+	Values []string
+}
+func (data RPUSH) Do(ctx context.Context, doer Doer) (length uint, err error) {
+	cmd := "RPUSH"
+	err = checkKey(cmd, "", data.Key) ; if err != nil {
+		return
+	}
+	if len(data.Value) != 0 {
+		data.Values = append(data.Values, data.Value)
+	}
+	args := append([]string{cmd, data.Key}, data.Values...)
+	_, err = doer.RedisDo(ctx, &length, args) ; if err != nil {
+		return
+	}
+	return
+}
+type RPUSHX struct {
+	Key string
+	Value string
+	Values []string
+}
+func (data RPUSHX) Do(ctx context.Context, doer Doer) (length uint, err error) {
+	cmd := "RPUSHX"
+	err = checkKey(cmd, "", data.Key) ; if err != nil {
+		return
+	}
+	if len(data.Value) != 0 {
+		data.Values = append(data.Values, data.Value)
+	}
+	args := append([]string{cmd, data.Key}, data.Values...)
+	_, err = doer.RedisDo(ctx, &length, args) ; if err != nil {
+		return
+	}
+	return
+}
 
 type LRANGE struct {
 	Key string
