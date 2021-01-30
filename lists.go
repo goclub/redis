@@ -2,6 +2,7 @@ package red
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"strconv"
 	"time"
 )
@@ -15,8 +16,6 @@ type ResultBRPOPLPUSH struct {
 	WaitTime time.Duration
 	Element string
 }
-// 假如在指定时间内没有任何元素被弹出，则返回一个 nil 和等待时长。
-// 反之，返回一个含有两个元素的列表，第一个元素是被弹出元素的值，第二个元素是等待时长。
 func (data BRPOPLPUSH) Do(ctx context.Context, doer Doer) (value string, isNil bool, err error) {
 	cmd := "BRPOPLPUSH"
 	err = checkKey(cmd, "Source", data.Source) ; if err != nil {
@@ -24,6 +23,9 @@ func (data BRPOPLPUSH) Do(ctx context.Context, doer Doer) (value string, isNil b
 	}
 	err = checkKey(cmd, "Destination", data.Destination) ; if err != nil {
 		return
+	}
+	if data.Timeout != 0 && data.Timeout < time.Second {
+		return "", false, errors.New("goclub/redis:(ERR_TIMEOUT) BRPOPLPUSH Timeout can not less at time.Second")
 	}
 	err = checkDuration(cmd, "Timeout", data.Timeout) ; if err != nil {
 		return
