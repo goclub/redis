@@ -72,6 +72,11 @@ func TestLRANGE_Do(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, list, []string{})
 		assert.Equal(t, isEmpty, true)
+		// LRANGE key 10 4
+		list, isEmpty, err = red.LRANGE{key, 10, 4}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, list, []string{})
+		assert.Equal(t, isEmpty, true)
 	}
 }
 func TestLPUSH_Do(t *testing.T) {
