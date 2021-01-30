@@ -7,6 +7,26 @@ import (
 	"time"
 )
 
+type LPUSH struct {
+	Key string
+	Value string
+	Values []string
+}
+func (data LPUSH) Do(ctx context.Context, doer Doer) (length uint, err error) {
+	cmd := "LPUSH"
+	err = checkKey(cmd, "", data.Key) ; if err != nil {
+		return
+	}
+	if len(data.Value) != 0 {
+		data.Values = append(data.Values, data.Value)
+	}
+	args := append([]string{cmd, data.Key}, data.Values...)
+	_, err = doer.RedisDo(ctx, &length, args) ; if err != nil {
+		return
+	}
+	return
+}
+
 type BRPOPLPUSH struct {
 	Source string
 	Destination string
