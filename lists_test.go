@@ -439,7 +439,7 @@ func TestBRPOPLPUSH_Do(t *testing.T) {
 		_, _, err := red.BRPOPLPUSH{
 			Source: "",
 			Destination: "dest",
-			Timeout: 1,
+			Timeout: red.Second{1},
 		}.Do(context.TODO(), Test{t, ""})
 		assert.EqualError(t, err, "goclub/redis(ERR_EMPTY_KEY) BRPOPLPUSH Source key is empty")
 	}
@@ -461,7 +461,7 @@ func TestBRPOPLPUSH_Do(t *testing.T) {
 		_, _, err := red.BRPOPLPUSH{
 			Source: "src",
 			Destination: "dest",
-			Timeout: time.Second,
+			Timeout: red.Second{1},
 		}.Do(context.TODO(), Test{t, "BRPOPLPUSH src dest 1"})
 		assert.NoError(t, err)
 	}
@@ -469,17 +469,9 @@ func TestBRPOPLPUSH_Do(t *testing.T) {
 		_, _, err := red.BRPOPLPUSH{
 			Source: "src",
 			Destination: "dest",
-			Timeout: time.Minute,
+			Timeout: red.Second{60},
 		}.Do(context.TODO(), Test{t, "BRPOPLPUSH src dest 60"})
 		assert.NoError(t, err)
-	}
-	{
-		_, _, err := red.BRPOPLPUSH{
-			Source: "src",
-			Destination: "dest",
-			Timeout: time.Millisecond,
-		}.Do(context.TODO(), Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis:(ERR_TIMEOUT) BRPOPLPUSH Timeout can not less at time.Second")
 	}
 
 	{
@@ -546,7 +538,7 @@ func TestBRPOPLPUSH_Do(t *testing.T) {
 			value, isNil, err := red.BRPOPLPUSH{
 				Source: "test_list_emptyKey",
 				Destination: "test_list_emptyKey",
-				Timeout: time.Second,
+				Timeout: red.Second{1},
 			}.Do(ctx, radixClient)
 			assert.NoError(t, err)
 			assert.Equal(t, isNil, true)
