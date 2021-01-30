@@ -86,7 +86,7 @@ func TestDEL_Do(t *testing.T) {
 		assert.Equal(t, delCount, uint(1))
 	}
 	{
-		_, err := red.Do(context.TODO(), radixClient, nil, []string{"DEL", name2})
+		_, err := red.Command(context.TODO(), radixClient, nil, []string{"DEL", name2})
 		assert.NoError(t, err)
 		delCount, err := red.DEL{
 			Keys:[]string{name2},
@@ -95,7 +95,7 @@ func TestDEL_Do(t *testing.T) {
 		assert.Equal(t, delCount, uint(0))
 	}
 	{
-		_, err := red.Do(context.TODO(), radixClient, nil, []string{"DEL", name, name2})
+		_, err := red.Command(context.TODO(), radixClient, nil, []string{"DEL", name, name2})
 		assert.NoError(t, err)
 		delCount, err := red.DEL{
 			Keys:[]string{name, name2},

@@ -104,7 +104,7 @@ func TestLPUSH_Do(t *testing.T) {
 		// check
 		{
 			var list []string
-			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			_, err := red.Command(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
 			assert.NoError(t, err)
 			assert.Equal(t, list, []string{"a"})
 		}
@@ -117,7 +117,7 @@ func TestLPUSH_Do(t *testing.T) {
 		// check
 		{
 			var list []string
-			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			_, err := red.Command(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
 			assert.NoError(t, err)
 			assert.Equal(t, list, []string{"c", "b", "a"})
 		}
@@ -154,7 +154,7 @@ func TestLPUSHX_Do(t *testing.T) {
 		// check
 		{
 			var list []string
-			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			_, err := red.Command(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
 			assert.NoError(t, err)
 			assert.Equal(t, list, []string{})
 		}
@@ -167,7 +167,7 @@ func TestLPUSHX_Do(t *testing.T) {
 		// check
 		{
 			var list []string
-			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			_, err := red.Command(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
 			assert.NoError(t, err)
 			assert.Equal(t, list, []string{"a"})
 		}
@@ -180,7 +180,7 @@ func TestLPUSHX_Do(t *testing.T) {
 		// check
 		{
 			var list []string
-			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			_, err := red.Command(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
 			assert.NoError(t, err)
 			assert.Equal(t, list, []string{"b","a"})
 		}
@@ -217,7 +217,7 @@ func TestRPUSH_Do(t *testing.T) {
 		// check
 		{
 			var list []string
-			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			_, err := red.Command(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
 			assert.NoError(t, err)
 			assert.Equal(t, list, []string{"a"})
 		}
@@ -230,7 +230,7 @@ func TestRPUSH_Do(t *testing.T) {
 		// check
 		{
 			var list []string
-			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			_, err := red.Command(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
 			assert.NoError(t, err)
 			assert.Equal(t, list, []string{"a", "b", "c"})
 		}
@@ -267,7 +267,7 @@ func TestRPUSHX_Do(t *testing.T) {
 		// check
 		{
 			var list []string
-			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			_, err := red.Command(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
 			assert.NoError(t, err)
 			assert.Equal(t, list, []string{})
 		}
@@ -280,7 +280,7 @@ func TestRPUSHX_Do(t *testing.T) {
 		// check
 		{
 			var list []string
-			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			_, err := red.Command(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
 			assert.NoError(t, err)
 			assert.Equal(t, list, []string{"a"})
 		}
@@ -293,13 +293,80 @@ func TestRPUSHX_Do(t *testing.T) {
 		// check
 		{
 			var list []string
-			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			_, err := red.Command(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
 			assert.NoError(t, err)
 			assert.Equal(t, list, []string{"a", "b"})
 		}
 
 	}
 }
+func TestLPOP_Do(t *testing.T) {
+	ctx := context.Background()
+	key := "test_list_lpop"
+	{
+		_,isNil, err := red.LPOP{}.Do(ctx, Test{})
+		assert.EqualError(t, err, "goclub/redis(ERR_EMPTY_KEY) LPOP  key is empty")
+		assert.Equal(t, isNil, false)
+	}
+	{
+		_,isNil, err := red.LPOP{Key: key}.Do(ctx, Test{t, "LPOP test_list_lpop"})
+		assert.NoError(t, err)
+		assert.Equal(t, isNil, false)
+	}
+	{
+		// 准备数据
+		_,err := red.DEL{Key: key}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		_, err = red.RPUSH{Key: key, Values: []string{"a", "b", "c"}}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		// LPOP key
+		value, isNil, err := red.LPOP{Key: key}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, isNil, false)
+		assert.Equal(t, value, "a")
+		// LPOP key
+		value, isNil, err = red.LPOP{Key: key}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, isNil, false)
+		assert.Equal(t, value, "b")
+		// LPOP key
+		value, isNil, err = red.LPOP{Key: key}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, isNil, false)
+		assert.Equal(t, value, "c")
+		// LPOP key
+		value, isNil, err = red.LPOP{Key: key}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, isNil, true)
+		assert.Equal(t, value, "")
+	}
+	{
+		// 准备数据
+		_,err := red.DEL{Key: key}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		_, err = red.RPUSH{Key: key, Values: []string{"a", "b", "c"}}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		// LPOP key 0
+		_, _, err = red.LPOPCount{Key: key}.Do(ctx, radixClient)
+		assert.EqualError(t, err, "goclub/redis(ERR_COUNT_CAN_NOT_BE_ZERO) data.Count can not be zero")
+		// LPOP key 2
+		list, isNil, err := red.LPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, isNil, false)
+		assert.Equal(t, list, []string{"a","b"})
+		// LPOP key 2
+		list, isNil, err = red.LPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, isNil, false)
+		assert.Equal(t, list, []string{"c"})
+		// LPOP key 2
+		list, isNil, err = red.LPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, isNil, true)
+		assert.Equal(t, list, []string(nil))
+	}
+}
+
 func TestBRPOPLPUSH_Do(t *testing.T) {
 	ctx := context.Background()
 	{
@@ -356,9 +423,9 @@ func TestBRPOPLPUSH_Do(t *testing.T) {
 		{
 			_, err := red.DEL{Keys:[]string{sourceKey, destinationKey}}.Do(ctx, radixClient)
 			assert.NoError(t, err)
-			_, err = red.Do(ctx, radixClient, nil, []string{"LPUSH", sourceKey, "a"})
+			_, err = red.Command(ctx, radixClient, nil, []string{"LPUSH", sourceKey, "a"})
 			assert.NoError(t, err)
-			_, err = red.Do(ctx, radixClient, nil, []string{"LPUSH",  destinationKey, "b"})
+			_, err = red.Command(ctx, radixClient, nil, []string{"LPUSH",  destinationKey, "b"})
 			assert.NoError(t, err)
 		}
 		// [a] -> [b] == [] [ab]
@@ -373,14 +440,14 @@ func TestBRPOPLPUSH_Do(t *testing.T) {
 			// 检查 src []
 			{
 				var list []string
-				_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", sourceKey, "0", "-1"})
+				_, err := red.Command(ctx, radixClient, &list, []string{"LRANGE", sourceKey, "0", "-1"})
 				assert.NoError(t, err)
 				assert.Equal(t, list, []string{})
 			}
 			// 检查 desc [a b]
 			{
 				var list []string
-				_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", destinationKey, "0", "-1"})
+				_, err := red.Command(ctx, radixClient, &list, []string{"LRANGE", destinationKey, "0", "-1"})
 				assert.NoError(t, err)
 				assert.Equal(t, list, []string{"a", "b"})
 			}
@@ -397,7 +464,7 @@ func TestBRPOPLPUSH_Do(t *testing.T) {
 			// [b a]
 			{
 				var list []string
-				_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", destinationKey, "0", "-1"})
+				_, err := red.Command(ctx, radixClient, &list, []string{"LRANGE", destinationKey, "0", "-1"})
 				assert.NoError(t, err)
 				assert.Equal(t, list, []string{"b", "a" })
 			}

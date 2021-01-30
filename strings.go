@@ -16,7 +16,7 @@ func (data GET) Do(ctx context.Context, doer Doer) (value string, hasValue bool 
 		return "",false, errors.New("goclub/redis: GET{} Key cannot be empty")
 	}
 		args := []string{"GET", data.Key}
-	result, err := doer.RedisDo(ctx, &value, args) ; if err != nil {
+	result, err := doer.RedisCommand(ctx, &value, args) ; if err != nil {
 		return "", false, err
 	}
 	if result.IsNil {
@@ -100,7 +100,7 @@ func (data coreSET) Do(ctx context.Context, doer Doer) (result Result,err error)
 	if data.XX {
 		args = append(args, "XX")
 	}
-	return doer.RedisDo(ctx, nil, args)
+	return doer.RedisCommand(ctx, nil, args)
 }
 type DEL struct {
 	Key string
@@ -115,7 +115,7 @@ func (data DEL) Do(ctx context.Context, doer Doer) (delCount uint, err error) {
 		return 0, errors.New("goclub/redis: DEL{} Keys cannot be empty")
 	}
 	args = append(args, data.Keys...)
-	_, err = doer.RedisDo(ctx, &delCount, args) ; if err != nil {
+	_, err = doer.RedisCommand(ctx, &delCount, args) ; if err != nil {
 		return
 	}
 	return
@@ -131,7 +131,7 @@ func (data DECR) Do(ctx context.Context, doer Doer) (value int64 ,err error) {
 		return 0, errors.New("goclub/redis: DECR{} Key cannot be empty")
 	}
 	args := []string{"DECR", data.Key}
-	_, err = doer.RedisDo(ctx, &value, args) ; if err != nil {
+	_, err = doer.RedisCommand(ctx, &value, args) ; if err != nil {
 		return 0, err
 	}
 	return
@@ -144,7 +144,7 @@ func (data INCR) Do(ctx context.Context, doer Doer) (value int64 ,err error) {
 		return 0, errors.New("goclub/redis: INCR{} Key cannot be empty")
 	}
 	args := []string{"INCR", data.Key}
-	_, err = doer.RedisDo(ctx, &value, args) ; if err != nil {
+	_, err = doer.RedisCommand(ctx, &value, args) ; if err != nil {
 		return 0, err
 	}
 	return

@@ -21,7 +21,7 @@ func (data LPUSH) Do(ctx context.Context, doer Doer) (length uint, err error) {
 		data.Values = append(data.Values, data.Value)
 	}
 	args := append([]string{cmd, data.Key}, data.Values...)
-	_, err = doer.RedisDo(ctx, &length, args) ; if err != nil {
+	_, err = doer.RedisCommand(ctx, &length, args) ; if err != nil {
 		return
 	}
 	return
@@ -40,7 +40,7 @@ func (data LPUSHX) Do(ctx context.Context, doer Doer) (length uint, err error) {
 		data.Values = append(data.Values, data.Value)
 	}
 	args := append([]string{cmd, data.Key}, data.Values...)
-	_, err = doer.RedisDo(ctx, &length, args) ; if err != nil {
+	_, err = doer.RedisCommand(ctx, &length, args) ; if err != nil {
 		return
 	}
 	return
@@ -59,7 +59,7 @@ func (data RPUSH) Do(ctx context.Context, doer Doer) (length uint, err error) {
 		data.Values = append(data.Values, data.Value)
 	}
 	args := append([]string{cmd, data.Key}, data.Values...)
-	_, err = doer.RedisDo(ctx, &length, args) ; if err != nil {
+	_, err = doer.RedisCommand(ctx, &length, args) ; if err != nil {
 		return
 	}
 	return
@@ -78,12 +78,49 @@ func (data RPUSHX) Do(ctx context.Context, doer Doer) (length uint, err error) {
 		data.Values = append(data.Values, data.Value)
 	}
 	args := append([]string{cmd, data.Key}, data.Values...)
-	_, err = doer.RedisDo(ctx, &length, args) ; if err != nil {
+	_, err = doer.RedisCommand(ctx, &length, args) ; if err != nil {
 		return
 	}
 	return
 }
 
+type LPOP struct {
+	Key string
+}
+func (data LPOP) Do(ctx context.Context, doer Doer) (value string, isNil bool, err error) {
+	cmd := "LPOP"
+	err = checkKey(cmd, "", data.Key) ; if err != nil {
+		return
+	}
+	args := []string{cmd, data.Key}
+	var result Result
+	result, err = doer.RedisCommand(ctx, &value, args) ; if err != nil {
+		return
+	}
+	isNil = result.IsNil
+	return
+}
+type LPOPCount struct {
+	Key string
+	Count uint
+}
+func (data LPOPCount) Do(ctx context.Context, doer Doer) (list []string, isNil bool, err error) {
+	cmd := "LPOP"
+	err = checkKey(cmd, "", data.Key) ; if err != nil {
+		return
+	}
+	// LPOP key 0 是无意义的
+	if data.Count == 0 {
+		err = errors.New("goclub/redis(ERR_COUNT_CAN_NOT_BE_ZERO) data.Count can not be zero") ; return
+	}
+	args := []string{cmd, data.Key, strconv.FormatUint(uint64(data.Count), 10)}
+	var result Result
+	result, err = doer.RedisCommand(ctx, &list, args) ; if err != nil {
+		return
+	}
+	isNil = result.IsNil
+	return
+}
 type LRANGE struct {
 	Key string
 	Start int
@@ -96,7 +133,7 @@ func (data LRANGE) Do(ctx context.Context, doer Doer) (list []string, isEmpty bo
 	}
 	args := []string{cmd, data.Key, strconv.Itoa(data.Start), strconv.Itoa(data.Stop)}
 	var result Result
-	result, err = doer.RedisDo(ctx, &list, args) ; if err != nil {
+	result, err = doer.RedisCommand(ctx, &list, args) ; if err != nil {
 		return
 	}
 	isEmpty = result.IsEmpty
@@ -126,7 +163,7 @@ func (data BRPOPLPUSH) Do(ctx context.Context, doer Doer) (value string, isNil b
 		return
 	}
 	timeoutStr := strconv.FormatInt(int64(data.Timeout/time.Second), 10)
-	doResult, err := doer.RedisDo(ctx, &value, []string{cmd, data.Source, data.Destination, timeoutStr,}) ; if err != nil {
+	doResult, err := doer.RedisCommand(ctx, &value, []string{cmd, data.Source, data.Destination, timeoutStr,}) ; if err != nil {
 		return
 	}
 	if doResult.IsNil {

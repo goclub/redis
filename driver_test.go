@@ -12,7 +12,7 @@ import (
 type Radix4Client struct {
 	radix4.Client
 }
-func (c Radix4Client) RedisDo(ctx context.Context, valuePtr interface{}, args []string) (result red.Result, err error){
+func (c Radix4Client) RedisCommand(ctx context.Context, valuePtr interface{}, args []string) (result red.Result, err error){
 	data := radix4.Maybe{Rcv: valuePtr}
 	var moreArg []string
 	if len(args) >1 { moreArg = args[1:] }
@@ -41,7 +41,7 @@ type Test struct {
 	T *testing.T
 	Expected string
 }
-func (test Test) RedisDo(ctx context.Context, valuePtr interface{}, args []string) (result red.Result, err error) {
+func (test Test) RedisCommand(ctx context.Context, valuePtr interface{}, args []string) (result red.Result, err error) {
 	assert.Equal(test.T, test.Expected, strings.Join(args, " "))
 	return
 }
