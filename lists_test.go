@@ -14,7 +14,7 @@ func TestLRANGE_Do(t *testing.T) {
 	_=key
 	{
 		_,_ ,err := red.LRANGE{}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis(ERR_EMPTY_KEY)  LRANGE  key is empty")
+		assert.EqualError(t, err, "goclub/redis(ERR_EMPTY_KEY) LRANGE  key is empty")
 	}
 	{
 		_,_ ,err := red.LRANGE{Key: key}.Do(ctx, Test{t, "LRANGE test_list_lrange 0 0"})
@@ -79,7 +79,7 @@ func TestLPUSH_Do(t *testing.T) {
 	key := "test_list_lpush"
 	{
 		_, err := red.LPUSH{}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err , "goclub/redis(ERR_EMPTY_KEY)  LPUSH  key is empty")
+		assert.EqualError(t, err , "goclub/redis(ERR_EMPTY_KEY) LPUSH  key is empty")
 	}
 	{
 		_, err := red.LPUSH{Key: key, Value: "a"}.Do(ctx, Test{t, "LPUSH test_list_lpush a"})
@@ -129,7 +129,7 @@ func TestLPUSHX_Do(t *testing.T) {
 	key := "test_list_lpushx"
 	{
 		_, err := red.LPUSHX{}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err , "goclub/redis(ERR_EMPTY_KEY)  LPUSHX  key is empty")
+		assert.EqualError(t, err , "goclub/redis(ERR_EMPTY_KEY) LPUSHX  key is empty")
 	}
 	{
 		_, err := red.LPUSHX{Key: key, Value: "a"}.Do(ctx, Test{t, "LPUSHX test_list_lpushx a"})
@@ -187,7 +187,119 @@ func TestLPUSHX_Do(t *testing.T) {
 
 	}
 }
+func TestRPUSH_Do(t *testing.T) {
+	ctx := context.Background()
+	key := "test_list_rpush"
+	{
+		_, err := red.RPUSH{}.Do(ctx, Test{t, ""})
+		assert.EqualError(t, err , "goclub/redis(ERR_EMPTY_KEY) RPUSH  key is empty")
+	}
+	{
+		_, err := red.RPUSH{Key: key, Value: "a"}.Do(ctx, Test{t, "RPUSH test_list_rpush a"})
+		assert.NoError(t, err)
+	}
+	{
+		_, err := red.RPUSH{Key: key, Values: []string{"a", "b"}}.Do(ctx, Test{t, "RPUSH test_list_rpush a b"})
+		assert.NoError(t, err)
+	}
+	{
+		// 准备数据
+		{
+			_, err := red.DEL{Key: key}.Do(ctx, radixClient)
+			assert.NoError(t, err)
+		}
+		// RPUSH key a
+		{
+			length, err := red.RPUSH{Key: key, Value: "a"}.Do(ctx, radixClient)
+			assert.Equal(t, length, uint(1))
+			assert.NoError(t, err)
+		}
+		// check
+		{
+			var list []string
+			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			assert.NoError(t, err)
+			assert.Equal(t, list, []string{"a"})
+		}
+		// RPUSH key b c
+		{
+			length, err := red.RPUSH{Key: key, Values: []string{"b", "c"}}.Do(ctx, radixClient)
+			assert.Equal(t, length, uint(3))
+			assert.NoError(t, err)
+		}
+		// check
+		{
+			var list []string
+			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			assert.NoError(t, err)
+			assert.Equal(t, list, []string{"a", "b", "c"})
+		}
 
+	}
+}
+func TestRPUSHX_Do(t *testing.T) {
+	ctx := context.Background()
+	key := "test_list_rpushx"
+	{
+		_, err := red.RPUSHX{}.Do(ctx, Test{t, ""})
+		assert.EqualError(t, err , "goclub/redis(ERR_EMPTY_KEY) RPUSHX  key is empty")
+	}
+	{
+		_, err := red.RPUSHX{Key: key, Value: "a"}.Do(ctx, Test{t, "RPUSHX test_list_rpushx a"})
+		assert.NoError(t, err)
+	}
+	{
+		_, err := red.RPUSHX{Key: key, Values: []string{"a", "b"}}.Do(ctx, Test{t, "RPUSHX test_list_rpushx a b"})
+		assert.NoError(t, err)
+	}
+	{
+		// 准备数据
+		{
+			_, err := red.DEL{Key: key}.Do(ctx, radixClient)
+			assert.NoError(t, err)
+		}
+		// RPUSHX key a
+		{
+			length, err := red.RPUSHX{Key: key, Value: "a"}.Do(ctx, radixClient)
+			assert.Equal(t, length, uint(0))
+			assert.NoError(t, err)
+		}
+		// check
+		{
+			var list []string
+			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			assert.NoError(t, err)
+			assert.Equal(t, list, []string{})
+		}
+		// RPUSH key a
+		{
+			length, err := red.RPUSH{Key: key, Value: "a"}.Do(ctx, radixClient)
+			assert.Equal(t, length, uint(1))
+			assert.NoError(t, err)
+		}
+		// check
+		{
+			var list []string
+			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			assert.NoError(t, err)
+			assert.Equal(t, list, []string{"a"})
+		}
+		// RPUSHX key b
+		{
+			length, err := red.RPUSHX{Key: key, Value: "b"}.Do(ctx, radixClient)
+			assert.Equal(t, length, uint(2))
+			assert.NoError(t, err)
+		}
+		// check
+		{
+			var list []string
+			_, err := red.Do(ctx, radixClient, &list, []string{"LRANGE", key, "0", "-1"})
+			assert.NoError(t, err)
+			assert.Equal(t, list, []string{"a", "b"})
+		}
+
+	}
+}
 func TestBRPOPLPUSH_Do(t *testing.T) {
 	ctx := context.Background()
 	{
