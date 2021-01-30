@@ -2,6 +2,7 @@ package red
 
 import (
 	"errors"
+	"strings"
 	"time"
 )
 
@@ -16,7 +17,7 @@ func checkDuration(command string, arg string, duration time.Duration) error {
 }
 func checkKey(command string, arg string, key string) error {
 	if len(key) == 0 {
-		return errors.New("goclub/redis(ERR_EMPTY_KEY) " + command + " " + arg + " key is empty")
+		return errors.New(strings.Join([]string{"goclub/redis(ERR_EMPTY_KEY) " , command ,  arg ,"key is empty"}, " "))
 	}
 	return nil
 }
