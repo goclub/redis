@@ -8,6 +8,72 @@ import (
 	"testing"
 	"time"
 )
+func TestLRANGE_Do(t *testing.T) {
+	ctx := context.Background()
+	key := "test_list_lrange"
+	_=key
+	{
+		_,_ ,err := red.LRANGE{}.Do(ctx, Test{t, ""})
+		assert.EqualError(t, err, "goclub/redis(ERR_EMPTY_KEY)  LRANGE  key is empty")
+	}
+	{
+		_,_ ,err := red.LRANGE{Key: key}.Do(ctx, Test{t, "LRANGE test_list_lrange 0 0"})
+		assert.NoError(t, err)
+	}
+	{
+		_,_ ,err := red.LRANGE{key, 1, -1}.Do(ctx, Test{t, "LRANGE test_list_lrange 1 -1"})
+		assert.NoError(t, err)
+	}
+	{
+		// 准备数据
+		_, err := red.DEL{Key: key}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		// LRANGE key 0 -1
+		list, isEmpty, err := red.LRANGE{key, 0, -1}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, list, []string{})
+		assert.Equal(t, isEmpty, true)
+		// LPUSH key a
+		_, err = red.LPUSH{Key: key, Value: "a"}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		// LRANGE key 0 -1
+		list, isEmpty, err = red.LRANGE{key, 0, -1}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, list, []string{"a"})
+		assert.Equal(t, isEmpty, false)
+		// LPUSH key b
+		_, err = red.LPUSH{Key: key, Value: "b"}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		// LRANGE key 0 -1
+		list, isEmpty, err = red.LRANGE{key, 0, -1}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, list, []string{"b", "a"})
+		assert.Equal(t, isEmpty, false)
+		// LRANGE key -1 -1
+		list, isEmpty, err = red.LRANGE{key, -1, -1}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, list, []string{"a"})
+		assert.Equal(t, isEmpty, false)
+		// LRANGE key -1 -1
+		list, isEmpty, err = red.LRANGE{key, 0, 0}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, list, []string{"b"})
+		assert.Equal(t, isEmpty, false)
+		// LPUSH key c b
+		_, err = red.LPUSH{Key: key, Values: []string{"c", "d"}}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		// LRANGE key 0 -1
+		list, isEmpty, err = red.LRANGE{key, 0, -1}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, list, []string{"d", "c", "b", "a"})
+		assert.Equal(t, isEmpty, false)
+		// LRANGE key 10 10
+		list, isEmpty, err = red.LRANGE{key, 10, 10}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, list, []string{})
+		assert.Equal(t, isEmpty, true)
+	}
+}
 func TestLPUSH_Do(t *testing.T) {
 	ctx := context.Background()
 	key := "test_list_lpush"

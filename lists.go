@@ -27,6 +27,24 @@ func (data LPUSH) Do(ctx context.Context, doer Doer) (length uint, err error) {
 	return
 }
 
+type LRANGE struct {
+	Key string
+	Start int
+	Stop int
+}
+func (data LRANGE) Do(ctx context.Context, doer Doer) (list []string, isEmpty bool, err error) {
+	cmd := "LRANGE"
+	err = checkKey(cmd, "", data.Key) ; if err != nil {
+		return
+	}
+	args := []string{cmd, data.Key, strconv.Itoa(data.Start), strconv.Itoa(data.Stop)}
+	var result Result
+	result, err = doer.RedisDo(ctx, &list, args) ; if err != nil {
+		return
+	}
+	isEmpty = result.IsEmpty
+	return
+}
 type BRPOPLPUSH struct {
 	Source string
 	Destination string
