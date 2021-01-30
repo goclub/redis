@@ -100,6 +100,7 @@ func (data LPOP) Do(ctx context.Context, doer Doer) (value string, isNil bool, e
 	isNil = result.IsNil
 	return
 }
+// >= 6.2: Added the count argument.
 type LPOPCount struct {
 	Key string
 	Count uint
@@ -111,7 +112,45 @@ func (data LPOPCount) Do(ctx context.Context, doer Doer) (list []string, isNil b
 	}
 	// LPOP key 0 是无意义的
 	if data.Count == 0 {
-		err = errors.New("goclub/redis(ERR_COUNT_CAN_NOT_BE_ZERO) data.Count can not be zero") ; return
+		err = errors.New("goclub/redis(ERR_COUNT_CAN_NOT_BE_ZERO) LPOPCount{}.Count can not be zero") ; return
+	}
+	args := []string{cmd, data.Key, strconv.FormatUint(uint64(data.Count), 10)}
+	var result Result
+	result, err = doer.RedisCommand(ctx, &list, args) ; if err != nil {
+		return
+	}
+	isNil = result.IsNil
+	return
+}
+type RPOP struct {
+	Key string
+}
+func (data RPOP) Do(ctx context.Context, doer Doer) (value string, isNil bool, err error) {
+	cmd := "RPOP"
+	err = checkKey(cmd, "", data.Key) ; if err != nil {
+		return
+	}
+	args := []string{cmd, data.Key}
+	var result Result
+	result, err = doer.RedisCommand(ctx, &value, args) ; if err != nil {
+		return
+	}
+	isNil = result.IsNil
+	return
+}
+// >= 6.2: Added the count argument.
+type RPOPCount struct {
+	Key string
+	Count uint
+}
+func (data RPOPCount) Do(ctx context.Context, doer Doer) (list []string, isNil bool, err error) {
+	cmd := "RPOP"
+	err = checkKey(cmd, "", data.Key) ; if err != nil {
+		return
+	}
+	// RPOP key 0 是无意义的
+	if data.Count == 0 {
+		err = errors.New("goclub/redis(ERR_COUNT_CAN_NOT_BE_ZERO) RPOPCount{}.Count can not be zero") ; return
 	}
 	args := []string{cmd, data.Key, strconv.FormatUint(uint64(data.Count), 10)}
 	var result Result
