@@ -70,6 +70,7 @@ func (data SETXX) Do(ctx context.Context, doer Doer) (ok bool,err error) {
 		Key: data.Key,
 		Value: data.Value,
 		Expires: data.Expires,
+		XX: true,
 	}.Do(ctx, doer) ; if err != nil {
 		return
 	}
