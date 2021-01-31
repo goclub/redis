@@ -50,6 +50,7 @@ func (data SETNX) Do(ctx context.Context, doer Doer) (ok bool,err error) {
 		Key: data.Key,
 		Value: data.Value,
 		Expires: data.Expires,
+		NX: true,
 	}.Do(ctx, doer) ; if err != nil {
 		return
 	}

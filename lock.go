@@ -3,7 +3,6 @@ package red
 import (
 	"context"
 	"github.com/pkg/errors"
-	"log"
 	"strconv"
 	"time"
 )
@@ -11,22 +10,22 @@ import (
 type Mutex struct {
 	Key string
 	Expires time.Duration
-	RetryCount uint8
-	RetryInterval time.Duration
+	Retry Retry
 	startTime time.Time
 	lockValue string
 	doer Doer
 }
 
-func (data Mutex) Unlock (ctx context.Context) (unlockOk bool ,err error) {
+
+func (data *Mutex) Unlock (ctx context.Context) (unlockOk bool ,err error) {
 	if data.startTime.After(time.Now().Add(data.Expires)) {
 		return false, nil
 	}
 	var delCount uint
 	script := `
-if redis.call("GET", KEYS[1] == ARGV[1])
+if redis.call("get", KEYS[1]) == ARGV[1]
 then
-	return redis.call("DEL", KEYS[1])
+	return redis.call("del", KEYS[1])
 else
 	return 0
 end
@@ -41,14 +40,22 @@ end
 	}
 	switch delCount {
 	case 0:
-		return false, errors.New("unlock fail, can not found lock key(" + data.Key + ")")
+		return false, nil
 	case 1:
 		return true, nil
 	default:
 		return false, errors.New("del count:" + strconv.Itoa(int(delCount)))
 	}
 }
-func (data Mutex) Lock(ctx context.Context, doer Doer) ( ok bool, err error) {
+func (data *Mutex) Lock(ctx context.Context, doer Doer) ( ok bool, err error) {
+	err = data.Retry.check() ; if err != nil {
+		return
+	}
+	retryCount := int(data.Retry.Times)
+	return mutexLock(ctx, doer, data, &retryCount)
+}
+
+func mutexLock(ctx context.Context, doer Doer, data *Mutex, retryCount *int) (ok bool, err error) {
 	data.startTime = time.Now() // start time 必须在 SETNX 之前记录,否则会在SETNX 延迟时候导致时间错误
 	data.doer = doer
 	data.lockValue = time.Now().String()
@@ -59,25 +66,13 @@ func (data Mutex) Lock(ctx context.Context, doer Doer) ( ok bool, err error) {
 	}.Do(ctx, doer) ; if err != nil {
 		return
 	}
-	return
-}
-func a()  {
-	mutex := Mutex{
-		Key: "some",
-		Expires: time.Second*10,
-	}
-	ok, err := mutex.Lock(context.TODO(), nil) ; if err != nil {
-		panic(err)
-	}
 	if ok == false {
-		log.Print("锁被占用")
-		return
+		*retryCount--
+		if *retryCount == -1 {
+			return
+		}
+		time.Sleep(data.Retry.Duration)
+		return mutexLock(ctx, doer, data, retryCount)
 	}
-	// do some
-	unlockOk, err := mutex.Unlock(context.TODO()) ; if err != nil {
-		panic(err)
-	}
-	if unlockOk == false {
-		// rollback
-	}
+	return
 }
