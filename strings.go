@@ -25,31 +25,33 @@ func (data GET) Do(ctx context.Context, doer Doer) (value string, hasValue bool 
 		return value, true, nil
 	}
 }
+// >= 2.6.12: Added the EX, PX, NX and XX options.
 type SET struct {
 	Key string
 	Value string
-	Expires time.Duration
+	Expire time.Duration
 }
 func (data SET) Do(ctx context.Context, doer Doer) (err error) {
 	_, err = coreSET{
 		Key: data.Key,
 		Value: data.Value,
-		Expires: data.Expires,
+		Expire: data.Expire,
 	}.Do(ctx, doer) ; if err != nil {
 		return
 	}
 	return
 }
+// >= 2.6.12: Added the EX, PX, NX and XX options.
 type SETNX struct {
 	Key string
 	Value string
-	Expires time.Duration
+	Expire time.Duration
 }
 func (data SETNX) Do(ctx context.Context, doer Doer) (ok bool,err error) {
 	result, err := coreSET{
 		Key: data.Key,
 		Value: data.Value,
-		Expires: data.Expires,
+		Expire: data.Expire,
 		NX: true,
 	}.Do(ctx, doer) ; if err != nil {
 		return
@@ -60,16 +62,17 @@ func (data SETNX) Do(ctx context.Context, doer Doer) (ok bool,err error) {
 		return true, nil
 	}
 }
+// >= 2.6.12: Added the EX, PX, NX and XX options.
 type SETXX struct {
 	Key string
 	Value string
-	Expires time.Duration
+	Expire time.Duration
 }
 func (data SETXX) Do(ctx context.Context, doer Doer) (ok bool,err error) {
 	result, err := coreSET{
 		Key: data.Key,
 		Value: data.Value,
-		Expires: data.Expires,
+		Expire: data.Expire,
 		XX: true,
 	}.Do(ctx, doer) ; if err != nil {
 		return
@@ -83,7 +86,7 @@ func (data SETXX) Do(ctx context.Context, doer Doer) (ok bool,err error) {
 type coreSET struct {
 	Key string
 	Value string
-	Expires time.Duration
+	Expire time.Duration
 	NX bool
 	XX bool
 }
@@ -92,8 +95,8 @@ func (data coreSET) Do(ctx context.Context, doer Doer) (result Result,err error)
 		return result, errors.New("goclub/redis: SET{} Key cannot be empty")
 	}
 	args := []string{"SET", data.Key, data.Value}
-	if data.Expires != 0 {
-		px := strconv.FormatInt(int64(data.Expires / time.Millisecond), 10)
+	if data.Expire != 0 {
+		px := strconv.FormatInt(int64(data.Expire / time.Millisecond), 10)
 		args = append(args, "PX", px)
 	}
 	if data.NX {

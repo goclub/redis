@@ -2,6 +2,7 @@ package red
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"strconv"
 	"time"
@@ -9,7 +10,7 @@ import (
 
 type Mutex struct {
 	Key string
-	Expires time.Duration
+	Expire time.Duration
 	Retry Retry
 	startTime time.Time
 	lockValue string
@@ -18,7 +19,7 @@ type Mutex struct {
 
 
 func (data *Mutex) Unlock (ctx context.Context) (unlockOk bool ,err error) {
-	if data.startTime.After(time.Now().Add(data.Expires)) {
+	if data.startTime.After(time.Now().Add(data.Expire)) {
 		return false, nil
 	}
 	var delCount uint
@@ -58,11 +59,11 @@ func (data *Mutex) Lock(ctx context.Context, doer Doer) ( ok bool, err error) {
 func mutexLock(ctx context.Context, doer Doer, data *Mutex, retryCount *int) (ok bool, err error) {
 	data.startTime = time.Now() // start time 必须在 SETNX 之前记录,否则会在SETNX 延迟时候导致时间错误
 	data.doer = doer
-	data.lockValue = time.Now().String()
+	data.lockValue = uuid.NewString()
 	ok, err = SETNX{
 		Key: data.Key,
 		Value: data.lockValue,
-		Expires: data.Expires,
+		Expire: data.Expire,
 	}.Do(ctx, doer) ; if err != nil {
 		return
 	}

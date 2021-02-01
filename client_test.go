@@ -19,7 +19,7 @@ func init () {
 // 	_, err := red.SET{
 // 		Key: "name",
 // 		Value: "tim",
-// 		Expires: time.Minute,
+// 		Expire: time.Minute,
 // 		NX: true,
 // 	}.Do(ctx, client) ; if err != nil {
 // 		panic(err)
