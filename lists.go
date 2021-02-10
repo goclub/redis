@@ -20,7 +20,7 @@ func (data LPUSH) Do(ctx context.Context, doer Doer) (length uint, err error) {
 		data.Values = append(data.Values, data.Value)
 	}
 	args := append([]string{cmd, data.Key}, data.Values...)
-	_, err = doer.RedisCommand(ctx, &length, args) ; if err != nil {
+	_, err = Command(ctx, doer, &length, args) ; if err != nil {
 		return
 	}
 	return
@@ -39,7 +39,7 @@ func (data LPUSHX) Do(ctx context.Context, doer Doer) (length uint, err error) {
 		data.Values = append(data.Values, data.Value)
 	}
 	args := append([]string{cmd, data.Key}, data.Values...)
-	_, err = doer.RedisCommand(ctx, &length, args) ; if err != nil {
+	_, err = Command(ctx, doer, &length, args) ; if err != nil {
 		return
 	}
 	return
@@ -58,7 +58,7 @@ func (data RPUSH) Do(ctx context.Context, doer Doer) (length uint, err error) {
 		data.Values = append(data.Values, data.Value)
 	}
 	args := append([]string{cmd, data.Key}, data.Values...)
-	_, err = doer.RedisCommand(ctx, &length, args) ; if err != nil {
+	_, err = Command(ctx, doer, &length, args) ; if err != nil {
 		return
 	}
 	return
@@ -77,7 +77,7 @@ func (data RPUSHX) Do(ctx context.Context, doer Doer) (length uint, err error) {
 		data.Values = append(data.Values, data.Value)
 	}
 	args := append([]string{cmd, data.Key}, data.Values...)
-	_, err = doer.RedisCommand(ctx, &length, args) ; if err != nil {
+	_, err = Command(ctx, doer, &length, args) ; if err != nil {
 		return
 	}
 	return
@@ -93,7 +93,7 @@ func (data LPOP) Do(ctx context.Context, doer Doer) (value string, isNil bool, e
 	}
 	args := []string{cmd, data.Key}
 	var result Result
-	result, err = doer.RedisCommand(ctx, &value, args) ; if err != nil {
+	result, err = Command(ctx, doer, &value, args) ; if err != nil {
 		return
 	}
 	isNil = result.IsNil
@@ -115,7 +115,7 @@ func (data LPOPCount) Do(ctx context.Context, doer Doer) (list []string, isNil b
 	}
 	args := []string{cmd, data.Key, strconv.FormatUint(uint64(data.Count), 10)}
 	var result Result
-	result, err = doer.RedisCommand(ctx, &list, args) ; if err != nil {
+	result, err = Command(ctx, doer, &list, args) ; if err != nil {
 		return
 	}
 	isNil = result.IsNil
@@ -131,7 +131,7 @@ func (data RPOP) Do(ctx context.Context, doer Doer) (value string, isNil bool, e
 	}
 	args := []string{cmd, data.Key}
 	var result Result
-	result, err = doer.RedisCommand(ctx, &value, args) ; if err != nil {
+	result, err = Command(ctx, doer, &value, args) ; if err != nil {
 		return
 	}
 	isNil = result.IsNil
@@ -153,7 +153,7 @@ func (data RPOPCount) Do(ctx context.Context, doer Doer) (list []string, isNil b
 	}
 	args := []string{cmd, data.Key, strconv.FormatUint(uint64(data.Count), 10)}
 	var result Result
-	result, err = doer.RedisCommand(ctx, &list, args) ; if err != nil {
+	result, err = Command(ctx, doer, &list, args) ; if err != nil {
 		return
 	}
 	isNil = result.IsNil
@@ -170,7 +170,7 @@ func (data LRANGE) Do(ctx context.Context, doer Doer) (list []string, isEmpty bo
 		return
 	}
 	args := []string{cmd, data.Key, strconv.Itoa(data.Start), strconv.Itoa(data.Stop)}
-	_, err = doer.RedisCommand(ctx, &list, args) ; if err != nil {
+	_, err = Command(ctx, doer, &list, args) ; if err != nil {
 		return
 	}
 	if len(list) == 0 {
@@ -198,7 +198,7 @@ func (data BRPOPLPUSH) Do(ctx context.Context, doer Doer) (value string, isNil b
 	err = checkKey(cmd, "Destination", data.Destination) ; if err != nil {
 		return
 	}
-	doResult, err := doer.RedisCommand(ctx, &value, []string{cmd, data.Source, data.Destination, data.Timeout.String(),}) ; if err != nil {
+	doResult, err := Command(ctx, doer, &value, []string{cmd, data.Source, data.Destination, data.Timeout.String(),}) ; if err != nil {
 		return
 	}
 	if doResult.IsNil {

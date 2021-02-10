@@ -16,7 +16,7 @@ func (data GET) Do(ctx context.Context, doer Doer) (value string, hasValue bool 
 		return "",false, errors.New("goclub/redis: GET{} Key cannot be empty")
 	}
 		args := []string{"GET", data.Key}
-	result, err := doer.RedisCommand(ctx, &value, args) ; if err != nil {
+	result, err := Command(ctx, doer, &value, args) ; if err != nil {
 		return "", false, err
 	}
 	if result.IsNil {
@@ -30,28 +30,42 @@ type SET struct {
 	Key string
 	Value string
 	Expire time.Duration
+	ExpireAt time.Time
+	// >= 6.0: Added the KEEPTTL option.
+	KeepTTL bool
+	NeverExpire bool
 }
 func (data SET) Do(ctx context.Context, doer Doer) (err error) {
 	_, err = coreSET{
 		Key: data.Key,
 		Value: data.Value,
 		Expire: data.Expire,
+		ExpireAt: data.ExpireAt,
+		NeverExpire: data.NeverExpire,
+		KeepTTL: data.KeepTTL,
 	}.Do(ctx, doer) ; if err != nil {
 		return
 	}
 	return
 }
-// >= 2.6.12: Added the EX, PX, NX and XX options.
 type SETNX struct {
 	Key string
 	Value string
 	Expire time.Duration
+	ExpireAt time.Time
+	// >= 6.0: Added the KEEPTTL option.
+	KeepTTL bool
+	NeverExpire bool
 }
 func (data SETNX) Do(ctx context.Context, doer Doer) (ok bool,err error) {
 	result, err := coreSET{
 		Key: data.Key,
 		Value: data.Value,
 		Expire: data.Expire,
+		ExpireAt: data.ExpireAt,
+		// >= 6.0: Added the KEEPTTL option.
+		KeepTTL: data.KeepTTL,
+		NeverExpire: data.NeverExpire,
 		NX: true,
 	}.Do(ctx, doer) ; if err != nil {
 		return
@@ -67,12 +81,19 @@ type SETXX struct {
 	Key string
 	Value string
 	Expire time.Duration
+	ExpireAt time.Time
+	// >= 6.0: Added the KEEPTTL option.
+	KeepTTL bool
+	NeverExpire bool
 }
 func (data SETXX) Do(ctx context.Context, doer Doer) (ok bool,err error) {
 	result, err := coreSET{
 		Key: data.Key,
 		Value: data.Value,
 		Expire: data.Expire,
+		ExpireAt: data.ExpireAt,
+		KeepTTL: data.KeepTTL,
+		NeverExpire: data.NeverExpire,
 		XX: true,
 	}.Do(ctx, doer) ; if err != nil {
 		return
@@ -87,17 +108,33 @@ type coreSET struct {
 	Key string
 	Value string
 	Expire time.Duration
+	ExpireAt time.Time
+	// >= 6.0: Added the KEEPTTL option.
+	KeepTTL bool
+	NeverExpire bool
 	NX bool
 	XX bool
 }
+var ErrSetForgetTimeToLive = errors.New("goclub/redis: red.SET maybe you forget set field Expire or ExpireAt or KeepTTL")
 func (data coreSET) Do(ctx context.Context, doer Doer) (result Result,err error) {
 	if len(data.Key) == 0 {
 		return result, errors.New("goclub/redis: SET{} Key cannot be empty")
 	}
 	args := []string{"SET", data.Key, data.Value}
+	// 只有在明确 NeverExpire 时候才允许 Expire 留空
+	if data.NeverExpire == false && data.Expire == 0 && data.ExpireAt.IsZero() && data.KeepTTL == false {
+		return Result{}, ErrSetForgetTimeToLive
+	}
 	if data.Expire != 0 {
 		px := strconv.FormatInt(int64(data.Expire / time.Millisecond), 10)
 		args = append(args, "PX", px)
+	}
+	if data.ExpireAt.IsZero() == false {
+		timestampMilliseconds := data.ExpireAt.UnixNano() / int64(time.Millisecond)
+		args = append(args, "PXAT", strconv.FormatInt(timestampMilliseconds, 10))
+	}
+	if data.KeepTTL {
+		args = append(args, "KEEPTTL")
 	}
 	if data.NX {
 		args = append(args, "NX")
@@ -105,7 +142,7 @@ func (data coreSET) Do(ctx context.Context, doer Doer) (result Result,err error)
 	if data.XX {
 		args = append(args, "XX")
 	}
-	return doer.RedisCommand(ctx, nil, args)
+	return Command(ctx, doer, nil, args)
 }
 type DEL struct {
 	Key string
@@ -120,7 +157,7 @@ func (data DEL) Do(ctx context.Context, doer Doer) (delCount uint, err error) {
 		return 0, errors.New("goclub/redis: DEL{} Keys cannot be empty")
 	}
 	args = append(args, data.Keys...)
-	_, err = doer.RedisCommand(ctx, &delCount, args) ; if err != nil {
+	_, err = Command(ctx, doer, &delCount, args) ; if err != nil {
 		return
 	}
 	return
@@ -136,7 +173,7 @@ func (data DECR) Do(ctx context.Context, doer Doer) (value int64 ,err error) {
 		return 0, errors.New("goclub/redis: DECR{} Key cannot be empty")
 	}
 	args := []string{"DECR", data.Key}
-	_, err = doer.RedisCommand(ctx, &value, args) ; if err != nil {
+	_, err = Command(ctx, doer, &value, args) ; if err != nil {
 		return 0, err
 	}
 	return
@@ -149,7 +186,7 @@ func (data INCR) Do(ctx context.Context, doer Doer) (value int64 ,err error) {
 		return 0, errors.New("goclub/redis: INCR{} Key cannot be empty")
 	}
 	args := []string{"INCR", data.Key}
-	_, err = doer.RedisCommand(ctx, &value, args) ; if err != nil {
+	_, err = Command(ctx, doer, &value, args) ; if err != nil {
 		return 0, err
 	}
 	return
