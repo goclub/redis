@@ -164,17 +164,19 @@ type LRANGE struct {
 	Start int
 	Stop int
 }
-func (data LRANGE) Do(ctx context.Context, doer Doer) (list []string, isEmpty bool, err error) {
+func (data LRANGE) Do(ctx context.Context, doer Doer) (list []string,  err error) {
 	cmd := "LRANGE"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
 	}
 	args := []string{cmd, data.Key, strconv.Itoa(data.Start), strconv.Itoa(data.Stop)}
-	var result Result
-	result, err = doer.RedisCommand(ctx, &list, args) ; if err != nil {
+	_, err = doer.RedisCommand(ctx, &list, args) ; if err != nil {
 		return
 	}
-	isEmpty = result.IsEmpty
+	// 防止有人使用不严谨的 slice 空值比较 list == nil
+	if len(list) ==0 {
+		return nil, err
+	}
 	return
 }
 type BRPOPLPUSH struct {

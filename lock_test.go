@@ -60,7 +60,7 @@ func TestMutex_Lock(t *testing.T) {
 		}(i)
 	}
 	wg.Wait()
-	list, _, err := red.LRANGE{Key: "test_mutex_list", Start: 0, Stop: -1}.Do(context.TODO(), radixClient) ; if err != nil {
+	list, err := red.LRANGE{Key: "test_mutex_list", Start: 0, Stop: -1}.Do(context.TODO(), radixClient) ; if err != nil {
 		log.Print(err)
 		return
 	}

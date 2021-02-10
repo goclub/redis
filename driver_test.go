@@ -21,7 +21,6 @@ func (c Radix4Client) RedisCommand(ctx context.Context, valuePtr interface{}, ar
 	}
 	result = red.Result{
 		IsNil: data.Null,
-		IsEmpty: data.Empty,
 	}
 	return
 }
@@ -33,7 +32,6 @@ func (c Radix4Client)  RedisScript (ctx context.Context, script red.RedisScript)
 	}
 	result = red.Result{
 		IsNil: data.Null,
-		IsEmpty: data.Empty,
 	}
 	return
 }
