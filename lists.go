@@ -164,7 +164,7 @@ type LRANGE struct {
 	Start int
 	Stop int
 }
-func (data LRANGE) Do(ctx context.Context, doer Doer) (list []string,  err error) {
+func (data LRANGE) Do(ctx context.Context, doer Doer) (list []string, isEmpty bool,  err error) {
 	cmd := "LRANGE"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
@@ -173,9 +173,12 @@ func (data LRANGE) Do(ctx context.Context, doer Doer) (list []string,  err error
 	_, err = doer.RedisCommand(ctx, &list, args) ; if err != nil {
 		return
 	}
+	if len(list) == 0 {
+		isEmpty = true
+	}
 	// 防止有人使用不严谨的 slice 空值比较 list == nil
 	if len(list) ==0 {
-		return nil, err
+		list = nil
 	}
 	return
 }

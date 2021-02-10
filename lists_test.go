@@ -13,15 +13,15 @@ func TestLRANGE_Do(t *testing.T) {
 	key := "test_list_lrange"
 	_=key
 	{
-		_ ,err := red.LRANGE{}.Do(ctx, Test{t, ""})
+		_ ,_,err := red.LRANGE{}.Do(ctx, Test{t, ""})
 		assert.EqualError(t, err, "goclub/redis(ERR_EMPTY_KEY) LRANGE  key is empty")
 	}
 	{
-		_ ,err := red.LRANGE{Key: key}.Do(ctx, Test{t, "LRANGE test_list_lrange 0 0"})
+		_, _ ,err := red.LRANGE{Key: key}.Do(ctx, Test{t, "LRANGE test_list_lrange 0 0"})
 		assert.NoError(t, err)
 	}
 	{
-		_ ,err := red.LRANGE{key, 1, -1}.Do(ctx, Test{t, "LRANGE test_list_lrange 1 -1"})
+		_, _ ,err := red.LRANGE{key, 1, -1}.Do(ctx, Test{t, "LRANGE test_list_lrange 1 -1"})
 		assert.NoError(t, err)
 	}
 	{
@@ -29,51 +29,59 @@ func TestLRANGE_Do(t *testing.T) {
 		_, err := red.DEL{Key: key}.Do(ctx, radixClient)
 		assert.NoError(t, err)
 		// LRANGE key 0 -1
-		list, err := red.LRANGE{key, 0, -1}.Do(ctx, radixClient)
+		list,isEmpty, err := red.LRANGE{key, 0, -1}.Do(ctx, radixClient)
 		assert.NoError(t, err)
+		assert.Equal(t, isEmpty, true)
 		assert.Equal(t, list, []string(nil))
 		// LPUSH key a
 		_, err = red.LPUSH{Key: key, Value: "a"}.Do(ctx, radixClient)
 		assert.NoError(t, err)
 		// LRANGE key 0 -1
-		list, err = red.LRANGE{key, 0, -1}.Do(ctx, radixClient)
+		list,isEmpty,  err = red.LRANGE{key, 0, -1}.Do(ctx, radixClient)
 		assert.NoError(t, err)
+		assert.Equal(t, isEmpty, false)
 		assert.Equal(t, list, []string{"a"})
 		
 		// LPUSH key b
 		_, err = red.LPUSH{Key: key, Value: "b"}.Do(ctx, radixClient)
 		assert.NoError(t, err)
 		// LRANGE key 0 -1
-		list, err = red.LRANGE{key, 0, -1}.Do(ctx, radixClient)
+		list, isEmpty, err = red.LRANGE{key, 0, -1}.Do(ctx, radixClient)
 		assert.NoError(t, err)
+		assert.Equal(t, isEmpty, false)
 		assert.Equal(t, list, []string{"b", "a"})
 		
 		// LRANGE key -1 -1
-		list, err = red.LRANGE{key, -1, -1}.Do(ctx, radixClient)
+		list, isEmpty, err = red.LRANGE{key, -1, -1}.Do(ctx, radixClient)
 		assert.NoError(t, err)
+		assert.Equal(t, isEmpty, false)
 		assert.Equal(t, list, []string{"a"})
 		
 		// LRANGE key -1 -1
-		list, err = red.LRANGE{key, 0, 0}.Do(ctx, radixClient)
+		list, isEmpty, err = red.LRANGE{key, 0, 0}.Do(ctx, radixClient)
 		assert.NoError(t, err)
+		assert.Equal(t, isEmpty, false)
 		assert.Equal(t, list, []string{"b"})
 		
 		// LPUSH key c b
 		_, err = red.LPUSH{Key: key, Values: []string{"c", "d"}}.Do(ctx, radixClient)
 		assert.NoError(t, err)
 		// LRANGE key 0 -1
-		list, err = red.LRANGE{key, 0, -1}.Do(ctx, radixClient)
+		list, isEmpty, err = red.LRANGE{key, 0, -1}.Do(ctx, radixClient)
 		assert.NoError(t, err)
+		assert.Equal(t, isEmpty, false)
 		assert.Equal(t, list, []string{"d", "c", "b", "a"})
 		
 		// LRANGE key 10 10
-		list, err = red.LRANGE{key, 10, 10}.Do(ctx, radixClient)
+		list, isEmpty, err = red.LRANGE{key, 10, 10}.Do(ctx, radixClient)
 		assert.NoError(t, err)
+		assert.Equal(t, isEmpty, false)
 		assert.Equal(t, list, []string(nil))
 		
 		// LRANGE key 10 4
-		list, err = red.LRANGE{key, 10, 4}.Do(ctx, radixClient)
+		list,isEmpty, err = red.LRANGE{key, 10, 4}.Do(ctx, radixClient)
 		assert.NoError(t, err)
+		assert.Equal(t, isEmpty, true)
 		assert.Equal(t, list, []string(nil))
 		
 	}
