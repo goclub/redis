@@ -3,6 +3,8 @@ module github.com/goclub/redis
 go 1.15
 
 require (
+	github.com/goclub/conv v0.0.0-20201224033411-596024c98152
+	github.com/goclub/test v0.0.0-20210209034415-7bb016d51915
 	github.com/google/uuid v1.2.0
 	github.com/mediocregopher/radix/v4 v4.0.0-beta.1
 	github.com/pkg/errors v0.9.1
