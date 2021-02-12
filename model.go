@@ -25,13 +25,13 @@ func coreStructToFieldValue(rValue reflect.Value, fieldValues *[]FieldValue) err
 			continue
 		}
 		rItem := rValue.Field(i)
-		var value string
-		if structField.Type.Kind() == reflect.String {
-			value = rItem.String()
-		} else if valuer, asValuer := rItem.Interface().(Valuer) ; asValuer {
-			value = valuer.RedisValue()
-		} else {
-			return errors.New("goclub/redis:" + structField.Type.Name() + " not string or not implements red.Valuer")
+		value, convErr := func () (string, error) {
+			if valuer, asValuer := rItem.Interface().(Valuer) ; asValuer {
+				return valuer.RedisValue(), nil
+			}
+			return xconv.ReflectToString(rItem)
+		}() ; if convErr != nil {
+			return errors.New("goclub/redis: not string or not implements red.Valuer")
 		}
 		*fieldValues = append(*fieldValues, FieldValue{
 			Field: tag,
@@ -79,8 +79,8 @@ func coreStructScan(rValue reflect.Value, rType reflect.Type, values []string, l
 				return err
 			}
 		} else {
-			err := xconv.StringReflect(value, rItem) ; if err != nil {
-				return err
+			err := xconv.StringToReflect(value, rItem) ; if err != nil {
+				return errors.New("goclub/redis: not string or not implements red.Scanner")
 			}
 		}
 		*offset++

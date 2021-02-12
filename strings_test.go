@@ -77,6 +77,7 @@ func TestDEL_Do(t *testing.T) {
 		err := red.SET{
 			Key: name,
 			Value: "a",
+			NeverExpire: true,
 		}.Do(context.TODO(), radixClient)
 		assert.NoError(t, err)
 		delCount, err := red.DEL{

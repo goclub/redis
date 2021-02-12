@@ -30,7 +30,7 @@ func TestStructToFieldValue(t *testing.T) {
 	{
 		type Data struct {
 			Name string `redis:"name"`
-			Age string
+			Age int
 			UserName string
 			Data *Data
 		}
@@ -47,12 +47,12 @@ func TestStructToFieldValue(t *testing.T) {
 		}
 		type Data struct {
 			Name string `redis:"name"`
-			Age string `redis:"age"`
+			Age int `redis:"age"`
 			Sub Sub
 		}
 		data := Data{
 			Name:"nimo",
-			Age: "18",
+			Age: 18,
 			Sub: Sub{Like: "read"},
 		}
 		fieldValues, err := StructToFieldValue(data)
@@ -63,12 +63,12 @@ func TestStructToFieldValue(t *testing.T) {
 
 		type Data struct {
 			Name string `redis:"name"`
-			Age string `redis:"age"`
+			Age float64 `redis:"age"`
 			AB AB `redis:"ab"`
 		}
 		data := Data{
 			Name:"nimo",
-			Age: "18",
+			Age: 18,
 			AB: AB{"1","2"},
 		}
 		fieldValues, err := StructToFieldValue(data)

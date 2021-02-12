@@ -3,6 +3,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/goclub/conv v0.0.0-20201224033411-596024c98152 h1:+KKy4IOUO3k/rHVXhOd+KjoO3MH5jhnEuM/Bb51jkFA=
 github.com/goclub/conv v0.0.0-20201224033411-596024c98152/go.mod h1:EiGolkdGkICc05+NQxJga7yGnjzyNewox3gvc5mQN4w=
+github.com/goclub/conv v0.0.0-20210212151006-bf351eebad9d h1:OlX7mW06CXqhy5UV8XHmrXViKv5eozanYbSyLBW5U54=
+github.com/goclub/conv v0.0.0-20210212151006-bf351eebad9d/go.mod h1:iAu2C+UiczzPo2c9enIIzM5xeLbvpbpPw8bzmL4xt80=
 github.com/goclub/test v0.0.0-20210209034415-7bb016d51915 h1:rbWHKEXnpuFZbCk4yFHJbM7JxP19eVHQygmMlkXuUp8=
 github.com/goclub/test v0.0.0-20210209034415-7bb016d51915/go.mod h1:iaoSHMK0wKp8Ja5PL/hHKJDvx1nBQnn0tV1cvMX4hMw=
 github.com/google/uuid v1.2.0 h1:qJYtXnJRWmpe7m/3XlyhrsLrEURqHRM2kxzoxXqyUDs=
