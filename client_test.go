@@ -2,16 +2,17 @@ package red_test
 
 import (
 	"context"
+	red "github.com/goclub/redis"
 	"github.com/mediocregopher/radix/v4"
 )
 
-var radixClient red.Radix4Client
+var radixClient red.DriverRadixClient4
 func init () {
 	ctx := context.Background()
 	client, err := (radix.PoolConfig{}).New(ctx, "tcp", "127.0.0.1:6379") ; if err != nil {
 		panic(err)
 	}
-	radixClient = red.Radix4Client{client}
+	radixClient = red.DriverRadixClient4{Core: client}
 }
 // func TestNewClient(t *testing.T) {
 // 	ctx := context.Background()

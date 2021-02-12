@@ -22,7 +22,7 @@ func TestGET_Do(t *testing.T) {
 		assert.EqualError(t, err, "goclub/redis: GET{} Key cannot be empty")
 	}
 	{// GET empty key
-		err := radixClient.Do(context.TODO(), radix.Cmd(nil, "DEL", name))
+		err := radixClient.Core.Do(context.TODO(), radix.Cmd(nil, "DEL", name))
 		assert.NoError(t, err)
 		value,hasValue, err := red.GET{Key:name}.Do(context.TODO(), radixClient)
 		assert.Equal(t, value, "")
@@ -30,7 +30,7 @@ func TestGET_Do(t *testing.T) {
 		assert.NoError(t, err)
 	}
 	{// GET valid key
-		err := radixClient.Do(context.TODO(), radix.Cmd(nil, "SET", name, "abc"))
+		err := radixClient.Core.Do(context.TODO(), radix.Cmd(nil, "SET", name, "abc"))
 		assert.NoError(t, err)
 		value,hasValue, err := red.GET{Key:name}.Do(context.TODO(), radixClient)
 		assert.Equal(t, value, "abc")
@@ -39,7 +39,7 @@ func TestGET_Do(t *testing.T) {
 	}
 	{// GET invalid valid key
 		listKey := "test_get_list"
-		err := radixClient.Do(context.TODO(), radix.Cmd(nil, "LPUSH", listKey, "mysql", "mongodb"))
+		err := radixClient.Core.Do(context.TODO(), radix.Cmd(nil, "LPUSH", listKey, "mysql", "mongodb"))
 		assert.NoError(t, err)
 		value,hasValue, err := red.GET{Key:listKey}.Do(context.TODO(), radixClient)
 		assert.Equal(t, value, "")
@@ -118,7 +118,7 @@ func TestDECR_Do(t *testing.T) {
 		assert.EqualError(t, err, "goclub/redis: DECR{} Key cannot be empty")
 	}
 	{// DECR empty key
-		err := radixClient.Do(context.TODO(), radix.Cmd(nil, "DEL", name))
+		err := radixClient.Core.Do(context.TODO(), radix.Cmd(nil, "DEL", name))
 		assert.NoError(t, err)
 		value, err := red.DECR{Key:name}.Do(context.TODO(), radixClient)
 		assert.Equal(t, value, int64(-1))
@@ -126,7 +126,7 @@ func TestDECR_Do(t *testing.T) {
 	}
 	{// DECR valid key
 		validKey := "test_valid_decr"
-		err := radixClient.Do(context.TODO(), radix.Cmd(nil, "SET", validKey, "100"))
+		err := radixClient.Core.Do(context.TODO(), radix.Cmd(nil, "SET", validKey, "100"))
 		assert.NoError(t, err)
 		value, err := red.DECR{Key:validKey}.Do(context.TODO(), radixClient)
 		assert.Equal(t, value, int64(99))
@@ -134,7 +134,7 @@ func TestDECR_Do(t *testing.T) {
 	}
 	{// DECR invalid key
 		invalidKey := "test_invalid_decr"
-		err := radixClient.Do(context.TODO(), radix.Cmd(nil, "SET", invalidKey, "234293482390480948029348230948"))
+		err := radixClient.Core.Do(context.TODO(), radix.Cmd(nil, "SET", invalidKey, "234293482390480948029348230948"))
 		assert.NoError(t, err)
 		value, err := red.DECR{Key:invalidKey}.Do(context.TODO(), radixClient)
 		assert.Equal(t, value, int64(0))
@@ -156,7 +156,7 @@ func TestINCR_Do(t *testing.T) {
 		assert.EqualError(t, err, "goclub/redis: INCR{} Key cannot be empty")
 	}
 	{// INCR empty key
-		err := radixClient.Do(context.TODO(), radix.Cmd(nil, "DEL", name))
+		err := radixClient.Core.Do(context.TODO(), radix.Cmd(nil, "DEL", name))
 		assert.NoError(t, err)
 		value, err := red.INCR{Key:name}.Do(context.TODO(), radixClient)
 		assert.Equal(t, value, int64(1))
@@ -164,7 +164,7 @@ func TestINCR_Do(t *testing.T) {
 	}
 	{// INCR valid key
 		validKey := "test_valid_INCR"
-		err := radixClient.Do(context.TODO(), radix.Cmd(nil, "SET", validKey, "100"))
+		err := radixClient.Core.Do(context.TODO(), radix.Cmd(nil, "SET", validKey, "100"))
 		assert.NoError(t, err)
 		value, err := red.INCR{Key:validKey}.Do(context.TODO(), radixClient)
 		assert.Equal(t, value, int64(101))
@@ -172,7 +172,7 @@ func TestINCR_Do(t *testing.T) {
 	}
 	{// INCR invalid key
 		invalidKey := "test_invalid_INCR"
-		err := radixClient.Do(context.TODO(), radix.Cmd(nil, "SET", invalidKey, "234293482390480948029348230948"))
+		err := radixClient.Core.Do(context.TODO(), radix.Cmd(nil, "SET", invalidKey, "234293482390480948029348230948"))
 		assert.NoError(t, err)
 		value, err := red.INCR{Key:invalidKey}.Do(context.TODO(), radixClient)
 		assert.Equal(t, value, int64(0))
