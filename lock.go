@@ -17,10 +17,28 @@ type Mutex struct {
 	doer Doer
 }
 
-
-func (data *Mutex) Unlock (ctx context.Context) (unlockOk bool ,err error) {
+func AsErrUnlock(err error) (unlockErr *ErrUnlock, asErrUnlock bool) {
+	ok = errors.As(err, &unlockErr)
+	return
+}
+type ErrUnlock struct {
+	IsTimeout bool
+	IsUnexpectedError bool
+	IsConnectErr bool
+	Err error
+}
+func (e ErrUnlock) Error() string {
+	return e.Err.Error()
+}
+func (e ErrUnlock) Unwrap() error {
+	return e.Err
+}
+func (data *Mutex) Unlock (ctx context.Context) (err error) {
 	if data.startTime.After(time.Now().Add(data.Expire)) {
-		return false, nil
+		return &ErrUnlock{
+			IsTimeout: true,
+			Err: errors.New("goclub/redis: IsTimeout Mutex{}.Unlock() key:" + data.Key  + " is timeout"),
+		}
 	}
 	var delCount uint
 	script := `
@@ -37,15 +55,24 @@ end
 		Keys: []string{data.Key},
 		Args: []string{data.lockValue},
 	}) ; if err != nil {
-		return
+		return &ErrUnlock{
+			IsConnectErr: true,
+			Err: err,
+		}
 	}
 	switch delCount {
 	case 0:
-		return false, nil
+		return &ErrUnlock{
+			IsTimeout: true,
+			Err: errors.New("goclub/redis: IsTimeout Mutex{}.Unlock() key:" + data.Key  + " is timeout"),
+		}
 	case 1:
-		return true, nil
+		return nil
 	default:
-		return false, errors.New("del count:" + strconv.Itoa(int(delCount)))
+		return &ErrUnlock{
+			IsUnexpectedError: true,
+			Err: errors.New("goclub/redis: IsUnexpectedError Mutex{}.Unlock() del " + data.Key + " count:" + strconv.Itoa(int(delCount))),
+		}
 	}
 }
 func (data *Mutex) Lock(ctx context.Context, doer Doer) ( ok bool, err error) {

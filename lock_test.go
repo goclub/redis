@@ -36,15 +36,12 @@ func MutexAction(i int) {
 		return
 	}
 	log.Print(i, "业务操作")
-	unlockOk, err :=  mutex.Unlock(context.TODO()) ; if err != nil {
-		log.Print(i, err)
+	err =  mutex.Unlock(context.TODO()) ; if err != nil {
+		log.Print(i, "解锁失败", err)
 		return
 	}
-	if unlockOk == false {
-		log.Print(i, "撤销业务操作")
-	} else {
-		log.Print(i, "解锁成功")
-	}
+	log.Print(i, "解锁成功")
+
 }
 func TestMutex_Lock(t *testing.T) {
 	_, err := red.DEL{Key:"test_mutex_list"}.Do(context.TODO(), radixClient) ; if err != nil {
