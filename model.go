@@ -17,7 +17,7 @@ func coreStructToFieldValue(rValue reflect.Value, fieldValues *[]FieldValue) err
 	rType := rValue.Type()
 	for i:=0;i<rType.NumField();i++ {
 		structField := rType.Field(i)
-		tag, ok := structField.Tag.Lookup("redis")
+		tag, ok := structField.Tag.Lookup("red")
 		if structField.Type.Kind() == reflect.Struct && ok == false {
 			return coreStructToFieldValue(rValue.Field(i), fieldValues)
 		}
@@ -26,12 +26,13 @@ func coreStructToFieldValue(rValue reflect.Value, fieldValues *[]FieldValue) err
 		}
 		rItem := rValue.Field(i)
 		value, convErr := func () (string, error) {
-			if valuer, asValuer := rItem.Interface().(Valuer) ; asValuer {
-				return valuer.RedisValue(), nil
+			if valuer, asValuer := rItem.Interface().(Marshaler) ; asValuer {
+				data, err := valuer.MarshalText()
+				return string(data), err
 			}
 			return xconv.ReflectToString(rItem)
 		}() ; if convErr != nil {
-			return errors.New("goclub/redis: not string or not implements red.Valuer")
+			return errors.New("goclub/redis: name:" + structField.Name + " kind:" +structField.Type.Kind().String() + " not string or not implements red.Marshaler")
 		}
 		*fieldValues = append(*fieldValues, FieldValue{
 			Field: tag,
@@ -60,7 +61,7 @@ func coreStructScan(rValue reflect.Value, rType reflect.Type, values []string, l
 	}
 	for i:=0;i<rType.NumField();i++ {
 		structField := rType.Field(i)
-		_, ok := structField.Tag.Lookup("redis")
+		_, ok := structField.Tag.Lookup("red")
 		if structField.Type.Kind() == reflect.Struct && ok == false {
 			rItem := rValue.Field(i)
 			return coreStructScan(rItem, rItem.Type(), values, length, offset)
@@ -74,13 +75,11 @@ func coreStructScan(rValue reflect.Value, rType reflect.Type, values []string, l
 		if rItem.CanAddr() {
 			rItemAddr = rItem.Addr()
 		}
-		if scaner, asScaner := rItemAddr.Interface().(Scanner); asScaner {
-			err := scaner.RedisScan(value) ; if err != nil {
-				return err
-			}
+		if scaner, asScaner := rItemAddr.Interface().(Unmarshaler); asScaner {
+			scaner.UnmarshalText([]byte(value))
 		} else {
 			err := xconv.StringToReflect(value, rItem) ; if err != nil {
-				return errors.New("goclub/redis: not string or not implements red.Scanner")
+				return errors.New("goclub/redis: name:" + structField.Name + " kind:" +structField.Type.Kind().String() + " not string or not implements red.Unmarshaler")
 			}
 		}
 		*offset++
@@ -88,9 +87,10 @@ func coreStructScan(rValue reflect.Value, rType reflect.Type, values []string, l
 	return nil
 }
 
-type Scanner interface {
-	RedisScan(value string) error
+type Unmarshaler interface {
+	UnmarshalText(data []byte) error
 }
-type Valuer interface {
-	RedisValue() string
+type Marshaler interface {
+	MarshalText() ([]byte, error)
 }
+
