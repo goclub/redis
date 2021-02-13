@@ -13,8 +13,8 @@ type InvalidType struct {
 	} `red:"some"`
 }
 type AB struct {
-	A string
-	B string
+	A string `red:"testA"`
+	B string `red:"testB"`
 }
 
 func (data AB) MarshalText() ([]byte, error) {
@@ -28,7 +28,7 @@ func (data *AB) UnmarshalText(b []byte) error {
 	data.B = string(runes[1])
 	return nil
 }
-func TestStructToFieldValue(t *testing.T) {
+func TestStructToFieldValues(t *testing.T) {
 	{
 		type Data struct {
 			Name string `red:"name"`
@@ -39,9 +39,12 @@ func TestStructToFieldValue(t *testing.T) {
 		data := Data {
 			Name: "nimo",
 		}
-		fieldValues, err := StructToFieldValue(data)
+		fieldValues, err := StructToFieldValues(data)
 		assert.NoError(t, err)
 		assert.Equal(t, fieldValues, []FieldValue{{"name","nimo"}})
+		fields, err := StructToFields(data)
+		assert.NoError(t, err)
+		assert.Equal(t, fields, []string{"name"})
 	}
 	{
 		type Sub struct {
@@ -57,9 +60,12 @@ func TestStructToFieldValue(t *testing.T) {
 			Age: 18,
 			Sub: Sub{Like: "read"},
 		}
-		fieldValues, err := StructToFieldValue(data)
+		fieldValues, err := StructToFieldValues(data)
 		assert.NoError(t, err)
 		assert.Equal(t, fieldValues, []FieldValue{{"name","nimo"},{"age","18"},{"like","read"}})
+		fields, err := StructToFields(data)
+		assert.NoError(t, err)
+		assert.Equal(t, fields, []string{"name", "age", "like"})
 	}
 	{
 
@@ -73,12 +79,15 @@ func TestStructToFieldValue(t *testing.T) {
 			Age: 18,
 			AB: AB{"1","2"},
 		}
-		fieldValues, err := StructToFieldValue(data)
+		fieldValues, err := StructToFieldValues(data)
 		assert.NoError(t, err)
 		assert.Equal(t, fieldValues, []FieldValue{{"name","nimo"},{"age","18"}, {"ab", "12"}})
+		fields, err := StructToFields(data)
+		assert.NoError(t, err)
+		assert.Equal(t, fields, []string{"name","age","ab"})
 	}
 	{
-		_, err := StructToFieldValue(InvalidType{})
+		_, err := StructToFieldValues(InvalidType{})
 		assert.EqualError(t, err, "goclub/redis: name:Some kind:struct not string or not implements red.Marshaler")
 	}
 	{
@@ -92,9 +101,12 @@ func TestStructToFieldValue(t *testing.T) {
 			}
 			err := data.Time.UnmarshalText([]byte("2021-02-13T00:00:00+08:00"))
 			assert.NoError(t, err)
-			fieldValues, err := StructToFieldValue(data)
+			fieldValues, err := StructToFieldValues(data)
 			assert.NoError(t, err)
 			assert.Equal(t, fieldValues, []FieldValue{{"time","2021-02-13T00:00:00+08:00",}})
+			fields, err := StructToFields(data)
+			assert.NoError(t, err)
+			assert.Equal(t, fields, []string{"time"})
 		}
 	}
 }

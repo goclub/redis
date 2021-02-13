@@ -6,20 +6,43 @@ import (
 	"reflect"
 )
 
-func StructToFieldValue(v interface{}) (fieldValues []FieldValue, err error)  {
+func StructToFields(v interface{}) (fields []string, err error) {
 	rValue := reflect.ValueOf(v)
-	err = coreStructToFieldValue(rValue, &fieldValues) ; if err != nil {
+	err = coreStructToFields(rValue, &fields) ; if err != nil {
 		return
 	}
 	return
 }
-func coreStructToFieldValue(rValue reflect.Value, fieldValues *[]FieldValue) error {
+func coreStructToFields(rValue reflect.Value, fields *[]string) error {
 	rType := rValue.Type()
 	for i:=0;i<rType.NumField();i++ {
 		structField := rType.Field(i)
 		tag, ok := structField.Tag.Lookup("red")
 		if structField.Type.Kind() == reflect.Struct && ok == false {
-			return coreStructToFieldValue(rValue.Field(i), fieldValues)
+			return coreStructToFields(rValue.Field(i), fields)
+		}
+		if ok == false {
+			continue
+		}
+		*fields = append(*fields, tag)
+	}
+	return nil
+}
+
+func StructToFieldValues(v interface{}) (fieldValues []FieldValue, err error)  {
+	rValue := reflect.ValueOf(v)
+	err = coreStructToFieldValues(rValue, &fieldValues) ; if err != nil {
+		return
+	}
+	return
+}
+func coreStructToFieldValues(rValue reflect.Value, fieldValues *[]FieldValue) error {
+	rType := rValue.Type()
+	for i:=0;i<rType.NumField();i++ {
+		structField := rType.Field(i)
+		tag, ok := structField.Tag.Lookup("red")
+		if structField.Type.Kind() == reflect.Struct && ok == false {
+			return coreStructToFieldValues(rValue.Field(i), fieldValues)
 		}
 		if ok == false {
 			continue
