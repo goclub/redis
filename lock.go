@@ -18,7 +18,7 @@ type Mutex struct {
 }
 
 func AsErrUnlock(err error) (unlockErr *ErrUnlock, asErrUnlock bool) {
-	ok = errors.As(err, &unlockErr)
+	asErrUnlock = errors.As(err, &unlockErr)
 	return
 }
 type ErrUnlock struct {
