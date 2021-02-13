@@ -28,7 +28,7 @@ func (data *AB) UnmarshalText(b []byte) error {
 	data.B = string(runes[1])
 	return nil
 }
-func TestStructToFieldValues(t *testing.T) {
+func TestStructFieldValues(t *testing.T) {
 	{
 		type Data struct {
 			Name string `red:"name"`
@@ -39,10 +39,10 @@ func TestStructToFieldValues(t *testing.T) {
 		data := Data {
 			Name: "nimo",
 		}
-		fieldValues, err := StructToFieldValues(data)
+		fieldValues, err := StructFieldValues(data)
 		assert.NoError(t, err)
 		assert.Equal(t, fieldValues, []FieldValue{{"name","nimo"}})
-		fields, err := StructToFields(data)
+		fields, err := StructFields(data)
 		assert.NoError(t, err)
 		assert.Equal(t, fields, []string{"name"})
 	}
@@ -60,10 +60,10 @@ func TestStructToFieldValues(t *testing.T) {
 			Age: 18,
 			Sub: Sub{Like: "read"},
 		}
-		fieldValues, err := StructToFieldValues(data)
+		fieldValues, err := StructFieldValues(data)
 		assert.NoError(t, err)
 		assert.Equal(t, fieldValues, []FieldValue{{"name","nimo"},{"age","18"},{"like","read"}})
-		fields, err := StructToFields(data)
+		fields, err := StructFields(data)
 		assert.NoError(t, err)
 		assert.Equal(t, fields, []string{"name", "age", "like"})
 	}
@@ -79,15 +79,15 @@ func TestStructToFieldValues(t *testing.T) {
 			Age: 18,
 			AB: AB{"1","2"},
 		}
-		fieldValues, err := StructToFieldValues(data)
+		fieldValues, err := StructFieldValues(data)
 		assert.NoError(t, err)
 		assert.Equal(t, fieldValues, []FieldValue{{"name","nimo"},{"age","18"}, {"ab", "12"}})
-		fields, err := StructToFields(data)
+		fields, err := StructFields(data)
 		assert.NoError(t, err)
 		assert.Equal(t, fields, []string{"name","age","ab"})
 	}
 	{
-		_, err := StructToFieldValues(InvalidType{})
+		_, err := StructFieldValues(InvalidType{})
 		assert.EqualError(t, err, "goclub/redis: name:Some kind:struct not string or not implements red.Marshaler")
 	}
 	{
@@ -101,10 +101,10 @@ func TestStructToFieldValues(t *testing.T) {
 			}
 			err := data.Time.UnmarshalText([]byte("2021-02-13T00:00:00+08:00"))
 			assert.NoError(t, err)
-			fieldValues, err := StructToFieldValues(data)
+			fieldValues, err := StructFieldValues(data)
 			assert.NoError(t, err)
 			assert.Equal(t, fieldValues, []FieldValue{{"time","2021-02-13T00:00:00+08:00",}})
-			fields, err := StructToFields(data)
+			fields, err := StructFields(data)
 			assert.NoError(t, err)
 			assert.Equal(t, fields, []string{"time"})
 		}
