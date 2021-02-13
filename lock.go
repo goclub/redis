@@ -27,10 +27,11 @@ type ErrUnlock struct {
 	IsConnectErr bool
 	Err error
 }
-func (e ErrUnlock) Error() string {
+// 自定义错误的 Error 方法一定要加 (*Errxxx) 原因：https://github.com/goclub/error
+func (e *ErrUnlock) Error() string {
 	return e.Err.Error()
 }
-func (e ErrUnlock) Unwrap() error {
+func (e *ErrUnlock) Unwrap() error {
 	return e.Err
 }
 func (data *Mutex) Unlock (ctx context.Context) (err error) {
