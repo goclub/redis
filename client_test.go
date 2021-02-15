@@ -12,6 +12,8 @@ func init () {
 	client, err := (radix.PoolConfig{}).New(ctx, "tcp", "127.0.0.1:6379") ; if err != nil {
 		panic(err)
 	}
+	// 测试用场景，所以省略 close
+	// client.Close()
 	radixClient = red.DriverRadixClient4{Core: client}
 }
 // func TestNewClient(t *testing.T) {

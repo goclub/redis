@@ -18,3 +18,6 @@ func (test Test) RedisCommand(ctx context.Context, valuePtr interface{}, args []
 func (test Test)  RedisScript (ctx context.Context, script red.RedisScript) (result red.Result, err error){
 	return
 }
+func (test Test)  Close () error{
+	return nil
+}

@@ -3,6 +3,7 @@ package red
 import (
 	"context"
 	"github.com/mediocregopher/radix/v4"
+	"github.com/pkg/errors"
 	"log"
 	"strings"
 )
@@ -45,4 +46,12 @@ func (c DriverRadixClient4)  RedisScript (ctx context.Context, script RedisScrip
 		IsNil: data.Null,
 	}
 	return
+}
+
+
+func (c DriverRadixClient4)  CLose () error {
+	if c.Core == nil {
+		return errors.New("radix client is nil can not close")
+	}
+	return c.Core.Close()
 }
