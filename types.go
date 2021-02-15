@@ -27,3 +27,4 @@ func (data Retry) check() error {
 	}
 	return nil
 }
+

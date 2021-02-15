@@ -11,12 +11,12 @@ import (
 type GET struct {
 	Key string
 }
-func (data GET) Do(ctx context.Context, doer Doer) (value string, hasValue bool ,err error) {
+func (data GET) Do(ctx context.Context, client Client) (value string, hasValue bool ,err error) {
 	if len(data.Key) == 0 {
 		return "",false, errors.New("goclub/redis: GET{} Key cannot be empty")
 	}
 		args := []string{"GET", data.Key}
-	result, err := Command(ctx, doer, &value, args) ; if err != nil {
+	result, err := Command(ctx, client, &value, args) ; if err != nil {
 		return "", false, err
 	}
 	if result.IsNil {
@@ -35,7 +35,7 @@ type SET struct {
 	KeepTTL bool
 	NeverExpire bool
 }
-func (data SET) Do(ctx context.Context, doer Doer) (err error) {
+func (data SET) Do(ctx context.Context, client Client) (err error) {
 	_, err = coreSET{
 		Key: data.Key,
 		Value: data.Value,
@@ -43,7 +43,7 @@ func (data SET) Do(ctx context.Context, doer Doer) (err error) {
 		ExpireAt: data.ExpireAt,
 		NeverExpire: data.NeverExpire,
 		KeepTTL: data.KeepTTL,
-	}.Do(ctx, doer) ; if err != nil {
+	}.Do(ctx, client) ; if err != nil {
 		return
 	}
 	return
@@ -57,7 +57,7 @@ type SETNX struct {
 	KeepTTL bool
 	NeverExpire bool
 }
-func (data SETNX) Do(ctx context.Context, doer Doer) (ok bool,err error) {
+func (data SETNX) Do(ctx context.Context, client Client) (ok bool,err error) {
 	result, err := coreSET{
 		Key: data.Key,
 		Value: data.Value,
@@ -67,7 +67,7 @@ func (data SETNX) Do(ctx context.Context, doer Doer) (ok bool,err error) {
 		KeepTTL: data.KeepTTL,
 		NeverExpire: data.NeverExpire,
 		NX: true,
-	}.Do(ctx, doer) ; if err != nil {
+	}.Do(ctx, client) ; if err != nil {
 		return
 	}
 	if result.IsNil {
@@ -86,7 +86,7 @@ type SETXX struct {
 	KeepTTL bool
 	NeverExpire bool
 }
-func (data SETXX) Do(ctx context.Context, doer Doer) (ok bool,err error) {
+func (data SETXX) Do(ctx context.Context, client Client) (ok bool,err error) {
 	result, err := coreSET{
 		Key: data.Key,
 		Value: data.Value,
@@ -95,7 +95,7 @@ func (data SETXX) Do(ctx context.Context, doer Doer) (ok bool,err error) {
 		KeepTTL: data.KeepTTL,
 		NeverExpire: data.NeverExpire,
 		XX: true,
-	}.Do(ctx, doer) ; if err != nil {
+	}.Do(ctx, client) ; if err != nil {
 		return
 	}
 	if result.IsNil {
@@ -116,7 +116,7 @@ type coreSET struct {
 	XX bool
 }
 var ErrSetForgetTimeToLive = errors.New("goclub/redis: red.SET maybe you forget set field Expire or ExpireAt or KeepTTL")
-func (data coreSET) Do(ctx context.Context, doer Doer) (result Result,err error) {
+func (data coreSET) Do(ctx context.Context, client Client) (result Result,err error) {
 	if len(data.Key) == 0 {
 		return result, errors.New("goclub/redis: SET{} Key cannot be empty")
 	}
@@ -142,22 +142,22 @@ func (data coreSET) Do(ctx context.Context, doer Doer) (result Result,err error)
 	if data.XX {
 		args = append(args, "XX")
 	}
-	return Command(ctx, doer, nil, args)
+	return Command(ctx, client, nil, args)
 }
 type DEL struct {
 	Key string
 	Keys []string
 }
-func (data DEL) Do(ctx context.Context, doer Doer) (delCount uint, err error) {
+func (data DEL) Do(ctx context.Context, client Client) (delCount uint, err error) {
 	args := []string{"DEL"}
-	if len(data.Key) != 0 {
+	if data.Key != "" {
 		data.Keys = append(data.Keys, data.Key)
 	}
 	if len(data.Keys) == 0 {
 		return 0, errors.New("goclub/redis: DEL{} Keys cannot be empty")
 	}
 	args = append(args, data.Keys...)
-	_, err = Command(ctx, doer, &delCount, args) ; if err != nil {
+	_, err = Command(ctx, client, &delCount, args) ; if err != nil {
 		return
 	}
 	return
@@ -168,12 +168,12 @@ func (data DEL) Do(ctx context.Context, doer Doer) (delCount uint, err error) {
 type DECR struct {
 	Key string
 }
-func (data DECR) Do(ctx context.Context, doer Doer) (value int64 ,err error) {
+func (data DECR) Do(ctx context.Context, client Client) (value int64 ,err error) {
 	if len(data.Key) == 0 {
 		return 0, errors.New("goclub/redis: DECR{} Key cannot be empty")
 	}
 	args := []string{"DECR", data.Key}
-	_, err = Command(ctx, doer, &value, args) ; if err != nil {
+	_, err = Command(ctx, client, &value, args) ; if err != nil {
 		return 0, err
 	}
 	return
@@ -181,12 +181,12 @@ func (data DECR) Do(ctx context.Context, doer Doer) (value int64 ,err error) {
 type INCR struct {
 	Key string
 }
-func (data INCR) Do(ctx context.Context, doer Doer) (value int64 ,err error) {
+func (data INCR) Do(ctx context.Context, client Client) (value int64 ,err error) {
 	if len(data.Key) == 0 {
 		return 0, errors.New("goclub/redis: INCR{} Key cannot be empty")
 	}
 	args := []string{"INCR", data.Key}
-	_, err = Command(ctx, doer, &value, args) ; if err != nil {
+	_, err = Command(ctx, client, &value, args) ; if err != nil {
 		return 0, err
 	}
 	return

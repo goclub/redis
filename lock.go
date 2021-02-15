@@ -14,7 +14,7 @@ type Mutex struct {
 	Retry Retry
 	startTime time.Time
 	lockValue string
-	doer Doer
+	client Client
 }
 
 func AsErrUnlock(err error) (unlockErr *ErrUnlock, asErrUnlock bool) {
@@ -50,7 +50,7 @@ else
 	return 0
 end
 `
-	_, err = data.doer.RedisScript(ctx, RedisScript{
+	_, err = data.client.RedisScript(ctx, RedisScript{
 		ValuePtr: &delCount,
 		Script: script,
 		Keys: []string{data.Key},
@@ -76,23 +76,23 @@ end
 		}
 	}
 }
-func (data *Mutex) Lock(ctx context.Context, doer Doer) ( ok bool, err error) {
+func (data *Mutex) Lock(ctx context.Context, client Client) ( ok bool, err error) {
 	err = data.Retry.check() ; if err != nil {
 		return
 	}
 	retryCount := int(data.Retry.Times)
-	return mutexLock(ctx, doer, data, &retryCount)
+	return mutexLock(ctx, client, data, &retryCount)
 }
 
-func mutexLock(ctx context.Context, doer Doer, data *Mutex, retryCount *int) (ok bool, err error) {
+func mutexLock(ctx context.Context, client Client, data *Mutex, retryCount *int) (ok bool, err error) {
 	data.startTime = time.Now() // start time 必须在 SETNX 之前记录,否则会在SETNX 延迟时候导致时间错误
-	data.doer = doer
+	data.client = client
 	data.lockValue = uuid.NewString()
 	ok, err = SETNX{
 		Key: data.Key,
 		Value: data.lockValue,
 		Expire: data.Expire,
-	}.Do(ctx, doer) ; if err != nil {
+	}.Do(ctx, client) ; if err != nil {
 		return
 	}
 	if ok == false {
@@ -101,7 +101,7 @@ func mutexLock(ctx context.Context, doer Doer, data *Mutex, retryCount *int) (ok
 			return
 		}
 		time.Sleep(data.Retry.Duration)
-		return mutexLock(ctx, doer, data, retryCount)
+		return mutexLock(ctx, client, data, retryCount)
 	}
 	return
 }

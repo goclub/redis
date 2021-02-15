@@ -8,13 +8,13 @@ type HGET struct {
 	Key string
 	Field string
 }
-func (data HGET) Do(ctx context.Context, doer Doer) (value string, has bool, err error) {
+func (data HGET) Do(ctx context.Context, client Client) (value string, has bool, err error) {
 	cmd := "HGET"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
 	}
 	args := []string{cmd, data.Key, data.Field}
-	result, err := Command(ctx, doer, &value, args) ; if err != nil {
+	result, err := Command(ctx, client, &value, args) ; if err != nil {
 		return
 	}
 	if result.IsNil == false {
@@ -26,14 +26,14 @@ type HMGET struct {
 	Key string
 	Fields []string
 }
-func (data HMGET) Do(ctx context.Context, doer Doer) (values []string, err error) {
+func (data HMGET) Do(ctx context.Context, client Client) (values []string, err error) {
 	cmd := "HMGET"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
 	}
 	args := []string{cmd, data.Key}
 	args = append(args, data.Fields...)
-	_, err = Command(ctx, doer, &values, args) ; if err != nil {
+	_, err = Command(ctx, client, &values, args) ; if err != nil {
 		return
 	}
 	return
@@ -51,7 +51,7 @@ type FieldValue struct {
 	Value string
 }
 
-func (data HSET) Do(ctx context.Context, doer Doer) (added uint, err error) {
+func (data HSET) Do(ctx context.Context, client Client) (added uint, err error) {
 	cmd := "HSET"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
@@ -66,7 +66,7 @@ func (data HSET) Do(ctx context.Context, doer Doer) (added uint, err error) {
 		}
 		args = append(args, sets...)
 	}
-	_, err = Command(ctx, doer, &added, args) ; if err != nil {
+	_, err = Command(ctx, client, &added, args) ; if err != nil {
 		return
 	}
 	return

@@ -13,7 +13,7 @@ func TestHSET_Do(t *testing.T) {
 	_=key
 	{
 		_,err := red.HSET{}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis(ERR_EMPTY_KEY) HSET  key is empty")
+		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) HSET Key is empty")
 	}
 	{
 		_, err := red.HSET{Key: key, Field:"field", Value:"value"}.Do(ctx, Test{t, "HSET test_hset field value"})

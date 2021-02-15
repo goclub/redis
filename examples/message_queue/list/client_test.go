@@ -35,7 +35,7 @@ func (c radixClient)  RedisScript (ctx context.Context, script red.RedisScript) 
 	return
 }
 
-func NewClient() (red.Doer, error) {
+func NewClient() (red.Client, error) {
 	coreClient, err := (radix.PoolConfig{}).New(context.TODO(), "tcp", "127.0.0.1:6379") ; if err != nil {
 		return nil, err
 	}

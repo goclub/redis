@@ -11,7 +11,7 @@ type LPUSH struct {
 	Value string
 	Values []string
 }
-func (data LPUSH) Do(ctx context.Context, doer Doer) (length uint, err error) {
+func (data LPUSH) Do(ctx context.Context, client Client) (length uint, err error) {
 	cmd := "LPUSH"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
@@ -20,7 +20,7 @@ func (data LPUSH) Do(ctx context.Context, doer Doer) (length uint, err error) {
 		data.Values = append(data.Values, data.Value)
 	}
 	args := append([]string{cmd, data.Key}, data.Values...)
-	_, err = Command(ctx, doer, &length, args) ; if err != nil {
+	_, err = Command(ctx, client, &length, args) ; if err != nil {
 		return
 	}
 	return
@@ -30,7 +30,7 @@ type LPUSHX struct {
 	Value string
 	Values []string
 }
-func (data LPUSHX) Do(ctx context.Context, doer Doer) (length uint, err error) {
+func (data LPUSHX) Do(ctx context.Context, client Client) (length uint, err error) {
 	cmd := "LPUSHX"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
@@ -39,7 +39,7 @@ func (data LPUSHX) Do(ctx context.Context, doer Doer) (length uint, err error) {
 		data.Values = append(data.Values, data.Value)
 	}
 	args := append([]string{cmd, data.Key}, data.Values...)
-	_, err = Command(ctx, doer, &length, args) ; if err != nil {
+	_, err = Command(ctx, client, &length, args) ; if err != nil {
 		return
 	}
 	return
@@ -49,7 +49,7 @@ type RPUSH struct {
 	Value string
 	Values []string
 }
-func (data RPUSH) Do(ctx context.Context, doer Doer) (length uint, err error) {
+func (data RPUSH) Do(ctx context.Context, client Client) (length uint, err error) {
 	cmd := "RPUSH"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
@@ -58,7 +58,7 @@ func (data RPUSH) Do(ctx context.Context, doer Doer) (length uint, err error) {
 		data.Values = append(data.Values, data.Value)
 	}
 	args := append([]string{cmd, data.Key}, data.Values...)
-	_, err = Command(ctx, doer, &length, args) ; if err != nil {
+	_, err = Command(ctx, client, &length, args) ; if err != nil {
 		return
 	}
 	return
@@ -68,7 +68,7 @@ type RPUSHX struct {
 	Value string
 	Values []string
 }
-func (data RPUSHX) Do(ctx context.Context, doer Doer) (length uint, err error) {
+func (data RPUSHX) Do(ctx context.Context, client Client) (length uint, err error) {
 	cmd := "RPUSHX"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
@@ -77,7 +77,7 @@ func (data RPUSHX) Do(ctx context.Context, doer Doer) (length uint, err error) {
 		data.Values = append(data.Values, data.Value)
 	}
 	args := append([]string{cmd, data.Key}, data.Values...)
-	_, err = Command(ctx, doer, &length, args) ; if err != nil {
+	_, err = Command(ctx, client, &length, args) ; if err != nil {
 		return
 	}
 	return
@@ -86,14 +86,14 @@ func (data RPUSHX) Do(ctx context.Context, doer Doer) (length uint, err error) {
 type LPOP struct {
 	Key string
 }
-func (data LPOP) Do(ctx context.Context, doer Doer) (value string, isNil bool, err error) {
+func (data LPOP) Do(ctx context.Context, client Client) (value string, isNil bool, err error) {
 	cmd := "LPOP"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
 	}
 	args := []string{cmd, data.Key}
 	var result Result
-	result, err = Command(ctx, doer, &value, args) ; if err != nil {
+	result, err = Command(ctx, client, &value, args) ; if err != nil {
 		return
 	}
 	isNil = result.IsNil
@@ -104,7 +104,7 @@ type LPOPCount struct {
 	Key string
 	Count uint
 }
-func (data LPOPCount) Do(ctx context.Context, doer Doer) (list []string, isNil bool, err error) {
+func (data LPOPCount) Do(ctx context.Context, client Client) (list []string, isNil bool, err error) {
 	cmd := "LPOP"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
@@ -115,7 +115,7 @@ func (data LPOPCount) Do(ctx context.Context, doer Doer) (list []string, isNil b
 	}
 	args := []string{cmd, data.Key, strconv.FormatUint(uint64(data.Count), 10)}
 	var result Result
-	result, err = Command(ctx, doer, &list, args) ; if err != nil {
+	result, err = Command(ctx, client, &list, args) ; if err != nil {
 		return
 	}
 	isNil = result.IsNil
@@ -124,14 +124,14 @@ func (data LPOPCount) Do(ctx context.Context, doer Doer) (list []string, isNil b
 type RPOP struct {
 	Key string
 }
-func (data RPOP) Do(ctx context.Context, doer Doer) (value string, isNil bool, err error) {
+func (data RPOP) Do(ctx context.Context, client Client) (value string, isNil bool, err error) {
 	cmd := "RPOP"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
 	}
 	args := []string{cmd, data.Key}
 	var result Result
-	result, err = Command(ctx, doer, &value, args) ; if err != nil {
+	result, err = Command(ctx, client, &value, args) ; if err != nil {
 		return
 	}
 	isNil = result.IsNil
@@ -142,7 +142,7 @@ type RPOPCount struct {
 	Key string
 	Count uint
 }
-func (data RPOPCount) Do(ctx context.Context, doer Doer) (list []string, isNil bool, err error) {
+func (data RPOPCount) Do(ctx context.Context, client Client) (list []string, isNil bool, err error) {
 	cmd := "RPOP"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
@@ -153,7 +153,7 @@ func (data RPOPCount) Do(ctx context.Context, doer Doer) (list []string, isNil b
 	}
 	args := []string{cmd, data.Key, strconv.FormatUint(uint64(data.Count), 10)}
 	var result Result
-	result, err = Command(ctx, doer, &list, args) ; if err != nil {
+	result, err = Command(ctx, client, &list, args) ; if err != nil {
 		return
 	}
 	isNil = result.IsNil
@@ -164,13 +164,13 @@ type LRANGE struct {
 	Start int
 	Stop int
 }
-func (data LRANGE) Do(ctx context.Context, doer Doer) (list []string, isEmpty bool,  err error) {
+func (data LRANGE) Do(ctx context.Context, client Client) (list []string, isEmpty bool,  err error) {
 	cmd := "LRANGE"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
 	}
 	args := []string{cmd, data.Key, strconv.Itoa(data.Start), strconv.Itoa(data.Stop)}
-	_, err = Command(ctx, doer, &list, args) ; if err != nil {
+	_, err = Command(ctx, client, &list, args) ; if err != nil {
 		return
 	}
 	if len(list) == 0 {
@@ -190,7 +190,7 @@ type BRPOPLPUSH struct {
 type ResultBRPOPLPUSH struct {
 	Element string
 }
-func (data BRPOPLPUSH) Do(ctx context.Context, doer Doer) (value string, isNil bool, err error) {
+func (data BRPOPLPUSH) Do(ctx context.Context, client Client) (value string, isNil bool, err error) {
 	cmd := "BRPOPLPUSH"
 	err = checkKey(cmd, "Source", data.Source) ; if err != nil {
 		return
@@ -198,7 +198,7 @@ func (data BRPOPLPUSH) Do(ctx context.Context, doer Doer) (value string, isNil b
 	err = checkKey(cmd, "Destination", data.Destination) ; if err != nil {
 		return
 	}
-	doResult, err := Command(ctx, doer, &value, []string{cmd, data.Source, data.Destination, data.Timeout.String(),}) ; if err != nil {
+	doResult, err := Command(ctx, client, &value, []string{cmd, data.Source, data.Destination, data.Timeout.String(),}) ; if err != nil {
 		return
 	}
 	if doResult.IsNil {

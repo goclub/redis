@@ -16,8 +16,11 @@ func checkDuration(command string, arg string, duration time.Duration) error {
 	return nil
 }
 func checkKey(command string, arg string, key string) error {
+	if arg == "" {
+		arg = "Key"
+	}
 	if len(key) == 0 {
-		return errors.New(strings.Join([]string{"goclub/redis(ERR_EMPTY_KEY)" , command ,  arg ,"key is empty"}, " "))
+		return errors.New(strings.Join([]string{"goclub/redis(ERR_FORGET_ARGS)" , command , arg ,"is empty"}, " "))
 	}
 	return nil
 }
