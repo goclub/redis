@@ -17,6 +17,7 @@ func PublishUserSignInMessage(ctx context.Context, radixClient red.DriverRadixCl
 	data, err  := red.StructFieldValues(mqdata) ; if err != nil {
 		return
 	}
+	radixClient.DebugOnce()
 	streamID, err := red.XADD{
 		Key: mqdata.StreamKey(),
 		FieldValues:data,

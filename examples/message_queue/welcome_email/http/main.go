@@ -20,19 +20,19 @@ func Handle(router *xhttp.Router, radixClient red.DriverRadixClient4) {
 		query := c.Request.URL.Query()
 		name := query.Get("name")
 		if name == "" { name = "anonymous" + strconv.FormatInt(time.Now().Unix(), 10) }
-		examplesMQEmail.SyncSendEmail(name)
+		examplesMQEmail.SendEmail(name)
 		return c.WriteBytes([]byte("hello " + name +" (synchronous send email)"))
 	})
 	router.HandleFunc(xhttp.Pattern{"GET", "/use_message_queue"}, func(c *xhttp.Context) (reject error) {
 		ctx := c.RequestContext()
 		query := c.Request.URL.Query()
 		name := query.Get("name")
+		if name == "" { name = "anonymous" + strconv.FormatInt(time.Now().Unix(), 10) }
 		// 消息队列还有一个作用就是解耦，用户模块发布注册消息。
 		// 邮件，短信等模块订阅。这样即使后续增加欢迎短信，用户模块也不需要修改代码。
 		reject = examplesMQUser.PublishUserSignInMessage(ctx, radixClient, name) ; if reject != nil {
 			return
 		}
-		if name == "" { name = "anonymous" + strconv.FormatInt(time.Now().Unix(), 10) }
 		return c.WriteBytes([]byte("hello " + name +" (message queue send email)"))
 	})
 }
