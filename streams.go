@@ -6,6 +6,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type StreamID struct {
@@ -87,6 +88,76 @@ func (data XADD) Do(ctx context.Context, client Client) (streamID StreamID, err 
 	}
 	return
 }
+type QueryStream struct {
+	Key string
+	ID string
+}
+type XREAD struct {
+	Streams []QueryStream
+	Block time.Duration
+	Count uint
+}
+func (data XREAD) Do(ctx context.Context, client Client, streamEntryEntrySlicePtr interface{}) (err error) {
+	cmd := "XREAD"
+	if len(data.Streams) == 0 {
+		return errors.New("goclub/redis: XREAD Streams can not be empty")
+	}
+	args := []string{cmd}
+	if data.Count != 0 {
+		args = append(args, "COUNT", strconv.FormatUint(uint64(data.Count), 10))
+	}
+	if data.Block != 0 {
+		args = append(args, "BLOCK", strconv.FormatInt(data.Block.Milliseconds(), 10))
+	}
+	// STREAMS 必须是最后一个选项
+	args = append(args, "STREAMS")
+	var streamKeyList []string
+	var idList []string
+	for _, keyID := range data.Streams {
+		streamKeyList = append(streamKeyList, keyID.Key)
+		idList = append(idList, keyID.ID)
+	}
+	args = append(args, streamKeyList...)
+	args = append(args, idList...)
+	_, err = Command(ctx, client, streamEntryEntrySlicePtr, args) ; if err != nil {
+
+		return
+	}
+	return
+}
+// XTRIM key MAXLEN|MINID [=|~] threshold [LIMIT count]
+type XTRIM struct {
+	Key string
+	MaxLen OptionUint
+	Tilde bool
+	// >= 6.2: Added the MINID trimming strategy and the LIMIT option.
+	MinID string
+	// >= 6.2: Added the MINID trimming strategy and the LIMIT option.
+	LIMIT OptionUint
+}
+func (data XTRIM) Do(ctx context.Context, client Client) (delCount uint, err error) {
+	cmd := "XTRIM"
+	err = checkKey(cmd, "", data.Key) ; if err != nil {
+		return
+	}
+	args := []string{cmd, data.Key}
+	if data.MaxLen.valid {
+		args = append(args, "MAXLEN")
+		if data.Tilde {
+			args = append(args, "~")
+		}
+		args = append(args, strconv.FormatUint(uint64(data.MaxLen.uint), 10))
+		if data.LIMIT.valid {
+			args = append(args, "LIMIT", strconv.FormatUint(uint64(data.LIMIT.uint), 10))
+		}
+	} else if data.MinID != "" {
+		args = append(args, "MINID", data.MinID)
+	}
+	_, err = Command(ctx, client, &delCount, args) ; if err != nil {
+		return
+	}
+	return
+}
 // Available since 5.0.0.
 type XLEN struct {
 	Key string
@@ -144,6 +215,68 @@ func (data XDEL) Do(ctx context.Context, client Client) (delCount uint, err erro
 	args := []string{cmd, data.Key}
 	args = append(args, data.StreamID...)
 	_, err = Command(ctx, client, &delCount, args) ; if err != nil {
+		return
+	}
+	return
+}
+
+type XGROUPCreate struct {
+	Key string
+	Group string
+	ID string
+}
+func (data XGROUPCreate) Do(ctx context.Context, client Client) (err error) {
+	cmd := "XGROUP"
+	err = checkKey(cmd, "CREATE key", data.Key) ; if err != nil {
+		return
+	}
+	err = checkKey(cmd, "CREATE group name", data.Group) ; if err != nil {
+		return
+	}
+	err = checkKey(cmd, "CREATE id", data.ID) ; if err != nil {
+		return
+	}
+	args := []string{cmd, "CREATE", data.Key, data.Group, data.ID}
+	_, err = Command(ctx, client, nil, args) ; if err != nil {
+		return
+	}
+	return
+}
+type StartEndCount struct {
+	Start string
+	End string
+	Count uint64
+}
+type XPEDING struct {
+	Key string
+	Group string
+	IDLE OptionDuration
+	StartEndCount StartEndCount
+	Count uint64
+	Consumer string
+}
+
+func (data XPEDING) Do(ctx context.Context, client Client, streamEntryEntrySlicePtr interface{}) (err error) {
+	cmd := "XPEDING"
+	err = checkKey(cmd, "Key", data.Key) ; if err != nil {
+		return
+	}
+	err = checkKey(cmd, "group", data.Group) ; if err != nil {
+		return
+	}
+
+	args := []string{cmd, data.Key, data.Group}
+	if data.IDLE.valid {
+		args = append(args, "IDLE", strconv.FormatInt(data.IDLE.Unwrap().Milliseconds(), 10))
+	}
+	if data.StartEndCount.Start != "" {
+		countString := strconv.FormatUint(data.StartEndCount.Count, 10)
+		args = append(args, data.StartEndCount.Start, data.StartEndCount.End, countString)
+	}
+	if data.Consumer != "" {
+		args = append(args, data.Consumer)
+	}
+	_, err = Command(ctx, client, streamEntryEntrySlicePtr, args) ; if err != nil {
 		return
 	}
 	return

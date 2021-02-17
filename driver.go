@@ -49,7 +49,7 @@ func (c DriverRadixClient4)  RedisScript (ctx context.Context, script RedisScrip
 }
 
 
-func (c DriverRadixClient4)  CLose () error {
+func (c DriverRadixClient4)  Close () error {
 	if c.Core == nil {
 		return errors.New("radix client is nil can not close")
 	}

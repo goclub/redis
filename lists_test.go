@@ -14,7 +14,7 @@ func TestLRANGE_Do(t *testing.T) {
 	_=key
 	{
 		_ ,_,err := red.LRANGE{}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) LRANGE Key is empty")
+		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) LRANGE Key can not be empty")
 	}
 	{
 		_, _ ,err := red.LRANGE{Key: key}.Do(ctx, Test{t, "LRANGE test_list_lrange 0 0"})
@@ -91,7 +91,7 @@ func TestLPUSH_Do(t *testing.T) {
 	key := "test_list_lpush"
 	{
 		_, err := red.LPUSH{}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err , "goclub/redis(ERR_FORGET_ARGS) LPUSH Key is empty")
+		assert.EqualError(t, err , "goclub/redis(ERR_FORGET_ARGS) LPUSH Key can not be empty")
 	}
 	{
 		_, err := red.LPUSH{Key: key, Value: "a"}.Do(ctx, Test{t, "LPUSH test_list_lpush a"})
@@ -141,7 +141,7 @@ func TestLPUSHX_Do(t *testing.T) {
 	key := "test_list_lpushx"
 	{
 		_, err := red.LPUSHX{}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err , "goclub/redis(ERR_FORGET_ARGS) LPUSHX Key is empty")
+		assert.EqualError(t, err , "goclub/redis(ERR_FORGET_ARGS) LPUSHX Key can not be empty")
 	}
 	{
 		_, err := red.LPUSHX{Key: key, Value: "a"}.Do(ctx, Test{t, "LPUSHX test_list_lpushx a"})
@@ -204,7 +204,7 @@ func TestRPUSH_Do(t *testing.T) {
 	key := "test_list_rpush"
 	{
 		_, err := red.RPUSH{}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err , "goclub/redis(ERR_FORGET_ARGS) RPUSH Key is empty")
+		assert.EqualError(t, err , "goclub/redis(ERR_FORGET_ARGS) RPUSH Key can not be empty")
 	}
 	{
 		_, err := red.RPUSH{Key: key, Value: "a"}.Do(ctx, Test{t, "RPUSH test_list_rpush a"})
@@ -254,7 +254,7 @@ func TestRPUSHX_Do(t *testing.T) {
 	key := "test_list_rpushx"
 	{
 		_, err := red.RPUSHX{}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err , "goclub/redis(ERR_FORGET_ARGS) RPUSHX Key is empty")
+		assert.EqualError(t, err , "goclub/redis(ERR_FORGET_ARGS) RPUSHX Key can not be empty")
 	}
 	{
 		_, err := red.RPUSHX{Key: key, Value: "a"}.Do(ctx, Test{t, "RPUSHX test_list_rpushx a"})
@@ -317,7 +317,7 @@ func TestLPOP_Do(t *testing.T) {
 	key := "test_list_lpop"
 	{
 		_,isNil, err := red.LPOP{}.Do(ctx, Test{})
-		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) LPOP Key is empty")
+		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) LPOP Key can not be empty")
 		assert.Equal(t, isNil, false)
 	}
 	{
@@ -383,7 +383,7 @@ func TestRPOP_Do(t *testing.T) {
 	key := "test_list_rpop"
 	{
 		_,isNil, err := red.RPOP{}.Do(ctx, Test{})
-		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) RPOP Key is empty")
+		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) RPOP Key can not be empty")
 		assert.Equal(t, isNil, false)
 	}
 	{
@@ -453,14 +453,14 @@ func TestBRPOPLPUSH_Do(t *testing.T) {
 			Destination: "dest",
 			Timeout: red.Second{1},
 		}.Do(context.TODO(), Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) BRPOPLPUSH Source is empty")
+		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) BRPOPLPUSH Source can not be empty")
 	}
 	{
 		_, _, err := red.BRPOPLPUSH{
 			Source: "src",
 			Destination: "",
 		}.Do(context.TODO(), Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) BRPOPLPUSH Destination is empty")
+		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) BRPOPLPUSH Destination can not be empty")
 	}
 	{
 		_, _, err := red.BRPOPLPUSH{

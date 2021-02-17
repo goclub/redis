@@ -20,7 +20,7 @@ func checkKey(command string, arg string, key string) error {
 		arg = "Key"
 	}
 	if len(key) == 0 {
-		return errors.New(strings.Join([]string{"goclub/redis(ERR_FORGET_ARGS)" , command , arg ,"is empty"}, " "))
+		return errors.New(strings.Join([]string{"goclub/redis(ERR_FORGET_ARGS)" , command , arg ,"can not be empty"}, " "))
 	}
 	return nil
 }

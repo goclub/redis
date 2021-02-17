@@ -2,6 +2,7 @@ package red
 
 import (
 	"context"
+	xtime "github.com/goclub/time"
 	"github.com/pkg/errors"
 	"strconv"
 	"time"
@@ -126,12 +127,11 @@ func (data coreSET) Do(ctx context.Context, client Client) (result Result,err er
 		return Result{}, ErrSetForgetTimeToLive
 	}
 	if data.Expire != 0 {
-		px := strconv.FormatInt(int64(data.Expire / time.Millisecond), 10)
+		px := strconv.FormatInt(data.Expire.Milliseconds(), 10)
 		args = append(args, "PX", px)
 	}
 	if data.ExpireAt.IsZero() == false {
-		timestampMilliseconds := data.ExpireAt.UnixNano() / int64(time.Millisecond)
-		args = append(args, "PXAT", strconv.FormatInt(timestampMilliseconds, 10))
+		args = append(args, "PXAT", strconv.FormatInt(xtime.UnixMilli(data.ExpireAt), 10))
 	}
 	if data.KeepTTL {
 		args = append(args, "KEEPTTL")
