@@ -97,7 +97,7 @@ type XREAD struct {
 	Block time.Duration
 	Count uint
 }
-func (data XREAD) Do(ctx context.Context, client Client, streamEntryEntrySlicePtr interface{}) (err error) {
+func (data XREAD) Do(ctx context.Context, client Client, streamEntrySlicePtr interface{}) (err error) {
 	cmd := "XREAD"
 	if len(data.Streams) == 0 {
 		return errors.New("goclub/redis: XREAD Streams can not be empty")
@@ -119,7 +119,7 @@ func (data XREAD) Do(ctx context.Context, client Client, streamEntryEntrySlicePt
 	}
 	args = append(args, streamKeyList...)
 	args = append(args, idList...)
-	_, err = Command(ctx, client, streamEntryEntrySlicePtr, args) ; if err != nil {
+	_, err = Command(ctx, client, streamEntrySlicePtr, args) ; if err != nil {
 
 		return
 	}
@@ -179,7 +179,7 @@ type XRANGE struct {
 	End string
 	Count uint64
 }
-func (data XRANGE) Do(ctx context.Context, client Client, streamEntryEntrySlicePtr interface{}) (err error) {
+func (data XRANGE) Do(ctx context.Context, client Client, streamEntrySlicePtr interface{}) (err error) {
 	cmd := "XRANGE"
 	err = checkKey(cmd, "Key", data.Key) ; if err != nil {
 		return
@@ -194,7 +194,7 @@ func (data XRANGE) Do(ctx context.Context, client Client, streamEntryEntrySliceP
 	if data.Count != 0 {
 		args = append(args, "COUNT", strconv.FormatUint(data.Count, 10))
 	}
-	_, err = Command(ctx, client, streamEntryEntrySlicePtr, args) ; if err != nil {
+	_, err = Command(ctx, client, streamEntrySlicePtr, args) ; if err != nil {
 		return
 	}
 	return
@@ -256,7 +256,7 @@ type XPEDING struct {
 	Consumer string
 }
 
-func (data XPEDING) Do(ctx context.Context, client Client, streamEntryEntrySlicePtr interface{}) (err error) {
+func (data XPEDING) Do(ctx context.Context, client Client, streamEntrySlicePtr interface{}) (err error) {
 	cmd := "XPEDING"
 	err = checkKey(cmd, "Key", data.Key) ; if err != nil {
 		return
@@ -276,7 +276,79 @@ func (data XPEDING) Do(ctx context.Context, client Client, streamEntryEntrySlice
 	if data.Consumer != "" {
 		args = append(args, data.Consumer)
 	}
-	_, err = Command(ctx, client, streamEntryEntrySlicePtr, args) ; if err != nil {
+	_, err = Command(ctx, client, streamEntrySlicePtr, args) ; if err != nil {
+		return
+	}
+	return
+}
+
+type XACK struct {
+	Key string
+	Group string
+	StreamID string
+	StreamIDs []string
+}
+func (data XACK) Do(ctx context.Context, client Client) (ackCount uint64, err error) {
+	cmd := "XACK"
+	err = checkKey(cmd, "Key", data.Key) ; if err != nil {
+		return
+	}
+	err = checkKey(cmd, "group", data.Group) ; if err != nil {
+		return
+	}
+	if data.StreamID != "" {
+		data.StreamIDs = append(data.StreamIDs, data.StreamID)
+	}
+	if len(data.StreamIDs) == 0 {
+		return 0, errors.New("goclub/redis: red.XACK{} StreamID or StreamIDs cannot be empty")
+	}
+	args := []string{cmd, data.Key, data.Group}
+	args = append(args, data.StreamIDs...)
+	_, err = Command(ctx, client, &ackCount, args) ; if err != nil {
+		return
+	}
+	return
+}
+
+type XREADGROUP struct {
+	Group string
+	Consumer string
+	Count uint64
+	Block time.Duration
+	Streams []QueryStream
+}
+
+func (data XREADGROUP) Do(ctx context.Context, client Client, streamEntrySlicePtr interface{}) (err error) {
+	cmd := "XREADGROUP"
+	err = checkKey(cmd, "Key", data.Group) ; if err != nil {
+		return
+	}
+	err = checkKey(cmd, "Group", data.Group) ; if err != nil {
+		return
+	}
+	err = checkKey(cmd, "Consumer", data.Consumer) ; if err != nil {
+		return
+	}
+	if len(data.Streams) == 0 {
+		return errors.New("goclub/redis: red.XREADGROUP{} Streams can not be empty slice")
+	}
+	args := []string{cmd, "GROUP", data.Group, data.Consumer}
+	if data.Count != 0 {
+		args = append(args, "COUNT", strconv.FormatUint(data.Count, 10))
+	}
+	if data.Block != 0 {
+		args = append(args, "BLOCK", strconv.FormatInt(data.Block.Milliseconds(), 10))
+	}
+	args = append(args, "STREAMS")
+	var keys []string
+	var ids []string
+	for _, item := range data.Streams {
+		keys = append(keys, item.Key)
+		ids = append(ids, item.ID)
+	}
+	args = append(args, keys...)
+	args = append(args, ids...)
+	_, err = Command(ctx, client, streamEntrySlicePtr, args) ; if err != nil {
 		return
 	}
 	return
