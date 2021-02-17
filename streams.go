@@ -224,6 +224,7 @@ type XGROUPCreate struct {
 	Key string
 	Group string
 	ID string
+	MKSTREAM bool
 }
 func (data XGROUPCreate) Do(ctx context.Context, client Client) (err error) {
 	cmd := "XGROUP"
@@ -237,6 +238,9 @@ func (data XGROUPCreate) Do(ctx context.Context, client Client) (err error) {
 		return
 	}
 	args := []string{cmd, "CREATE", data.Key, data.Group, data.ID}
+	if data.MKSTREAM {
+		args = append(args, "MKSTREAM")
+	}
 	_, err = Command(ctx, client, nil, args) ; if err != nil {
 		return
 	}
