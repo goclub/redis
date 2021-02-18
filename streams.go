@@ -251,17 +251,16 @@ type StartEndCount struct {
 	End string
 	Count uint64
 }
-type XPEDING struct {
+type XPENDING struct {
 	Key string
 	Group string
 	IDLE OptionDuration
 	StartEndCount StartEndCount
-	Count uint64
 	Consumer string
 }
 
-func (data XPEDING) Do(ctx context.Context, client Client, streamEntrySlicePtr interface{}) (err error) {
-	cmd := "XPEDING"
+func (data XPENDING) Do(ctx context.Context, client Client, streamEntrySlicePtr interface{}) (err error) {
+	cmd := "XPENDING"
 	err = checkKey(cmd, "Key", data.Key) ; if err != nil {
 		return
 	}
