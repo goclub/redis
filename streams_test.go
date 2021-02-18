@@ -202,7 +202,7 @@ func TestXADD_XLEN_XREAD_Do(t *testing.T) {
 	{
 		// XADD
 		streamID, err := red.XADD{
-			Key: key, 
+			Key: key,
 			FieldValues: []red.FieldValue{
 				{"name", "nimoc"},
 			},
@@ -352,7 +352,6 @@ func TestXADD_XLEN_XREAD_Do(t *testing.T) {
 			assert.Equal(t, result[0].Stream, "test_xread_1")
 			assert.Equal(t, len(result[0].Entries), 1)
 			assert.Greater(t, result[0].Entries[0].ID.Time, uint64(1613240335325))
-			assert.Equal(t, result[0].Entries[0].ID.Seq, uint64(0))
 			assert.Equal(t, result[0].Entries[0].Fields, [][2]string([][2]string{[2]string{"name", "1a"}}))
 		}
 		{
@@ -369,13 +368,11 @@ func TestXADD_XLEN_XREAD_Do(t *testing.T) {
 			assert.Equal(t, result[0].Stream, "test_xread_1")
 			assert.Equal(t, len(result[0].Entries), 1)
 			assert.Greater(t, result[0].Entries[0].ID.Time, uint64(1613240335325))
-			assert.Equal(t, result[0].Entries[0].ID.Seq, uint64(0))
 			assert.Equal(t, result[0].Entries[0].Fields, [][2]string([][2]string{[2]string{"name", "1a"}}))
 
 			assert.Equal(t, result[1].Stream, "test_xread_2")
 			assert.Equal(t, len(result[1].Entries), 1)
 			assert.Greater(t, result[1].Entries[0].ID.Time, uint64(1613240335325))
-			assert.Equal(t, result[1].Entries[0].ID.Seq, uint64(0))
 			assert.Equal(t, result[1].Entries[0].Fields, [][2]string([][2]string{[2]string{"name", "2a"}}))
 		}
 	}

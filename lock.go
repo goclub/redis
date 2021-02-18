@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	redScript "github.com/redis-driver/script"
 	"strconv"
 	"time"
 )
@@ -50,7 +51,7 @@ else
 	return 0
 end
 `
-	_, err = data.client.RedisScript(ctx, RedisScript{
+	_, err = data.client.RedisScript(ctx, redScript.Script{
 		ValuePtr: &delCount,
 		Script: script,
 		Keys: []string{data.Key},
