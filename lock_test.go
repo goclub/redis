@@ -21,7 +21,7 @@ func MutexAction(i int) {
 			Duration:time.Millisecond*100,
 		},
 	}
-	lockSuccess, err := mutex.Lock(context.TODO(), radixClient) ; if err != nil {
+	lockSuccess,unlock, err := mutex.Lock(context.TODO(), radixClient) ; if err != nil {
 		log.Print(i, "锁失败")
 		return
 	}
@@ -33,7 +33,7 @@ func MutexAction(i int) {
 		log.Print(i, "锁成功")
 	}
 	log.Print(i, "业务操作")
-	err =  mutex.Unlock(context.TODO()) ; if err != nil {
+	err =  unlock(context.TODO()) ; if err != nil {
 		mutexCount--
 		log.Print(i, "解锁失败:", err)
 		return

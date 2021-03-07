@@ -35,7 +35,7 @@ func (e *ErrUnlock) Error() string {
 func (e *ErrUnlock) Unwrap() error {
 	return e.Err
 }
-func (data *Mutex) Unlock (ctx context.Context) (err error) {
+func (data *Mutex) unlock (ctx context.Context) (err error) {
 	if data.startTime.After(time.Now().Add(data.Expire)) {
 		return &ErrUnlock{
 			IsTimeout: true,
@@ -77,12 +77,14 @@ end
 		}
 	}
 }
-func (data *Mutex) Lock(ctx context.Context, client Client) ( ok bool, err error) {
+func (data *Mutex) Lock(ctx context.Context, client Client) ( ok bool, unlock func(ctx context.Context) (err error), err error) {
 	err = data.Retry.check() ; if err != nil {
 		return
 	}
 	retryCount := int(data.Retry.Times)
-	return mutexLock(ctx, client, data, &retryCount)
+	ok, err = mutexLock(ctx, client, data, &retryCount)
+	unlock = data.unlock
+	return
 }
 
 func mutexLock(ctx context.Context, client Client, data *Mutex, retryCount *int) (ok bool, err error) {
