@@ -180,3 +180,42 @@ func TestINCR_Do(t *testing.T) {
 		assert.EqualError(t, err, "ERR value is not an integer or out of range")
 	}
 }
+
+func TestAPPEND_Do(t *testing.T) {
+	name := "test_append"
+	ctx := context.TODO()
+	{
+		_, err := red.APPEND{Key: "", Value: ""}.Do(ctx, Test{t, ""})
+		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) APPEND Key can not be empty")
+	}
+	{
+		_, err := red.APPEND{Key: name, Value: ""}.Do(ctx, Test{t, ""})
+		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) APPEND Value can not be empty")
+	}
+	{
+		_, err := red.APPEND{Key: name, Value: "1"}.Do(ctx, Test{t, "APPEND test_append 1"})
+		assert.NoError(t, err)
+	}
+	{
+		_, err := red.DEL{Key: name}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+	}
+	{
+		length, err := red.APPEND{Key: name, Value: "1"}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, uint(1), length)
+		value, hasValue, err := red.GET{Key:name}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, hasValue, true)
+		assert.Equal(t, value, "1")
+	}
+	{
+		length, err := red.APPEND{Key: name, Value: "2"}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, uint(2), length)
+		value, hasValue, err := red.GET{Key:name}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, hasValue, true)
+		assert.Equal(t, value, "12")
+	}
+}

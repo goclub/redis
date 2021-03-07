@@ -191,3 +191,23 @@ func (data INCR) Do(ctx context.Context, client Client) (value int64 ,err error)
 	}
 	return
 }
+type APPEND struct {
+	Key string
+	Value string
+}
+func (data APPEND) Do(ctx context.Context, client Client) (length uint, err error) {
+	cmd := "APPEND"
+	err = checkKey(cmd, "", data.Key) ; if err != nil {
+		return
+	}
+	if data.Value == "" {
+		err = checkKey(cmd, "Value", data.Value) ; if err != nil {
+			return
+		}
+	}
+	args := []string{cmd, data.Key, data.Value}
+	_, err = Command(ctx, client, &length, args) ; if err != nil {
+		return
+	}
+	return
+}

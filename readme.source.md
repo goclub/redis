@@ -28,3 +28,14 @@
 > XX
 
 [设置已存在的key,如果不存在返回 false|embed](./examples/strings/set/set_xx_test.go)
+
+## GET
+
+> GET key
+
+[获取value|embed](./examples/strings/get/get_test.go)
+
+## APPEND
+
+> APPEND key
+
