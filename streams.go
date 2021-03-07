@@ -13,7 +13,7 @@ type StreamID struct {
 	UnixMilli uint64
 	Seq uint64
 }
-var ErrInvalidStreamID = errors.New("goclub/redis: invalid stream id")
+var ErrInvalidStreamID = errors.New("goclub/redis:  invalid stream id")
 
 func NewStreamID(s string) (streamID StreamID, err error) {
 	data := strings.Split(s, "-")
@@ -100,7 +100,7 @@ type XREAD struct {
 func (data XREAD) Do(ctx context.Context, client Client, streamEntrySlicePtr interface{}) (err error) {
 	cmd := "XREAD"
 	if len(data.Streams) == 0 {
-		return errors.New("goclub/redis: XREAD Streams can not be empty")
+		return errors.New("goclub/redis:  XREAD Streams can not be empty")
 	}
 	args := []string{cmd}
 	if data.Count != 0 {
@@ -210,7 +210,7 @@ func (data XDEL) Do(ctx context.Context, client Client) (delCount uint, err erro
 		return
 	}
 	if len(data.StreamID) == 0 {
-			return 0, errors.New("goclub/redis: XDEL id cannot be empty")
+			return 0, errors.New("goclub/redis:  XDEL id cannot be empty")
 	}
 	args := []string{cmd, data.Key}
 	args = append(args, data.StreamID...)
@@ -303,7 +303,7 @@ func (data XACK) Do(ctx context.Context, client Client) (ackCount uint64, err er
 		data.StreamIDs = append(data.StreamIDs, data.StreamID)
 	}
 	if len(data.StreamIDs) == 0 {
-		return 0, errors.New("goclub/redis: red.XACK{} StreamID or StreamIDs cannot be empty")
+		return 0, errors.New("goclub/redis:  red.XACK{} StreamID or StreamIDs cannot be empty")
 	}
 	args := []string{cmd, data.Key, data.Group}
 	args = append(args, data.StreamIDs...)
@@ -333,7 +333,7 @@ func (data XREADGROUP) Do(ctx context.Context, client Client, streamEntrySlicePt
 		return
 	}
 	if len(data.Streams) == 0 {
-		return errors.New("goclub/redis: red.XREADGROUP{} Streams can not be empty slice")
+		return errors.New("goclub/redis:  red.XREADGROUP{} Streams can not be empty slice")
 	}
 	args := []string{cmd, "GROUP", data.Group, data.Consumer}
 	if data.Count != 0 {

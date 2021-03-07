@@ -19,7 +19,7 @@ func TestXADD_XLEN_XREAD_Do(t *testing.T) {
 	// 请求前的参数检查
 	{
 		_ ,err := red.XADD{}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) XADD Key can not be empty")
+		assert.EqualError(t, err, "goclub/redis: (ERR_FORGET_ARGS) XADD Key can not be empty")
 	}
 	{
 		_ ,err := red.XADD{Key: key}.Do(ctx, Test{t, ""})
@@ -32,7 +32,7 @@ func TestXADD_XLEN_XREAD_Do(t *testing.T) {
 				{"name", ""},
 			},
 		}.Do(ctx, Test{t, "XADD test_stream * name "})
-		assert.EqualError(t, err, "goclub/redis: invalid stream id")
+		assert.EqualError(t, err, "goclub/redis:  invalid stream id")
 	}
 	{
 		_ ,err := red.XADD{
@@ -41,7 +41,7 @@ func TestXADD_XLEN_XREAD_Do(t *testing.T) {
 				{"name", "nimoc"},
 			},
 		}.Do(ctx, Test{t, "XADD test_stream * name nimoc"})
-		assert.EqualError(t, err, "goclub/redis: invalid stream id")
+		assert.EqualError(t, err, "goclub/redis:  invalid stream id")
 	}
 	{
 		_ ,err := red.XADD{
@@ -51,7 +51,7 @@ func TestXADD_XLEN_XREAD_Do(t *testing.T) {
 				{"age", "18"},
 			},
 		}.Do(ctx, Test{t, "XADD test_stream * name nimoc age 18"})
-		assert.EqualError(t, err, "goclub/redis: invalid stream id")
+		assert.EqualError(t, err, "goclub/redis:  invalid stream id")
 	}
 	{
 		_ ,err := red.XADD{
@@ -61,23 +61,23 @@ func TestXADD_XLEN_XREAD_Do(t *testing.T) {
 				{"age", "18"},
 			},
 		}.Do(ctx, Test{t, "XADD test_stream * name nimoc age 18"})
-		assert.EqualError(t, err, "goclub/redis: invalid stream id")
+		assert.EqualError(t, err, "goclub/redis:  invalid stream id")
 	}
 	{
 		_ ,err := red.XLEN{}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) XLEN Key can not be empty")
+		assert.EqualError(t, err, "goclub/redis: (ERR_FORGET_ARGS) XLEN Key can not be empty")
 	}
 	{
 		err := red.XRANGE{}.Do(ctx, Test{t, ""}, nil)
-		assert.EqualError(t, err, `goclub/redis(ERR_FORGET_ARGS) XRANGE Key can not be empty`)
+		assert.EqualError(t, err, `goclub/redis:(ERR_FORGET_ARGS) XRANGE Key can not be empty`)
 	}
 	{
 		err := red.XRANGE{Key: key}.Do(ctx, Test{t, ""}, nil)
-		assert.EqualError(t, err, `goclub/redis(ERR_FORGET_ARGS) XRANGE Start can not be empty`)
+		assert.EqualError(t, err, `goclub/redis:(ERR_FORGET_ARGS) XRANGE Start can not be empty`)
 	}
 	{
 		err := red.XRANGE{Key: key, Start:"-"}.Do(ctx, Test{t, ""}, nil)
-		assert.EqualError(t, err, `goclub/redis(ERR_FORGET_ARGS) XRANGE End can not be empty`)
+		assert.EqualError(t, err, `goclub/redis:(ERR_FORGET_ARGS) XRANGE End can not be empty`)
 	}
 	{
 		err := red.XRANGE{Key: key, Start:"-", End: "+"}.Do(ctx, Test{t, "XRANGE test_stream - +"}, nil)
@@ -89,11 +89,11 @@ func TestXADD_XLEN_XREAD_Do(t *testing.T) {
 	}
 	{
 		_, err := red.XDEL{}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) XDEL Key can not be empty")
+		assert.EqualError(t, err, "goclub/redis: (ERR_FORGET_ARGS) XDEL Key can not be empty")
 	}
 	{
 		_, err := red.XDEL{Key: key}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis: XDEL id cannot be empty")
+		assert.EqualError(t, err, "goclub/redis:  XDEL id cannot be empty")
 	}
 	{
 		_, err := red.XDEL{Key:key , StreamID: []string{"1538561700640-0"}}.Do(ctx, Test{t, "XDEL test_stream 1538561700640-0"})
@@ -105,7 +105,7 @@ func TestXADD_XLEN_XREAD_Do(t *testing.T) {
 	}
 	{
 		err := red.XREAD{}.Do(ctx, Test{t, ""}, nil)
-		assert.EqualError(t, err, "goclub/redis: XREAD Streams can not be empty")
+		assert.EqualError(t, err, "goclub/redis:  XREAD Streams can not be empty")
 	}
 	{
 		err := red.XREAD{
@@ -149,7 +149,7 @@ func TestXADD_XLEN_XREAD_Do(t *testing.T) {
 	}
 	{
 		_, err := red.XTRIM{}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err , "goclub/redis(ERR_FORGET_ARGS) XTRIM Key can not be empty")
+		assert.EqualError(t, err , "goclub/redis: (ERR_FORGET_ARGS) XTRIM Key can not be empty")
 	}
 	{
 		_, err := red.XTRIM{
@@ -390,7 +390,7 @@ func testStreamID(t *testing.T, streamID red.StreamID) {
 func TestStreamID(t *testing.T) {
 	{
 		_, err := red.NewStreamID("")
-		assert.EqualError(t, err, "goclub/redis: invalid stream id")
+		assert.EqualError(t, err, "goclub/redis:  invalid stream id")
 	}
 	{
 		id, err := red.NewStreamID("1526985054069-0")

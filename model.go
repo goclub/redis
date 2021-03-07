@@ -55,7 +55,7 @@ func coreStructFieldValues(rValue reflect.Value, fieldValues *[]FieldValue) erro
 			}
 			return xconv.ReflectToString(rItem)
 		}() ; if convErr != nil {
-			return errors.New("goclub/redis: name:" + structField.Name + " kind:" +structField.Type.Kind().String() + " not string or not implements red.Marshaler")
+			return errors.New("goclub/redis:  name:" + structField.Name + " kind:" +structField.Type.Kind().String() + " not string or not implements red.Marshaler")
 		}
 		*fieldValues = append(*fieldValues, FieldValue{
 			Field: tag,
@@ -70,7 +70,7 @@ func StructScan(ptr interface{},  values []string) error {
 	rValue := reflect.ValueOf(ptr)
 	rType := rValue.Type()
 	if rType.Kind() != reflect.Ptr {
-		return errors.New("goclub/redis: StructScan(ptr interface{}) ptr must be pointer")
+		return errors.New("goclub/redis:  StructScan(ptr interface{}) ptr must be pointer")
 	}
 	rValue = rValue.Elem()
 	rType = rType.Elem()
@@ -105,7 +105,7 @@ func coreStructScan(rValue reflect.Value, rType reflect.Type, values []string, l
 			}
 		} else {
 			err := xconv.StringToReflect(value, rItem) ; if err != nil {
-				return errors.New("goclub/redis: name:" + structField.Name + " kind:" +structField.Type.Kind().String() + " convert fail or not implements red.Unmarshaler")
+				return errors.New("goclub/redis:  name:" + structField.Name + " kind:" +structField.Type.Kind().String() + " convert fail or not implements red.Unmarshaler")
 			}
 		}
 		*offset++
@@ -127,7 +127,7 @@ func StructScanByField(ptr interface{}, fielder Feilder) error {
 	rValue := reflect.ValueOf(ptr)
 	rType := rValue.Type()
 	if rType.Kind() != reflect.Ptr {
-		return errors.New("goclub/redis: StructScan(ptr interface{}) ptr must be pointer")
+		return errors.New("goclub/redis:  StructScan(ptr interface{}) ptr must be pointer")
 	}
 	rValue = rValue.Elem()
 	rType = rType.Elem()
@@ -151,7 +151,7 @@ func coreStructScanByField(rValue reflect.Value, rType reflect.Type, fielder Fei
 		}
 		rItem := rValue.Field(i)
 		err := xconv.StringToReflect(value, rItem) ; if err != nil {
-			return errors.New("goclub/redis: name:" + structField.Name + " kind:" +structField.Type.Kind().String() + " convert fail" )
+			return errors.New("goclub/redis:  name:" + structField.Name + " kind:" +structField.Type.Kind().String() + " convert fail" )
 		}
 	}
 	return nil

@@ -11,16 +11,19 @@ func checkDuration(command string, arg string, duration time.Duration) error {
 		return nil
 	}
 	if duration < time.Millisecond {
-		return errors.New("goclub/redis:(ERR_DURATION) " + command + " "+ arg + "  can not set " + duration.String() + ", maybe you forget time.Millisecond or time.time.Second")
+		return errors.New("goclub/redis: (ERR_DURATION) " + command + " "+ arg + "  can not set " + duration.String() + ", maybe you forget time.Millisecond or time.time.Second")
 	}
 	return nil
+}
+func errForgetArgs(command string, arg string) error {
+	return errors.New(strings.Join([]string{"goclub/redis: (ERR_FORGET_ARGS)" , command , arg ,"can not be empty"}, " "))
 }
 func checkKey(command string, arg string, key string) error {
 	if arg == "" {
 		arg = "Key"
 	}
 	if len(key) == 0 {
-		return errors.New(strings.Join([]string{"goclub/redis(ERR_FORGET_ARGS)" , command , arg ,"can not be empty"}, " "))
+		return errors.New(strings.Join([]string{"goclub/redis: (ERR_FORGET_ARGS)" , command , arg ,"can not be empty"}, " "))
 	}
 	return nil
 }

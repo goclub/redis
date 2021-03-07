@@ -39,7 +39,7 @@ func (data *Mutex) unlock (ctx context.Context) (err error) {
 	if data.startTime.After(time.Now().Add(data.Expire)) {
 		return &ErrUnlock{
 			IsTimeout: true,
-			Err: errors.New("goclub/redis: IsTimeout Mutex{}.Unlock() key:" + data.Key  + " is timeout"),
+			Err: errors.New("goclub/redis:  IsTimeout Mutex{}.Unlock() key:" + data.Key  + " is timeout"),
 		}
 	}
 	var delCount uint
@@ -66,14 +66,14 @@ end
 	case 0:
 		return &ErrUnlock{
 			IsTimeout: true,
-			Err: errors.New("goclub/redis: IsTimeout Mutex{}.Unlock() key:" + data.Key  + " is timeout"),
+			Err: errors.New("goclub/redis:  IsTimeout Mutex{}.Unlock() key:" + data.Key  + " is timeout"),
 		}
 	case 1:
 		return nil
 	default:
 		return &ErrUnlock{
 			IsUnexpectedError: true,
-			Err: errors.New("goclub/redis: IsUnexpectedError Mutex{}.Unlock() del " + data.Key + " count:" + strconv.Itoa(int(delCount))),
+			Err: errors.New("goclub/redis:  IsUnexpectedError Mutex{}.Unlock() del " + data.Key + " count:" + strconv.Itoa(int(delCount))),
 		}
 	}
 }

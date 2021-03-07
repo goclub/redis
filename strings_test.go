@@ -19,7 +19,7 @@ func TestGET_Do(t *testing.T) {
 		_,_,err := red.GET{
 			Key: "",
 		}.Do(context.TODO(), Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis: GET{} Key cannot be empty")
+		assert.EqualError(t, err, "goclub/redis:  GET{} Key cannot be empty")
 	}
 	{// GET empty key
 		err := radixClient.Core.Do(context.TODO(), radix.Cmd(nil, "DEL", name))
@@ -55,13 +55,13 @@ func TestDEL_Do(t *testing.T) {
 		_, err := red.DEL{
 			Keys: nil,
 		}.Do(context.TODO(), Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis: DEL{} Keys cannot be empty")
+		assert.EqualError(t, err, "goclub/redis:  DEL{} Keys cannot be empty")
 	}
 	{
 		_, err := red.DEL{
 			Keys: []string{},
 		}.Do(context.TODO(), Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis: DEL{} Keys cannot be empty")
+		assert.EqualError(t, err, "goclub/redis:  DEL{} Keys cannot be empty")
 	}
 	{
 		_, _ = red.DEL{
@@ -116,7 +116,7 @@ func TestDECR_Do(t *testing.T) {
 		_,err := red.DECR{
 			Key: "",
 		}.Do(context.TODO(), Test{t, "DECR test_decr"})
-		assert.EqualError(t, err, "goclub/redis: DECR{} Key cannot be empty")
+		assert.EqualError(t, err, "goclub/redis:  DECR{} Key cannot be empty")
 	}
 	{// DECR empty key
 		err := radixClient.Core.Do(context.TODO(), radix.Cmd(nil, "DEL", name))
@@ -154,7 +154,7 @@ func TestINCR_Do(t *testing.T) {
 		_,err := red.INCR{
 			Key: "",
 		}.Do(context.TODO(), Test{t, "INCR test_INCR"})
-		assert.EqualError(t, err, "goclub/redis: INCR{} Key cannot be empty")
+		assert.EqualError(t, err, "goclub/redis:  INCR{} Key cannot be empty")
 	}
 	{// INCR empty key
 		err := radixClient.Core.Do(context.TODO(), radix.Cmd(nil, "DEL", name))
@@ -186,11 +186,11 @@ func TestAPPEND_Do(t *testing.T) {
 	ctx := context.TODO()
 	{
 		_, err := red.APPEND{Key: "", Value: ""}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) APPEND Key can not be empty")
+		assert.EqualError(t, err, "goclub/redis: (ERR_FORGET_ARGS) APPEND Key can not be empty")
 	}
 	{
 		_, err := red.APPEND{Key: name, Value: ""}.Do(ctx, Test{t, ""})
-		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) APPEND Value can not be empty")
+		assert.EqualError(t, err, "goclub/redis: (ERR_FORGET_ARGS) APPEND Value can not be empty")
 	}
 	{
 		_, err := red.APPEND{Key: name, Value: "1"}.Do(ctx, Test{t, "APPEND test_append 1"})
@@ -218,4 +218,45 @@ func TestAPPEND_Do(t *testing.T) {
 		assert.Equal(t, hasValue, true)
 		assert.Equal(t, value, "12")
 	}
+}
+
+
+func TestBIT(t *testing.T) {
+	name := "test_bit"
+	_=name
+	ctx := context.TODO()
+	{
+		_, err := red.GETBIT{Key: ""}.Do(ctx, Test{t, ""})
+		assert.EqualError(t, err, "goclub/redis: (ERR_FORGET_ARGS) GETBIT Key can not be empty")
+	}
+	{
+		_, err := red.GETBIT{Key: name}.Do(ctx, Test{t, ""})
+		assert.EqualError(t, err, "goclub/redis: (ERR_FORGET_ARGS) GETBIT offset can not be empty")
+	}
+	{
+		_, err := red.GETBIT{Key: name, Offset: red.Uint32(0)}.Do(ctx, Test{t, "GETBIT test_bit 0"})
+		assert.NoError(t, err)
+	}
+
+	{
+		_, err := red.SETBIT{Key: ""}.Do(ctx, Test{t, ""})
+		assert.EqualError(t, err, "goclub/redis: (ERR_FORGET_ARGS) SETBIT Key can not be empty")
+	}
+	{
+		_, err := red.SETBIT{Key: name}.Do(ctx, Test{t, ""})
+		assert.EqualError(t, err, "goclub/redis: (ERR_FORGET_ARGS) SETBIT offset can not be empty")
+	}
+	{
+		_, err := red.SETBIT{Key: name, Offset: red.Uint32(0)}.Do(ctx, Test{t, ""})
+		assert.EqualError(t, err, "goclub/redis: (ERR_FORGET_ARGS) SETBIT value can not be empty")
+	}
+	{
+		_, err := red.SETBIT{Key: name, Offset: red.Uint32(0), Value: red.Uint(2)}.Do(ctx, Test{t, ""})
+		assert.EqualError(t, err, "goclub/redis: SETBIT value must be 0 or 1, can not be 2")
+	}
+	{
+		_, err := red.SETBIT{Key: name, Offset: red.Uint32(0), Value: red.Uint(1)}.Do(ctx, Test{t, "SETBIT test_bit 0 1"})
+		assert.NoError(t, err)
+	}
+	
 }

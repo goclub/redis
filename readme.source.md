@@ -2,8 +2,9 @@
 
 > goclub/redis 用于解决一些 go redis 库的接口设计的过于粗糙，导致编写 redis 相关 go 代码像是在写动态语言。
 
+## strings
 
-## SET
+### SET
 
 > SET key value
 
@@ -29,13 +30,15 @@
 
 [设置已存在的key,如果不存在返回 false|embed](./examples/strings/set/set_xx_test.go)
 
-## GET
+### GET
 
 > GET key
 
-[获取value|embed](./examples/strings/get/get_test.go)
+[GET key|embed](./examples/strings/get/get_test.go)
 
-## APPEND
+### APPEND
 
-> APPEND key
+[APPEND key value |embed](./examples/strings/append/append_test.go)
+
+
 

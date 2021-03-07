@@ -14,7 +14,7 @@ type GET struct {
 }
 func (data GET) Do(ctx context.Context, client Client) (value string, hasValue bool ,err error) {
 	if len(data.Key) == 0 {
-		return "",false, errors.New("goclub/redis: GET{} Key cannot be empty")
+		return "",false, errors.New("goclub/redis:  GET{} Key cannot be empty")
 	}
 		args := []string{"GET", data.Key}
 	result, err := Command(ctx, client, &value, args) ; if err != nil {
@@ -116,10 +116,10 @@ type coreSET struct {
 	NX bool
 	XX bool
 }
-var ErrSetForgetTimeToLive = errors.New("goclub/redis: red.SET maybe you forget set field Expire or ExpireAt or KeepTTL")
+var ErrSetForgetTimeToLive = errors.New("goclub/redis:  red.SET maybe you forget set field Expire or ExpireAt or KeepTTL")
 func (data coreSET) Do(ctx context.Context, client Client) (result Result,err error) {
 	if len(data.Key) == 0 {
-		return result, errors.New("goclub/redis: SET{} Key cannot be empty")
+		return result, errors.New("goclub/redis:  SET{} Key cannot be empty")
 	}
 	args := []string{"SET", data.Key, data.Value}
 	// 只有在明确 NeverExpire 时候才允许 Expire 留空
@@ -154,7 +154,7 @@ func (data DEL) Do(ctx context.Context, client Client) (delCount uint, err error
 		data.Keys = append(data.Keys, data.Key)
 	}
 	if len(data.Keys) == 0 {
-		return 0, errors.New("goclub/redis: DEL{} Keys cannot be empty")
+		return 0, errors.New("goclub/redis:  DEL{} Keys cannot be empty")
 	}
 	args = append(args, data.Keys...)
 	_, err = Command(ctx, client, &delCount, args) ; if err != nil {
@@ -170,7 +170,7 @@ type DECR struct {
 }
 func (data DECR) Do(ctx context.Context, client Client) (value int64 ,err error) {
 	if len(data.Key) == 0 {
-		return 0, errors.New("goclub/redis: DECR{} Key cannot be empty")
+		return 0, errors.New("goclub/redis:  DECR{} Key cannot be empty")
 	}
 	args := []string{"DECR", data.Key}
 	_, err = Command(ctx, client, &value, args) ; if err != nil {
@@ -183,7 +183,7 @@ type INCR struct {
 }
 func (data INCR) Do(ctx context.Context, client Client) (value int64 ,err error) {
 	if len(data.Key) == 0 {
-		return 0, errors.New("goclub/redis: INCR{} Key cannot be empty")
+		return 0, errors.New("goclub/redis:  INCR{} Key cannot be empty")
 	}
 	args := []string{"INCR", data.Key}
 	_, err = Command(ctx, client, &value, args) ; if err != nil {
@@ -207,6 +207,53 @@ func (data APPEND) Do(ctx context.Context, client Client) (length uint, err erro
 	}
 	args := []string{cmd, data.Key, data.Value}
 	_, err = Command(ctx, client, &length, args) ; if err != nil {
+		return
+	}
+	return
+}
+
+type GETBIT struct {
+	Key string
+	Offset OptionUint32
+}
+func (data GETBIT) Do(ctx context.Context, client Client) (bit uint8, err error) {
+	cmd := "GETBIT"
+	err = checkKey(cmd, "", data.Key) ; if err != nil {
+		return
+	}
+	if data.Offset.valid == false {
+		return 0, errForgetArgs(cmd, "offset")
+	}
+	args := []string{cmd, data.Key, strconv.FormatUint(uint64(data.Offset.Unwrap()), 10)}
+	_, err = Command(ctx, client, &bit, args) ; if err != nil {
+		return
+	}
+	return
+}
+
+type SETBIT struct {
+	Key string
+	Offset OptionUint32
+	Value OptionUint
+}
+func (data SETBIT) Do(ctx context.Context, client Client) (oldBit uint8, err error) {
+	cmd := "SETBIT"
+	err = checkKey(cmd, "", data.Key) ; if err != nil {
+		return
+	}
+	if data.Offset.valid == false {
+		return 0, errForgetArgs(cmd, "offset")
+	}
+	offset := strconv.FormatUint(uint64(data.Offset.Unwrap()), 10)
+	if data.Value.valid == false {
+		return 0, errForgetArgs(cmd, "value")
+	}
+	value  := strconv.FormatUint(uint64(data.Value.Unwrap()), 10)
+	if value != "0" && value != "1" {
+		return 0, errors.New("goclub/redis: SETBIT value must be 0 or 1, can not be " + value)
+	}
+	args := []string{cmd, data.Key, offset, value}
+	_, err = Command(ctx, client, &oldBit, args) ; if err != nil {
 		return
 	}
 	return

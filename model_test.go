@@ -88,7 +88,7 @@ func TestStructFieldValues(t *testing.T) {
 	}
 	{
 		_, err := StructFieldValues(InvalidType{})
-		assert.EqualError(t, err, "goclub/redis: name:Some kind:struct not string or not implements red.Marshaler")
+		assert.EqualError(t, err, "goclub/redis:  name:Some kind:struct not string or not implements red.Marshaler")
 	}
 	{
 		{
