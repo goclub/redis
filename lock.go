@@ -51,7 +51,7 @@ else
 	return 0
 end
 `
-	_, err = data.client.RedisScript(ctx, redScript.Script{
+	err = data.client.RedisScript(ctx, redScript.Script{
 		ValuePtr: &delCount,
 		Script: script,
 		Keys: []string{data.Key},

@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/mediocregopher/radix/v4 v4.0.0-beta.1
 	github.com/pkg/errors v0.9.1
-	github.com/redis-driver/mediocregopher-radix-v4 v0.0.0-20210218124611-62c8fc4b258b
+	github.com/redis-driver/mediocregopher-radix-v4 v0.0.0-20210326062206-c03f636d077b
 	github.com/redis-driver/script v0.0.0-20210218124209-40ab117c8db3
 	github.com/stretchr/testify v1.7.0
 )
