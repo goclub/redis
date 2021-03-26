@@ -135,16 +135,27 @@ func TestHINCRBY_Do(t *testing.T) {
 	{
 		value, err := red.HINCRBY{Key:key, Field:"user1",Increment: 1}.Do(ctx, radixClient)
 		assert.NoError(t, err)
-		assert.Equal(t, value, uint64(1))
+		assert.Equal(t, value, int64(1))
 	}
 	{
 		value, err := red.HINCRBY{Key:key, Field:"user1",Increment: 1}.Do(ctx, radixClient)
 		assert.NoError(t, err)
-		assert.Equal(t, value, uint64(2))
+		assert.Equal(t, value, int64(2))
 	}
 	{
 		value, err := red.HINCRBY{Key:key, Field:"user1",Increment: 2}.Do(ctx, radixClient)
 		assert.NoError(t, err)
-		assert.Equal(t, value, uint64(4))
+		assert.Equal(t, value, int64(4))
 	}
+	{
+		value, err := red.HINCRBY{Key:key, Field:"user1",Increment: -1}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, value, int64(3))
+	}
+	{
+		value, err := red.HINCRBY{Key:key, Field:"user1",Increment: -5}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, value, int64(-2))
+	}
+
 }

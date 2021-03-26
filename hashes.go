@@ -75,14 +75,14 @@ func (data HSET) Do(ctx context.Context, client Client) (added uint, err error) 
 type HINCRBY struct {
 	Key string
 	Field string
-	Increment uint64
+	Increment int64
 }
-func (data HINCRBY) Do(ctx context.Context, client Client) (value uint64, err error) {
+func (data HINCRBY) Do(ctx context.Context, client Client) (value int64, err error) {
 	cmd := "HINCRBY"
 	err = checkKey(cmd, "", data.Key) ; if err != nil {
 		return
 	}
-	args := []string{cmd, data.Key,data.Field, strconv.FormatUint(data.Increment, 10)}
+	args := []string{cmd, data.Key,data.Field, strconv.FormatInt(data.Increment, 10)}
 	_, err = Command(ctx, client, &value, args) ; if err != nil {
 		return
 	}
