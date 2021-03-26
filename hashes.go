@@ -2,6 +2,7 @@ package red
 
 import (
 	"context"
+	"strconv"
 )
 
 type HGET struct {
@@ -67,6 +68,22 @@ func (data HSET) Do(ctx context.Context, client Client) (added uint, err error) 
 		args = append(args, sets...)
 	}
 	_, err = Command(ctx, client, &added, args) ; if err != nil {
+		return
+	}
+	return
+}
+type HINCRBY struct {
+	Key string
+	Field string
+	Increment uint64
+}
+func (data HINCRBY) Do(ctx context.Context, client Client) (value uint64, err error) {
+	cmd := "HINCRBY"
+	err = checkKey(cmd, "", data.Key) ; if err != nil {
+		return
+	}
+	args := []string{cmd, data.Key,data.Field, strconv.FormatUint(data.Increment, 10)}
+	_, err = Command(ctx, client, &value, args) ; if err != nil {
 		return
 	}
 	return
