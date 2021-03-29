@@ -19,6 +19,8 @@ github.com/redis-driver/mediocregopher-radix-v4 v0.0.0-20210326062206-c03f636d07
 github.com/redis-driver/mediocregopher-radix-v4 v0.0.0-20210326062206-c03f636d077b/go.mod h1:Uch/Gy2YDDuhcp5J+qpZee74V3D71wSNFOEXcx3SmJw=
 github.com/redis-driver/script v0.0.0-20210218124209-40ab117c8db3 h1:SweEkW9v8EXkAk/KTU0h9iTloDWd7nsnmgLdzS/1KSc=
 github.com/redis-driver/script v0.0.0-20210218124209-40ab117c8db3/go.mod h1:2zrX0XkT2R4GdK4kvfgkgem0FyfHdAkfAtrMvckI6js=
+github.com/redis-driver/script v0.0.0-20210329085754-64751f4a28db h1:ht6pKQ2dN0u19WPx6oBAtEBuuLcDFfCTtMLQcVmV1LY=
+github.com/redis-driver/script v0.0.0-20210329085754-64751f4a28db/go.mod h1:2zrX0XkT2R4GdK4kvfgkgem0FyfHdAkfAtrMvckI6js=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.2.2 h1:bSDNvY7ZPG5RlJ8otE/7V6gMiyenm9RtJ7IUVIAoJ1w=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=

@@ -53,9 +53,9 @@ end
 `
 	err = data.client.RedisScript(ctx, redScript.Script{
 		ValuePtr: &delCount,
-		Script: script,
 		Keys: []string{data.Key},
-		Args: []string{data.lockValue},
+		Argv: []string{data.lockValue},
+		Script: script,
 	}) ; if err != nil {
 		return &ErrUnlock{
 			IsConnectErr: true,

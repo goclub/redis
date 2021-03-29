@@ -352,31 +352,31 @@ func TestLPOP_Do(t *testing.T) {
 		assert.Equal(t, isNil, true)
 		assert.Equal(t, value, "")
 	}
-	{
-		// 准备数据
-		_,err := red.DEL{Key: key}.Do(ctx, radixClient)
-		assert.NoError(t, err)
-		_, err = red.RPUSH{Key: key, Values: []string{"a", "b", "c"}}.Do(ctx, radixClient)
-		assert.NoError(t, err)
-		// LPOP key 0
-		_, _, err = red.LPOPCount{Key: key}.Do(ctx, radixClient)
-		assert.EqualError(t, err, "goclub/redis(ERR_COUNT_CAN_NOT_BE_ZERO) LPOPCount{}.Count can not be zero")
-		// LPOP key 2
-		list, isNil, err := red.LPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
-		assert.NoError(t, err)
-		assert.Equal(t, isNil, false)
-		assert.Equal(t, list, []string{"a","b"})
-		// LPOP key 2
-		list, isNil, err = red.LPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
-		assert.NoError(t, err)
-		assert.Equal(t, isNil, false)
-		assert.Equal(t, list, []string{"c"})
-		// LPOP key 2
-		list, isNil, err = red.LPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
-		assert.NoError(t, err)
-		assert.Equal(t, isNil, true)
-		assert.Equal(t, list, []string(nil))
-	}
+	// {
+	// 	// 准备数据
+	// 	_,err := red.DEL{Key: key}.Do(ctx, radixClient)
+	// 	assert.NoError(t, err)
+	// 	_, err = red.RPUSH{Key: key, Values: []string{"a", "b", "c"}}.Do(ctx, radixClient)
+	// 	assert.NoError(t, err)
+	// 	// LPOP key 0
+	// 	_, _, err = red.LPOPCount{Key: key}.Do(ctx, radixClient)
+	// 	assert.EqualError(t, err, "goclub/redis(ERR_COUNT_CAN_NOT_BE_ZERO) LPOPCount{}.Count can not be zero")
+	// 	// LPOP key 2
+	// 	list, isNil, err := red.LPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
+	// 	assert.NoError(t, err)
+	// 	assert.Equal(t, isNil, false)
+	// 	assert.Equal(t, list, []string{"a","b"})
+	// 	// LPOP key 2
+	// 	list, isNil, err = red.LPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
+	// 	assert.NoError(t, err)
+	// 	assert.Equal(t, isNil, false)
+	// 	assert.Equal(t, list, []string{"c"})
+	// 	// LPOP key 2
+	// 	list, isNil, err = red.LPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
+	// 	assert.NoError(t, err)
+	// 	assert.Equal(t, isNil, true)
+	// 	assert.Equal(t, list, []string(nil))
+	// }
 }
 func TestRPOP_Do(t *testing.T) {
 	ctx := context.Background()
@@ -418,31 +418,31 @@ func TestRPOP_Do(t *testing.T) {
 		assert.Equal(t, isNil, true)
 		assert.Equal(t, value, "")
 	}
-	{
-		// 准备数据
-		_,err := red.DEL{Key: key}.Do(ctx, radixClient)
-		assert.NoError(t, err)
-		_, err = red.RPUSH{Key: key, Values: []string{"a", "b", "c"}}.Do(ctx, radixClient)
-		assert.NoError(t, err)
-		// RPOP key 0
-		_, _, err = red.RPOPCount{Key: key}.Do(ctx, radixClient)
-		assert.EqualError(t, err, "goclub/redis(ERR_COUNT_CAN_NOT_BE_ZERO) RPOPCount{}.Count can not be zero")
-		// RPOP key 2
-		list, isNil, err := red.RPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
-		assert.NoError(t, err)
-		assert.Equal(t, isNil, false)
-		assert.Equal(t, list, []string{"c","b"})
-		// RPOP key 2
-		list, isNil, err = red.RPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
-		assert.NoError(t, err)
-		assert.Equal(t, isNil, false)
-		assert.Equal(t, list, []string{"a"})
-		// RPOP key 2
-		list, isNil, err = red.RPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
-		assert.NoError(t, err)
-		assert.Equal(t, isNil, true)
-		assert.Equal(t, list, []string(nil))
-	}
+	// {
+	// 	// 准备数据
+	// 	_,err := red.DEL{Key: key}.Do(ctx, radixClient)
+	// 	assert.NoError(t, err)
+	// 	_, err = red.RPUSH{Key: key, Values: []string{"a", "b", "c"}}.Do(ctx, radixClient)
+	// 	assert.NoError(t, err)
+	// 	// RPOP key 0
+	// 	_, _, err = red.RPOPCount{Key: key}.Do(ctx, radixClient)
+	// 	assert.EqualError(t, err, "goclub/redis(ERR_COUNT_CAN_NOT_BE_ZERO) RPOPCount{}.Count can not be zero")
+	// 	// RPOP key 2
+	// 	list, isNil, err := red.RPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
+	// 	assert.NoError(t, err)
+	// 	assert.Equal(t, isNil, false)
+	// 	assert.Equal(t, list, []string{"c","b"})
+	// 	// RPOP key 2
+	// 	list, isNil, err = red.RPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
+	// 	assert.NoError(t, err)
+	// 	assert.Equal(t, isNil, false)
+	// 	assert.Equal(t, list, []string{"a"})
+	// 	// RPOP key 2
+	// 	list, isNil, err = red.RPOPCount{Key:key, Count: 2}.Do(ctx, radixClient)
+	// 	assert.NoError(t, err)
+	// 	assert.Equal(t, isNil, true)
+	// 	assert.Equal(t, list, []string(nil))
+	// }
 }
 
 func TestBRPOPLPUSH_Do(t *testing.T) {
