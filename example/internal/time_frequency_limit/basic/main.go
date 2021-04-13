@@ -47,12 +47,13 @@ func Limited (ctx context.Context, client red.Connecter, userID string, limitDur
 			local noRecord = recordTime == false
 			-- 如果没有记录，则保存记录并通过
 			if noRecord then
-				redis.call("SET", recordTimeKey, nowMilli)
+				-- 设置PX过期时间，以节省 redis 内存空间。
+				redis.call("SET", recordTimeKey, nowMilli, "PX", limitDurationMilli)
 				return "pass"
 			end
 			-- 当前记录的时间与已存在的时间的间隔大于限制间隔，则保存新记录并返回不限制
 			if nowMilli - recordTime > limitDurationMilli then  
-				redis.call("SET", recordTimeKey, ARGV[1])
+				redis.call("SET", recordTimeKey, nowMilli, "PX", limitDurationMilli)
 				return "pass"
 			end
 			-- 其他情况则限制
