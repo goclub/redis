@@ -1,5 +1,0 @@
-{
-  "scripts": {
-    "doc": "fis3 release -d ./"
-  }
-}
