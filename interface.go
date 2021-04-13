@@ -10,6 +10,6 @@ type Client interface {
 	RedisScript (
 		ctx context.Context,
 		data redScript.Script,
-	) (result struct {IsNil bool}, err error)
+	) (err error)
 	Close () error
 }

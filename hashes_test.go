@@ -111,3 +111,51 @@ func TestHSET_Do(t *testing.T) {
 		assert.Equal(t, values, []string{"nimoc", "18", ""})
 	}
 }
+func TestHINCRBY_Do(t *testing.T) {
+	ctx := context.Background()
+	key := "test_hincrby"
+	_=key
+	{
+		_, err := red.HINCRBY{}.Do(ctx, Test{t, ""})
+		assert.EqualError(t, err, "goclub/redis(ERR_FORGET_ARGS) HINCRBY Key can not be empty")
+	}
+	{
+		_, err := red.HINCRBY{
+			Key:       key,
+			Field:     "user1",
+			Increment: 1,
+		}.Do(ctx, Test{t, "HINCRBY test_hincrby user1 1"})
+		assert.NoError(t, err)
+	}
+	// 准备数据
+	{
+		_, err := red.DEL{Key: key}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+	}
+	{
+		value, err := red.HINCRBY{Key:key, Field:"user1",Increment: 1}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, value, int64(1))
+	}
+	{
+		value, err := red.HINCRBY{Key:key, Field:"user1",Increment: 1}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, value, int64(2))
+	}
+	{
+		value, err := red.HINCRBY{Key:key, Field:"user1",Increment: 2}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, value, int64(4))
+	}
+	{
+		value, err := red.HINCRBY{Key:key, Field:"user1",Increment: -1}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, value, int64(3))
+	}
+	{
+		value, err := red.HINCRBY{Key:key, Field:"user1",Increment: -5}.Do(ctx, radixClient)
+		assert.NoError(t, err)
+		assert.Equal(t, value, int64(-2))
+	}
+
+}

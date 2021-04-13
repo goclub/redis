@@ -16,7 +16,7 @@ func (test Test) RedisCommand(ctx context.Context, valuePtr interface{}, args []
 	assert.Equal(test.T, test.Expected, strings.Join(args, " "))
 	return
 }
-func (test Test) RedisScript (ctx context.Context, script redScript.Script) (result struct {IsNil bool}, err error){
+func (test Test) RedisScript (ctx context.Context, script redScript.Script) (err error){
 	return
 }
 func (test Test)  Close () error{
