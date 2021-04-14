@@ -28,6 +28,7 @@ func Limited (ctx context.Context, client red.Connecter, userID string, limitDur
 	recordTimeKey := "example_tfl:" + userID
 	nowMilli := strconv.FormatInt(xtime.UnixMilli(time.Now()), 10)
 	limitDurationMilli := strconv.FormatInt(limitDuration.Milliseconds(), 10)
+	expireMilli := strconv.FormatInt(time.Duration(limitDuration*3).Milliseconds(), 10)
 	result, isNil , err := red.Script{
 		Keys: []string{
 			/* 1 */ recordTimeKey,
@@ -35,12 +36,14 @@ func Limited (ctx context.Context, client red.Connecter, userID string, limitDur
 		Argv: []string{
 			/* 1 */ nowMilli,
 			/* 2 */ limitDurationMilli,
+			/* 3 */ expireMilli,
 		},
 		Script: `
 			-- 定义变量，便于阅读
 			local recordTimeKey = KEYS[1]
 			local nowMilli = tonumber(ARGV[1])
 			local limitDurationMilli = tonumber(ARGV[2])
+			local expireMilli = tonumber(ARGV[3])
 
 			local recordTime =  redis.call('GET', recordTimeKey)
 			-- nil 需要通过 == false 判断，而不是 == nil
