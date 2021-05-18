@@ -8,6 +8,49 @@ import (
 	"time"
 )
 
+func redisAppend(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "append"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		length, err := APPEND{
+			Key: key,
+			Value: "a",
+		}.Do(ctx, client) ; assert.NoError(t ,err)
+		assert.Equal(t, length, uint64(1))
+		value, hasValue, err := GET{Key:key}.Do(ctx, client) ; assert.NoError(t,err)
+		assert.Equal(t, hasValue, true)
+		assert.Equal(t, value, "a")
+	}
+	{
+		length, err := APPEND{
+			Key: key,
+			Value: "b",
+		}.Do(ctx, client) ; assert.NoError(t ,err)
+		assert.Equal(t, length, uint64(2))
+		value, hasValue, err := GET{Key:key}.Do(ctx, client) ; assert.NoError(t,err)
+		assert.Equal(t, hasValue, true)
+		assert.Equal(t, value, "ab")
+	}
+	{
+		length, err := APPEND{
+			Key: key,
+			Value: "cd",
+		}.Do(ctx, client) ; assert.NoError(t ,err)
+		assert.Equal(t, length, uint64(4))
+		value, hasValue, err := GET{Key:key}.Do(ctx, client) ; assert.NoError(t,err)
+		assert.Equal(t, hasValue, true)
+		assert.Equal(t, value, "abcd")
+	}
+}
+
+
+func TestAppend(t *testing.T) {
+	for _, client := range Connecters {
+		redisAppend(t, client)
+	}
+}
+
 func redisDel(t *testing.T, client Connecter) {
 	ctx := context.TODO()
 	key := "del"

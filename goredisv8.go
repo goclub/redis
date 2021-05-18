@@ -13,7 +13,7 @@ func ArgsToInterfaces(args []string) (interfaces []interface{}) {
 	return
 }
 type GoRedisV8 struct {
-	Core *redis.Client
+	Core redis.UniversalClient
 }
 func (r GoRedisV8) DoStringReply(ctx context.Context, args []string) (reply string, isNil bool, err error) {
 	cmd := r.Core.Do(ctx, ArgsToInterfaces(args)...)

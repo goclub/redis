@@ -7,7 +7,21 @@ import (
 	"strconv"
 	"time"
 )
-
+type APPEND struct {
+	Key string
+	Value string
+}
+func (data APPEND) Do(ctx context.Context, client Connecter) (length uint64, err error) {
+	args := []string{"APPEND", data.Key, data.Value}
+	value, _, err := client.DoIntegerReply(ctx, args) ; if err != nil {
+	    return
+	}
+	length = uint64(value)
+	return
+}
+type BITCOUNT struct {
+	Key string
+}
 
 type DEL struct {
 	Key string
@@ -53,8 +67,8 @@ type SET struct {
 	ExpireAt time.Time // >= 6.2: Added the GET, EXAT and PXAT option. (ExpireAt)
 	KeepTTL bool // >= 6.0: Added the KEEPTTL option.
 	NeverExpire bool
-	NX bool
 	XX bool
+	NX bool
 }
 var ErrSetForgetTimeToLive = errors.New("goclub/redis: SET maybe you forget set field Expire or ExpireAt or KeepTTL")
 func (data SET) Do(ctx context.Context, client Connecter) (isNil bool ,err error) {
@@ -79,7 +93,7 @@ func (data SET) Do(ctx context.Context, client Connecter) (isNil bool ,err error
 	if data.XX {
 		args = append(args, "XX")
 	}
-	_,isNil, err = client.DoStringReply(ctx, args) ; if err != nil {
+	_, isNil, err = client.DoStringReply(ctx, args) ; if err != nil {
 		return
 	}
 	return
