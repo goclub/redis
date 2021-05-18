@@ -39,6 +39,22 @@ func (r GoRedisV8) DoIntegerReply(ctx context.Context, args []string) (reply int
 	return
 }
 
+func (r GoRedisV8) DoIntegerSliceReply(ctx context.Context, args []string)(reply []int64, isNil bool, err error) {
+	cmd := r.Core.Do(ctx, ArgsToInterfaces(args)...)
+	err = cmd.Err() ; if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, true, nil
+		}
+		return
+	}
+	values := cmd.Val().([]interface{})
+	for _, v := range values {
+		i := v.(int64)
+		reply = append(reply, i)
+	}
+	return
+}
+
 func (r GoRedisV8) Eval(ctx context.Context, data Script) (reply interface{}, isNil bool, err error) {
 	var argv []interface{}
 	for _, s := range data.Argv {

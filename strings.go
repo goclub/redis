@@ -40,6 +40,19 @@ func (data BITCOUNT) Do(ctx context.Context, client Connecter) (length uint64, e
 	return
 }
 
+type BITFIELD struct {
+	Key string
+	Args []string
+}
+
+func (data BITFIELD) Do(ctx context.Context, client Connecter) (reply []int64, err error) {
+	args := []string{"BITFIELD", data.Key}
+	args = append(args, data.Args...)
+	reply, _, err = client.DoIntegerSliceReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
 
 type DEL struct {
 	Key string
