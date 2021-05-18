@@ -51,6 +51,48 @@ func TestAppend(t *testing.T) {
 	}
 }
 
+func TestBitCount(t *testing.T) {
+	for _, client := range Connecters {
+		redisBitCount(t, client)
+	}
+}
+func redisBitCount(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "bitcount"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	_, err = SET{Key: key, Value:"foobar", NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		length, err := BITCOUNT{
+			Key: key,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, length, uint64(26))
+	}
+	{
+		length, err := BITCOUNT{
+			Key: key,
+			Start: Uint64(0),
+			End: Uint64(0),
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, length, uint64(4))
+	}
+	{
+		length, err := BITCOUNT{
+			Key: key,
+			Start: Uint64(1),
+			End: Uint64(1),
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, length, uint64(6))
+	}
+	{
+		length, err := BITCOUNT{
+			Key: key,
+			Start: Uint64(1),
+			End: Uint64(2),
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, length, uint64(12))
+	}
+}
+
 func redisDel(t *testing.T, client Connecter) {
 	ctx := context.TODO()
 	key := "del"

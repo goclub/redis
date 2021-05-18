@@ -21,7 +21,25 @@ func (data APPEND) Do(ctx context.Context, client Connecter) (length uint64, err
 }
 type BITCOUNT struct {
 	Key string
+	Start OptionUint64
+	End OptionUint64
 }
+
+func (data BITCOUNT) Do(ctx context.Context, client Connecter) (length uint64, err error) {
+	args := []string{"BITCOUNT", data.Key}
+	if data.Start.valid {
+		args = append(args, strconv.FormatUint(data.Start.uint64, 10))
+	}
+	if data.End.valid {
+		args = append(args, strconv.FormatUint(data.End.uint64, 10))
+	}
+	value, _, err := client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	length = uint64(value)
+	return
+}
+
 
 type DEL struct {
 	Key string
@@ -70,7 +88,7 @@ type SET struct {
 	XX bool
 	NX bool
 }
-var ErrSetForgetTimeToLive = errors.New("goclub/redis: SET maybe you forget set field Expire or ExpireAt or KeepTTL")
+var ErrSetForgetTimeToLive = errors.New("goclub/redis: SET maybe you forget set field Expire or ExpireAt or KeepTTL or NeverExpire")
 func (data SET) Do(ctx context.Context, client Connecter) (isNil bool ,err error) {
 	args := []string{"SET", data.Key, data.Value}
 	// 只有在明确 NeverExpire 时候才允许 Expire 留空
