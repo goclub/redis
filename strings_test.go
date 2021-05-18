@@ -183,12 +183,12 @@ func redisBitField(t *testing.T, client Connecter) {
 
 }
 
-func TestBitTop(t *testing.T) {
+func TestBitop(t *testing.T) {
 	for _, client := range Connecters {
-		redisBitTop(t, client)
+		redisBitop(t, client)
 	}
 }
-func redisBitTop(t *testing.T, client Connecter) {
+func redisBitop(t *testing.T, client Connecter) {
 	ctx := context.TODO()
 	key := "BITOP"
 	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
@@ -204,6 +204,50 @@ func redisBitTop(t *testing.T, client Connecter) {
 	value, hasValue, err := GET{Key: "bittop_dest"}.Do(ctx, client) ; assert.NoError(t, err)
 	assert.Equal(t, hasValue, true)
 	assert.Equal(t, value, "`bc`ab")
+}
+
+func TestBitpos(t *testing.T) {
+	for _, client := range Connecters {
+		redisBitpos(t, client)
+	}
+}
+func redisBitpos(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "bitpos"
+	{
+		_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+		_, err = SET{Key: key, Value: "\xff\xf0\x00",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
+		position, err := BITPOS{
+			Key: key,
+			Bit:0,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, position, int64(12))
+	}
+	{
+		_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+		_, err = SET{Key: key, Value: "\x00\xff\xf0",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
+		position, err := BITPOS{
+			Key: key,
+			Bit:1,
+			Start: Uint64(0),
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, position, int64(8))
+		position, err = BITPOS{
+			Key: key,
+			Bit:1,
+			Start: Uint64(2),
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, position, int64(16))
+	}
+	{
+		_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+		_, err = SET{Key: key, Value: "\x00\x00\x00",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
+		position, err := BITPOS{
+			Key: key,
+			Bit:1,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, position, int64(-1))
+	}
 }
 
 func TestDel(t *testing.T) {

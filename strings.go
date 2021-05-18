@@ -89,6 +89,28 @@ func (data BITOP) Do(ctx context.Context, client Connecter) (size uint64, err er
 	return
 }
 
+type BITPOS struct {
+	Key string
+	Bit uint8
+	Start OptionUint64
+	End OptionUint64
+}
+
+
+func (data BITPOS) Do(ctx context.Context, client Connecter) (position int64, err error) {
+	args := []string{"BITPOS", data.Key, strconv.FormatUint(uint64(data.Bit), 10)}
+	if data.Start.valid {
+		args = append(args, strconv.FormatUint(data.Start.uint64, 10))
+	}
+	if data.End.valid {
+		args = append(args, strconv.FormatUint(data.End.uint64, 10))
+	}
+	position, _, err = client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
+
 type DEL struct {
 	Key string
 	Keys []string
