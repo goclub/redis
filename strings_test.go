@@ -8,6 +8,12 @@ import (
 	"time"
 )
 
+func TestAppend(t *testing.T) {
+	for _, client := range Connecters {
+		redisAppend(t, client)
+	}
+}
+
 func redisAppend(t *testing.T, client Connecter) {
 	ctx := context.TODO()
 	key := "append"
@@ -41,13 +47,6 @@ func redisAppend(t *testing.T, client Connecter) {
 		value, hasValue, err := GET{Key:key}.Do(ctx, client) ; assert.NoError(t,err)
 		assert.Equal(t, hasValue, true)
 		assert.Equal(t, value, "abcd")
-	}
-}
-
-
-func TestAppend(t *testing.T) {
-	for _, client := range Connecters {
-		redisAppend(t, client)
 	}
 }
 
@@ -184,6 +183,34 @@ func redisBitField(t *testing.T, client Connecter) {
 
 }
 
+func TestBitTop(t *testing.T) {
+	for _, client := range Connecters {
+		redisBitTop(t, client)
+	}
+}
+func redisBitTop(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "BITOP"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	_, err = DEL{Key: "bittop_dest"}.Do(ctx, client) ; assert.NoError(t, err)
+	_, err = SET{Key: key +"1", Value: "foobar",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
+	_, err = SET{Key: key +"2", Value: "abcdef",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
+	size, err := BITOP{
+		AND: true,
+		DestKey: "bittop_dest",
+		Keys: []string{key+"1",key+"2"},
+	}.Do(ctx, client) ; assert.NoError(t, err)
+	assert.Equal(t, size, uint64(6))
+	value, hasValue, err := GET{Key: "bittop_dest"}.Do(ctx, client) ; assert.NoError(t, err)
+	assert.Equal(t, hasValue, true)
+	assert.Equal(t, value, "`bc`ab")
+}
+
+func TestDel(t *testing.T) {
+	for _, client := range Connecters {
+		redisDel(t, client)
+	}
+}
 func redisDel(t *testing.T, client Connecter) {
 	ctx := context.TODO()
 	key := "del"
@@ -225,12 +252,12 @@ func redisDel(t *testing.T, client Connecter) {
 
 
 }
-func TestDel(t *testing.T) {
+
+func TestPTTL(t *testing.T) {
 	for _, client := range Connecters {
-		redisDel(t, client)
+		redisPTTL(t, client)
 	}
 }
-
 func redisPTTL(t *testing.T, client Connecter) {
 	ctx := context.TODO()
 	key := "pttl"
@@ -272,9 +299,9 @@ func redisPTTL(t *testing.T, client Connecter) {
 	}
 }
 
-func TestPTTL(t *testing.T) {
+func TestSet(t *testing.T) {
 	for _, client := range Connecters {
-		redisPTTL(t, client)
+		redisSet(t, client)
 	}
 }
 func redisSet(t *testing.T, client Connecter) {
@@ -308,9 +335,11 @@ func redisSet(t *testing.T, client Connecter) {
 	// @NEXT 写上 SET 的测试
 
 }
-func TestSet(t *testing.T) {
+
+
+func TestGet(t *testing.T) {
 	for _, client := range Connecters {
-		redisSet(t, client)
+		redisGet(t, client)
 	}
 }
 
@@ -341,8 +370,3 @@ func redisGet(t *testing.T,  client Connecter) {
 
 }
 
-func TestGet(t *testing.T) {
-	for _, client := range Connecters {
-		redisGet(t, client)
-	}
-}

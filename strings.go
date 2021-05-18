@@ -54,21 +54,56 @@ func (data BITFIELD) Do(ctx context.Context, client Connecter) (reply []int64, e
 	return
 }
 
+type BITOP struct {
+	AND bool
+	OR bool
+	XOR bool
+	NOT bool
+	DestKey string
+	Key string
+	Keys []string
+}
+func (data BITOP) Do(ctx context.Context, client Connecter) (size uint64, err error) {
+	args := []string{"BITOP"}
+	if data.AND {
+		args = append(args, "AND")
+	}
+	if data.OR {
+		args = append(args, "OR")
+	}
+	if data.XOR {
+		args = append(args, "XOR")
+	}
+	if data.NOT {
+		args = append(args, "NOT")
+	}
+	args = append(args, data.DestKey)
+	if data.Key != "" {
+		data.Keys = []string{data.Key}
+	}
+	args = append(args, data.Keys...)
+	value,_, err := client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	size = uint64(value)
+	return
+}
+
 type DEL struct {
 	Key string
 	Keys []string
 }
-func (data DEL) Do(ctx context.Context, client Connecter) (delCount uint, err error) {
+func (data DEL) Do(ctx context.Context, client Connecter) (delCount uint64, err error) {
 	args := []string{"DEL"}
 	if data.Key != "" {
-		data.Keys = append(data.Keys, data.Key)
+		data.Keys = []string{data.Key}
 	}
 	args = append(args, data.Keys...)
 	var value int64
 	value,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
 		return
 	}
-	delCount = uint(value)
+	delCount = uint64(value)
 	return
 }
 
