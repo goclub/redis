@@ -10,13 +10,15 @@ type Connecter interface {
 }
 
 type API struct {
-	APPEND APPEND
-	BITCOUNT BITCOUNT
-	BITFIELD BITFIELD
-	BITOP BITOP
-	BITPOS BITPOS
-	SET SET
-	GET GET
-	DEL DEL
+	Append APPEND
+	BitCount BITCOUNT
+	BitFeild BITFIELD
+	BitOP BITOP
+	BitPos BITPOS
+	Set SET
+	SetBit SETBIT
+	Get GET
+	GetBit GETBIT
+	Del DEL
 	PTTL PTTL
 }

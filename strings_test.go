@@ -69,24 +69,24 @@ func redisBitCount(t *testing.T, client Connecter) {
 	{
 		length, err := BITCOUNT{
 			Key: key,
-			Start: Uint64(0),
-			End: Uint64(0),
+			Start: NewOptionUint64(0),
+			End: NewOptionUint64(0),
 		}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, length, uint64(4))
 	}
 	{
 		length, err := BITCOUNT{
 			Key: key,
-			Start: Uint64(1),
-			End: Uint64(1),
+			Start: NewOptionUint64(1),
+			End: NewOptionUint64(1),
 		}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, length, uint64(6))
 	}
 	{
 		length, err := BITCOUNT{
 			Key: key,
-			Start: Uint64(1),
-			End: Uint64(2),
+			Start: NewOptionUint64(1),
+			End: NewOptionUint64(2),
 		}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, length, uint64(12))
 	}
@@ -229,13 +229,13 @@ func redisBitpos(t *testing.T, client Connecter) {
 		position, err := BITPOS{
 			Key: key,
 			Bit:1,
-			Start: Uint64(0),
+			Start: NewOptionUint64(0),
 		}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, position, int64(8))
 		position, err = BITPOS{
 			Key: key,
 			Bit:1,
-			Start: Uint64(2),
+			Start: NewOptionUint64(2),
 		}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, position, int64(16))
 	}
@@ -265,7 +265,7 @@ func redisDel(t *testing.T, client Connecter) {
 	{// DEL key
 		delCount, err := DEL{Key: key}.Do(ctx, client)
 		assert.NoError(t, err)
-		assert.Equal(t, delCount, uint(1))
+		assert.Equal(t, delCount, uint64(1))
 		reply, isNil, err := client.DoStringReply(ctx, []string{"GET", key})
 		assert.NoError(t, err)
 		assert.Equal(t, reply, "")
@@ -276,7 +276,7 @@ func redisDel(t *testing.T, client Connecter) {
 	}
 	{// DEL key key2
 		delCount, err := DEL{Keys: []string{key, key2}}.Do(ctx, client)
-		assert.Equal(t, delCount, uint(2))
+		assert.Equal(t, delCount, uint64(2))
 		assert.NoError(t, err)
 		// GET key
 		{
@@ -380,6 +380,42 @@ func redisSet(t *testing.T, client Connecter) {
 
 }
 
+func TestSetBit(t *testing.T) {
+	for _, client := range Connecters {
+		redisSetBit(t, client)
+	}
+}
+func redisSetBit(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "setbit"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		value, err := SETBIT{Key: key, Offset: 0, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(0))
+
+		value, err = SETBIT{Key: key, Offset: 0, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(1))
+
+		value, err = GETBIT{Key: key, Offset: 10}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(0))
+	}
+	{
+		value, err := SETBIT{Key: key, Offset: 20, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(0))
+
+		value, err = SETBIT{Key: key, Offset: 20, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(1))
+
+		value, err = SETBIT{Key: key, Offset: 20, Value: 0}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(1))
+
+		value, err = SETBIT{Key: key, Offset: 20, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(0))
+
+		value, err = GETBIT{Key: key, Offset: 20}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(1))
+	}
+}
 
 func TestGet(t *testing.T) {
 	for _, client := range Connecters {
@@ -412,5 +448,39 @@ func redisGet(t *testing.T,  client Connecter) {
 		assert.NoError(t, err)
 	}
 
+}
+
+
+func TestGetBit(t *testing.T) {
+	for _, client := range Connecters {
+		redisGet(t, client)
+	}
+}
+func redisGetBit(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "getbit"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		value, err := GETBIT{Key: key, Offset: 0}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(0))
+	}
+	{
+		value, err := SETBIT{Key: key, Offset: 0, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(0))
+
+		value, err = GETBIT{Key: key, Offset: 0}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(1))
+	}
+	{
+		value, err := GETBIT{Key: key, Offset: 10}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(0))
+	}
+	{
+		value, err := SETBIT{Key: key, Offset: 10, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(0))
+
+		value, err = GETBIT{Key: key, Offset: 10}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(1))
+	}
 }
 

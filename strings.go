@@ -148,6 +148,24 @@ func (data GET) Do(ctx context.Context, client Connecter) (value string, hasValu
 	}
 }
 
+
+
+type GETBIT struct {
+	Key string
+	Offset uint64
+}
+
+func (data GETBIT) Do(ctx context.Context, client Connecter) (value uint8, err error) {
+	args := []string{"GETBIT", data.Key, strconv.FormatUint(data.Offset, 10)}
+	reply, _, err := client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	value = uint8(reply)
+	return
+}
+
+
+
 type SET struct {
 	Key string
 	Value string
@@ -186,6 +204,22 @@ func (data SET) Do(ctx context.Context, client Connecter) (isNil bool ,err error
 	}
 	return
 }
+
+type SETBIT struct {
+	Key string
+	Offset uint64
+	Value uint8
+}
+
+func (data SETBIT) Do(ctx context.Context, client Connecter) (originalValue uint8, err error) {
+	args := []string{"SETBIT", data.Key, strconv.FormatUint(data.Offset, 10), strconv.FormatUint(uint64(data.Value), 10)}
+	reply, _, err := client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	originalValue = uint8(reply)
+	return
+}
+
 
 type PTTL struct {
 	Key string

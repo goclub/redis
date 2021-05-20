@@ -4,7 +4,7 @@ package red
 import "time"
 
 
-func Duration (duration time.Duration) OptionDuration {
+func NewOptionDuration (duration time.Duration) OptionDuration {
 	return OptionDuration{
 		duration: duration,
 		valid: true,
@@ -20,7 +20,7 @@ func (o OptionDuration) Unwrap() time.Duration {
 }
 
 
-func Uint (i uint) OptionUint {
+func NewOptionUint (i uint) OptionUint {
 	return OptionUint{
 		uint: i,
 		valid: true,
@@ -36,7 +36,7 @@ func (o OptionUint) Unwrap() uint {
 }
 
 
-func Uint32 (i uint32) OptionUint32 {
+func NewOptionUint32 (i uint32) OptionUint32 {
 	return OptionUint32{
 		uint32: i,
 		valid: true,
@@ -51,7 +51,7 @@ func (o OptionUint32) Unwrap() uint32 {
 }
 
 
-func Uint8 (i uint8) OptionUint8 {
+func NewOptionUint8 (i uint8) OptionUint8 {
 	return OptionUint8{
 		uint8: i,
 		valid: true,
@@ -66,7 +66,7 @@ func (o OptionUint8) Unwrap() uint8 {
 }
 
 
-func Uint64 (i uint64) OptionUint64 {
+func NewOptionUint64 (i uint64) OptionUint64 {
 	return OptionUint64{
 		uint64: i,
 		valid: true,
