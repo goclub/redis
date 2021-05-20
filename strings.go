@@ -21,17 +21,18 @@ func (data APPEND) Do(ctx context.Context, client Connecter) (length uint64, err
 }
 type BITCOUNT struct {
 	Key string
-	Start OptionUint64
-	End OptionUint64
+	// start and end offset unit byte (8bit)
+	StartByte OptionInt64
+	EndByte OptionInt64
 }
 
 func (data BITCOUNT) Do(ctx context.Context, client Connecter) (length uint64, err error) {
 	args := []string{"BITCOUNT", data.Key}
-	if data.Start.valid {
-		args = append(args, strconv.FormatUint(data.Start.uint64, 10))
+	if data.StartByte.valid {
+		args = append(args, strconv.FormatInt(data.StartByte.int64, 10))
 	}
-	if data.End.valid {
-		args = append(args, strconv.FormatUint(data.End.uint64, 10))
+	if data.EndByte.valid {
+		args = append(args, strconv.FormatInt(data.EndByte.int64, 10))
 	}
 	value, _, err := client.DoIntegerReply(ctx, args) ; if err != nil {
 		return

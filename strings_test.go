@@ -69,24 +69,24 @@ func redisBitCount(t *testing.T, client Connecter) {
 	{
 		length, err := BITCOUNT{
 			Key: key,
-			Start: NewOptionUint64(0),
-			End: NewOptionUint64(0),
+			StartByte: NewOptionInt64(0),
+			EndByte: NewOptionInt64(0),
 		}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, length, uint64(4))
 	}
 	{
 		length, err := BITCOUNT{
 			Key: key,
-			Start: NewOptionUint64(1),
-			End: NewOptionUint64(1),
+			StartByte: NewOptionInt64(1),
+			EndByte: NewOptionInt64(1),
 		}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, length, uint64(6))
 	}
 	{
 		length, err := BITCOUNT{
 			Key: key,
-			Start: NewOptionUint64(1),
-			End: NewOptionUint64(2),
+			StartByte: NewOptionInt64(1),
+			EndByte: NewOptionInt64(2),
 		}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, length, uint64(12))
 	}

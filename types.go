@@ -20,6 +20,23 @@ func (o OptionDuration) Unwrap() time.Duration {
 }
 
 
+
+func NewOptionInt64 (i int64) OptionInt64 {
+	return OptionInt64{
+		int64: i,
+		valid: true,
+	}
+}
+
+type OptionInt64 struct {
+	int64 int64
+	valid bool
+}
+func (o OptionInt64) Unwrap() int64 {
+	return o.int64
+}
+
+
 func NewOptionUint (i uint) OptionUint {
 	return OptionUint{
 		uint: i,
@@ -42,14 +59,6 @@ func NewOptionUint32 (i uint32) OptionUint32 {
 		valid: true,
 	}
 }
-type OptionUint32 struct {
-	uint32 uint32
-	valid bool
-}
-func (o OptionUint32) Unwrap() uint32 {
-	return o.uint32
-}
-
 
 func NewOptionUint8 (i uint8) OptionUint8 {
 	return OptionUint8{
@@ -65,6 +74,14 @@ func (o OptionUint8) Unwrap() uint8 {
 	return o.uint8
 }
 
+
+type OptionUint32 struct {
+	uint32 uint32
+	valid bool
+}
+func (o OptionUint32) Unwrap() uint32 {
+	return o.uint32
+}
 
 func NewOptionUint64 (i uint64) OptionUint64 {
 	return OptionUint64{
