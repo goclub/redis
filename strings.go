@@ -177,6 +177,31 @@ func (data GETDEL) Do(ctx context.Context, client Connecter) (value string,hasVa
 	hasValue = isNil == false
 	return
 }
+type GETEX struct {
+	Key string
+	Expire time.Duration
+	ExpireAt time.Time
+	PERSIST bool
+}
+func (data GETEX) Do(ctx context.Context, client Connecter) (value string,hasValue bool, err error) {
+	args := []string{"GETEX", data.Key}
+	if data.Expire != 0 {
+		px := strconv.FormatInt(data.Expire.Milliseconds(), 10)
+		args = append(args, "PX", px)
+	}
+	if data.ExpireAt.IsZero() == false {
+		args = append(args, "PXAT", strconv.FormatInt(xtime.UnixMilli(data.ExpireAt), 10))
+	}
+	if data.PERSIST {
+		args = append(args, "PERSIST")
+	}
+	value, isNil, err := client.DoStringReply(ctx, args) ; if err != nil {
+		return
+	}
+	hasValue = isNil == false
+	return
+}
+
 
 type SET struct {
 	NeverExpire bool
@@ -187,6 +212,18 @@ type SET struct {
 	KeepTTL bool // >= 6.0: Added the KEEPTTL option.
 	XX bool
 	NX bool
+}
+type GETRANGE struct {
+	Key string
+	Start int64
+	End int64
+}
+func (data GETRANGE) Do(ctx context.Context, client Connecter) (value string, err error) {
+	args := []string{"GETRANGE", data.Key, strconv.FormatInt(data.Start, 10), strconv.FormatInt(data.End, 10)}
+	value, _, err = client.DoStringReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
 }
 var ErrSetForgetTimeToLive = errors.New("goclub/redis: SET maybe you forget set field Expire or ExpireAt or KeepTTL or NeverExpire")
 func (data SET) Do(ctx context.Context, client Connecter) (isNil bool ,err error) {
@@ -241,6 +278,7 @@ type ResultTTL struct {
 	NeverExpire bool
 	KeyDoesNotExist bool
 }
+
 func (data PTTL) Do(ctx context.Context, client Connecter) (result ResultTTL, err error) {
 	args := []string{"PTTL", data.Key}
 	value, _, err := client.DoIntegerReply(ctx, args) ; if err != nil {

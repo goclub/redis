@@ -20,6 +20,8 @@ type API struct {
 	Get GET
 	GetBit GETBIT
 	GetDel GETDEL
+	GetEx GETEX
+	GetRange GETRANGE
 	Set SET
 	SetBit SETBIT
 	Del DEL

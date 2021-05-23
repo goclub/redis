@@ -3,6 +3,7 @@ package red
 import (
 	"context"
 	"github.com/stretchr/testify/assert"
+	"log"
 	"strconv"
 	"testing"
 	"time"
@@ -519,4 +520,64 @@ func redisGetDel(t *testing.T, client Connecter) {
 		assert.Equal(t, value, "")
 	}
 
+}
+
+func TestGetEx(t *testing.T) {
+	for _, client := range Connecters {
+		redisGetEx(t, client)
+	}
+}
+func redisGetEx(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "getex"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		value, hasValue, err := GETEX{Key: key, Expire: time.Second}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, hasValue, false)
+		assert.Equal(t, value, "")
+	}
+	{
+		_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+		isNil, err := SET{Key: key, Value: "hi",NeverExpire:true}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, isNil, false)
+		value, hasValue, err := GETEX{Key: key, Expire: time.Second}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, hasValue, true)
+		assert.Equal(t, value, "hi")
+		result, err := PTTL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+		log.Print(result.TTL.Milliseconds())
+		assert.Equal(t, result.TTL.Milliseconds() > 0, true)
+		assert.Equal(t, result.TTL.Milliseconds() < 1000, true)
+	}
+}
+
+func TestGetRange(t *testing.T) {
+	for _, client := range Connecters {
+		redisGetRange(t, client)
+	}
+}
+func redisGetRange(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "getrange"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	_, err = SET{NeverExpire: true, Key: key, Value: "This is a string"}.Do(ctx, client) ; assert.NoError(t, err)
+	value, err := GETRANGE{Key: key, Start: 0, End: 3}.Do(ctx, client) ; if err != nil {
+	    return
+	}
+	assert.Equal(t, value, "This")
+	{
+		value, err := GETRANGE{Key: key, Start: -3, End: -1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, "ing")
+	}
+	{
+		value, err := GETRANGE{Key: key, Start: 0, End: -1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, "This is a string")
+	}
+	{
+		value, err := GETRANGE{Key: key, Start: 0, End: -1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, "This is a string")
+	}
+	{
+		value, err := GETRANGE{Key: key, Start: 10, End: 100}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, "string")
+	}
 }
