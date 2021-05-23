@@ -292,6 +292,33 @@ func (data MGET) Do(ctx context.Context, client Connecter) (values ArrayString, 
 	return
 
 }
+type MSET struct {
+	KeysValues []KV
+}
+func (data MSET) Do(ctx context.Context, client Connecter) (err error) {
+	args := []string{"MSET"}
+	for _, kv := range data.KeysValues {
+		args = append(args, kv.Key, kv.Value)
+	}
+	_, _, err = client.DoStringReply(ctx, args) ; if err != nil {
+	    return
+	}
+	return
+}
+type MSETNX struct {
+	KeysValues []KV
+}
+func (data MSETNX) Do(ctx context.Context, client Connecter) (result int8, err error) {
+	args := []string{"MSETNX"}
+	for _, kv := range data.KeysValues {
+		args = append(args, kv.Key, kv.Value)
+	}
+	reply, _, err := client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	result = int8(reply)
+	return
+}
 type SETBIT struct {
 	Key string
 	Offset uint64

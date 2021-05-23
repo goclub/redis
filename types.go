@@ -76,3 +76,8 @@ type OptionString struct {
 	Valid bool
 	String string
 }
+
+type KV struct {
+	Key string
+	Value string
+}

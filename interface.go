@@ -32,6 +32,8 @@ type API struct {
 	IncrBy INCRBY
 	IncrByFloat INCRBYFLOAT
 	MGet MGET
+	MSet MSET
+	MSetNX MSETNX
 	Set SET
 	SetBit SETBIT
 	Del DEL

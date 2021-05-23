@@ -8,6 +8,9 @@ var Connecters = []Connecter{}
 
 func init () {
 	Connecters = append(Connecters, GoRedisV8{
-		Core: redis.NewClient(&redis.Options{}),
+		Core: redis.NewClient(&redis.Options{
+			// 设置为 15 是为了万一在正式环境运行了测试导致破坏了数据
+			DB: 15,
+		}),
 	})
 }

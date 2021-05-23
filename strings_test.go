@@ -717,3 +717,84 @@ func redisMGet(t *testing.T, client Connecter) {
 		})
 	}
 }
+func TestMSet(t *testing.T) {
+	for _, client := range Connecters {
+		redisMSet(t, client)
+	}
+}
+func redisMSet(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	keys := []string{"k1", "k2"}
+	_, err := DEL{Keys: keys}.Do(ctx, client) ; assert.NoError(t, err)
+	err = MSET{
+		KeysValues: []KV{
+			{"k1", "v1"},
+			{"k2", "v2"},
+		},
+	}.Do(ctx, client) ; assert.NoError(t, err)
+	values, err := MGET{
+		Keys: []string{"k1", "k2"},
+	}.Do(ctx, client) ; assert.NoError(t, err)
+	assert.Equal(t,values, ArrayString{
+		{Valid: true, String: "v1"},
+		{Valid: true, String: "v2"},
+	})
+}
+
+func TestMSetNX(t *testing.T) {
+	for _, client := range Connecters {
+		redisMSetNX(t, client)
+	}
+}
+func redisMSetNX(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	keys := []string{"k1", "k2"}
+	_, err := DEL{Keys: keys}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		result, err := MSETNX{
+			KeysValues: []KV{
+				{"k1", "v1"},
+				{"k2", "v2"},
+			},
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,result, int8(1))
+	}
+	{
+		values, err := MGET{
+			Keys: []string{"k1", "k2"},
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,values, ArrayString{
+			{Valid: true, String: "v1"},
+			{Valid: true, String: "v2"},
+		})
+	}
+	_, err = DEL{Keys: []string{"a1", "a2", "a3"}}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		result, err := MSETNX{
+			KeysValues: []KV{
+				{"a1", "a1"},
+			},
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,result, int8(1))
+	}
+	{
+		result, err := MSETNX{
+			KeysValues: []KV{
+				{"a1", "v1"},
+				{"a2", "v2"},
+				{"a3", "v3"},
+			},
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,result, int8(0))
+	}
+	{
+		values, err := MGET{
+			Keys: []string{"a1", "a2", "a3"},
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,values, ArrayString{
+			{Valid: true, String: "a1"},
+			{Valid: false, String: ""},
+			{Valid: false, String: ""},
+		})
+	}
+}
