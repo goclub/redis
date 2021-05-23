@@ -29,11 +29,11 @@ type BITCOUNT struct {
 
 func (data BITCOUNT) Do(ctx context.Context, client Connecter) (length uint64, err error) {
 	args := []string{"BITCOUNT", data.Key}
-	if data.StartByte.valid {
-		args = append(args, strconv.FormatInt(data.StartByte.int64, 10))
+	if data.StartByte.Valid {
+		args = append(args, strconv.FormatInt(data.StartByte.Int64, 10))
 	}
-	if data.EndByte.valid {
-		args = append(args, strconv.FormatInt(data.EndByte.int64, 10))
+	if data.EndByte.Valid {
+		args = append(args, strconv.FormatInt(data.EndByte.Int64, 10))
 	}
 	value, _, err := client.DoIntegerReply(ctx, args) ; if err != nil {
 		return
@@ -47,10 +47,10 @@ type BITFIELD struct {
 	Args []string
 }
 
-func (data BITFIELD) Do(ctx context.Context, client Connecter) (reply []int64, err error) {
+func (data BITFIELD) Do(ctx context.Context, client Connecter) (reply []OptionInt64,isNil bool, err error) {
 	args := []string{"BITFIELD", data.Key}
 	args = append(args, data.Args...)
-	reply, _, err = client.DoIntegerSliceReply(ctx, args) ; if err != nil {
+	reply, isNil, err = client.DoArrayIntegerReply(ctx, args) ; if err != nil {
 		return
 	}
 	return
@@ -101,11 +101,11 @@ type BITPOS struct {
 
 func (data BITPOS) Do(ctx context.Context, client Connecter) (position int64, err error) {
 	args := []string{"BITPOS", data.Key, strconv.FormatUint(uint64(data.Bit), 10)}
-	if data.Start.valid {
-		args = append(args, strconv.FormatUint(data.Start.uint64, 10))
+	if data.Start.Valid {
+		args = append(args, strconv.FormatUint(data.Start.Uint64, 10))
 	}
-	if data.End.valid {
-		args = append(args, strconv.FormatUint(data.End.uint64, 10))
+	if data.End.Valid {
+		args = append(args, strconv.FormatUint(data.End.Uint64, 10))
 	}
 	position, _, err = client.DoIntegerReply(ctx, args) ; if err != nil {
 		return
@@ -280,7 +280,18 @@ func (data INCRBYFLOAT) Do(ctx context.Context, client Connecter) (newValue floa
 	}
 	return strconv.ParseFloat(reply, 64)
 }
+type MGET struct {
+	Keys []string
+}
+func (data MGET) Do(ctx context.Context, client Connecter) (values ArrayString, err error) {
+	args := []string{"MGET"}
+	args = append(args, data.Keys...)
+	values, _, err = client.DoArrayStringReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
 
+}
 type SETBIT struct {
 	Key string
 	Offset uint64

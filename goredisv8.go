@@ -39,7 +39,7 @@ func (r GoRedisV8) DoIntegerReply(ctx context.Context, args []string) (reply int
 	return
 }
 
-func (r GoRedisV8) DoIntegerSliceReply(ctx context.Context, args []string)(reply []int64, isNil bool, err error) {
+func (r GoRedisV8) DoArrayIntegerReply(ctx context.Context, args []string)(reply ArrayInteger, isNil bool, err error) {
 	cmd := r.Core.Do(ctx, ArgsToInterfaces(args)...)
 	err = cmd.Err() ; if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -49,8 +49,30 @@ func (r GoRedisV8) DoIntegerSliceReply(ctx context.Context, args []string)(reply
 	}
 	values := cmd.Val().([]interface{})
 	for _, v := range values {
-		i := v.(int64)
-		reply = append(reply, i)
+		if v == nil {
+			reply = append(reply, OptionInt64{})
+		} else {
+			reply = append(reply, NewOptionInt64(v.(int64)))
+		}
+	}
+	return
+}
+
+func (r GoRedisV8) DoArrayStringReply(ctx context.Context, args []string)(reply ArrayString, isNil bool, err error) {
+	cmd := r.Core.Do(ctx, ArgsToInterfaces(args)...)
+	err = cmd.Err() ; if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, true, nil
+		}
+		return
+	}
+	values := cmd.Val().([]interface{})
+	for _, v := range values {
+		if v == nil {
+			reply = append(reply, OptionString{})
+		} else {
+			reply = append(reply, NewOptionString(v.(string)))
+		}
 	}
 	return
 }

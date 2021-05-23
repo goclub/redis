@@ -1,98 +1,78 @@
 package red
 
-
-import "time"
+import (
+	"time"
+)
 
 
 func NewOptionDuration (duration time.Duration) OptionDuration {
 	return OptionDuration{
-		duration: duration,
-		valid: true,
+		Valid: true,
+		Duration: duration,
 	}
 }
 
 type OptionDuration struct {
-	duration time.Duration
-	valid bool
+	Valid bool
+	Duration time.Duration
 }
-func (o OptionDuration) Unwrap() time.Duration {
-	return o.duration
-}
+
 
 
 
 func NewOptionInt64 (i int64) OptionInt64 {
 	return OptionInt64{
-		int64: i,
-		valid: true,
+		Valid: true,
+		Int64: i,
 	}
 }
 
 type OptionInt64 struct {
-	int64 int64
-	valid bool
-}
-func (o OptionInt64) Unwrap() int64 {
-	return o.int64
+	Valid bool
+	Int64 int64
 }
 
 
-func NewOptionUint (i uint) OptionUint {
-	return OptionUint{
-		uint: i,
-		valid: true,
-	}
-}
-
-type OptionUint struct {
-	uint uint
-	valid bool
-}
-func (o OptionUint) Unwrap() uint {
-	return o.uint
-}
-
-
-func NewOptionUint32 (i uint32) OptionUint32 {
-	return OptionUint32{
-		uint32: i,
-		valid: true,
-	}
-}
-
-func NewOptionUint8 (i uint8) OptionUint8 {
-	return OptionUint8{
-		uint8: i,
-		valid: true,
+func NewOptionUint8(i uint8) OptionUint8 {
+	return OptionUint8 {
+		Valid: true,
+		Uint8: i,
 	}
 }
 type OptionUint8 struct {
-	uint8 uint8
-	valid bool
-}
-func (o OptionUint8) Unwrap() uint8 {
-	return o.uint8
+	Valid bool
+	Uint8 uint8
 }
 
-
+func NewOptionUint32 (i uint32) OptionUint32 {
+	return OptionUint32{
+		Valid: true,
+		Uint32: i,
+	}
+}
 type OptionUint32 struct {
-	uint32 uint32
-	valid bool
+	Valid bool
+	Uint32 uint32
 }
-func (o OptionUint32) Unwrap() uint32 {
-	return o.uint32
-}
+
 
 func NewOptionUint64 (i uint64) OptionUint64 {
 	return OptionUint64{
-		uint64: i,
-		valid: true,
+		Valid: true,
+		Uint64: i,
 	}
 }
 type OptionUint64 struct {
-	uint64 uint64
-	valid bool
+	Valid bool
+	Uint64 uint64
 }
-func (o OptionUint64) Unwrap() uint64 {
-	return o.uint64
+func NewOptionString(s string) OptionString {
+	return OptionString{
+		Valid: true,
+		String: s,
+	}
+}
+type OptionString struct {
+	Valid bool
+	String string
 }
