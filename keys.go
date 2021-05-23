@@ -2,8 +2,34 @@ package red
 
 import (
 	"context"
+	"strconv"
 	"time"
 )
+type COPY struct {
+	Source string
+	Destination string
+	DB OptionUint8
+	Replace bool
+}
+
+func (data COPY) Do(ctx context.Context, client Connecter) (reply int64, err error) {
+	args := []string{"COPY"}
+
+	args = append(args, data.Source, data.Destination)
+	if data.DB.Valid {
+		args = append(args, "DB")
+		args = append(args, strconv.FormatUint(uint64(data.DB.Uint8), 10))
+	}
+	if data.Replace {
+		args = append(args, "REPLACE")
+	}
+	reply, _, err = client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
+
+
 type DEL struct {
 	Key string
 	Keys []string

@@ -6,6 +6,37 @@ import (
 	"testing"
 )
 
+func TestCopy(t *testing.T) {
+	for _, client := range Connecters {
+		redisCopy(t, client)
+	}
+}
+func redisCopy(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "copy"
+	destKey := "copy_dest"
+	{ // DEL key
+		_, err := DEL{Keys: []string{key, destKey}}.Do(ctx, client) ; assert.NoError(t, err)
+	}
+	{
+		_, _, err := SET{NeverExpire: true, Key: key, Value: "v1"}.Do(ctx, client)  ; assert.NoError(t, err)
+		reply, err := COPY{
+			Source: key,
+			Destination: destKey,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,reply, int64(1))
+	}
+	{
+		// 已经存在的 dest key 不会被修改
+		_, _, err := SET{NeverExpire: true, Key: key, Value: "v1"}.Do(ctx, client)  ; assert.NoError(t, err)
+		reply, err := COPY{
+			Source: key,
+			Destination: destKey,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,reply, int64(0))
+	}
+}
+
 func TestDel(t *testing.T) {
 	for _, client := range Connecters {
 		redisDel(t, client)

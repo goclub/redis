@@ -17,6 +17,7 @@ type Connecter interface {
 
 
 type API struct {
+	// strings
 	Append APPEND
 	BitCount BITCOUNT
 	BitField BITFIELD
@@ -42,6 +43,9 @@ type API struct {
 	SetRange SETRANGE
 	// STRALGO TODO
 	StrLen STRLEN
+
+	// keys
+	Copy COPY
 	Del DEL
 	PTTL PTTL
 }
