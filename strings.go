@@ -47,10 +47,10 @@ type BITFIELD struct {
 	Args []string
 }
 
-func (data BITFIELD) Do(ctx context.Context, client Connecter) (reply []OptionInt64,isNil bool, err error) {
+func (data BITFIELD) Do(ctx context.Context, client Connecter) (reply []OptionInt64, err error) {
 	args := []string{"BITFIELD", data.Key}
 	args = append(args, data.Args...)
-	reply, isNil, err = client.DoArrayIntegerReply(ctx, args) ; if err != nil {
+	reply, err = client.DoArrayIntegerReply(ctx, args) ; if err != nil {
 		return
 	}
 	return
@@ -286,7 +286,7 @@ type MGET struct {
 func (data MGET) Do(ctx context.Context, client Connecter) (values ArrayString, err error) {
 	args := []string{"MGET"}
 	args = append(args, data.Keys...)
-	values, _, err = client.DoArrayStringReply(ctx, args) ; if err != nil {
+	values, err = client.DoArrayStringReply(ctx, args) ; if err != nil {
 		return
 	}
 	return

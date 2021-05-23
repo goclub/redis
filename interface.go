@@ -8,8 +8,8 @@ type ArrayString []OptionString
 type Connecter interface {
 	DoStringReply(ctx context.Context, args []string) (reply string, isNil bool, err error)
 	DoIntegerReply(ctx context.Context, args []string) (reply int64, isNil bool, err error)
-	DoArrayIntegerReply(ctx context.Context, args []string)(reply ArrayInteger, isNil bool, err error)
-	DoArrayStringReply(ctx context.Context, args []string)(reply ArrayString, isNil bool, err error)
+	DoArrayIntegerReply(ctx context.Context, args []string)(reply ArrayInteger, err error)
+	DoArrayStringReply(ctx context.Context, args []string)(reply ArrayString, err error)
 	Eval(ctx context.Context, script Script) (reply interface{}, isNil bool, err error)
 }
 

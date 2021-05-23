@@ -108,40 +108,37 @@ func redisBitField(t *testing.T, client Connecter) {
 	}
 	{
 		_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-		reply,isNil, err := BITFIELD{
+		reply, err := BITFIELD{
 			Key: key,
 			Args: []string{
 				"INCRBY", "i5", "100", "1",
 				"GET", "u4", "0",
 			},
 		}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, isNil, false)
 		assert.Equal(t, reply, OptionInt64Slice(1, 0))
 	}
 	{
 		_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-		reply, isNil, err := BITFIELD{
+		reply, err := BITFIELD{
 			Key: key,
 			Args: []string{
 				"SET", "i8", "#0", "100",
 				"SET", "i8", "#1", "200",
 			},
 		}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, isNil, false)
 		assert.Equal(t, reply, OptionInt64Slice(0,0))
-		reply,isNil, err = BITFIELD{
+		reply, err = BITFIELD{
 			Key: key,
 			Args: []string{
 				"GET", "i8", "#0",
 				"GET", "i8", "#1",
 			},
 		}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, isNil, false)
 		assert.Equal(t, reply, OptionInt64Slice(100, -56))
 	}
 	{
 		_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-		reply,isNil, err := BITFIELD{
+		reply, err := BITFIELD{
 			Key: key,
 			Args: []string{
 				"INCRBY", "u2", "100", "1",
@@ -149,9 +146,8 @@ func redisBitField(t *testing.T, client Connecter) {
 				"INCRBY", "u2", "102", "1",
 			},
 		}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, isNil, false)
 		assert.Equal(t, reply, OptionInt64Slice(1, 1))
-		reply,isNil, err = BITFIELD{
+		reply, err = BITFIELD{
 			Key: key,
 			Args: []string{
 				"INCRBY", "u2", "100", "1",
@@ -159,9 +155,8 @@ func redisBitField(t *testing.T, client Connecter) {
 				"INCRBY", "u2", "102", "1",
 			},
 		}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, isNil, false)
 		assert.Equal(t, reply, OptionInt64Slice(2, 2))
-		reply,isNil, err = BITFIELD{
+		reply, err = BITFIELD{
 			Key: key,
 			Args: []string{
 				"INCRBY", "u2", "100", "1",
@@ -169,9 +164,8 @@ func redisBitField(t *testing.T, client Connecter) {
 				"INCRBY", "u2", "102", "1",
 			},
 		}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, isNil, false)
 		assert.Equal(t, reply, OptionInt64Slice(3, 3))
-		reply,isNil, err = BITFIELD{
+		reply, err = BITFIELD{
 			Key: key,
 			Args: []string{
 				"INCRBY", "u2", "100", "1",
@@ -179,20 +173,18 @@ func redisBitField(t *testing.T, client Connecter) {
 				"INCRBY", "u2", "102", "1",
 			},
 		}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, isNil, false)
 		assert.Equal(t, reply, OptionInt64Slice(0, 3))
 
 	}
 	{
 		_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-		reply,isNil, err := BITFIELD{
+		reply, err := BITFIELD{
 			Key: key,
 			Args: []string{
 				"OVERFLOW", "FAIL",
 				"INCRBY", "u2", "102", "1",
 			},
 		}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, isNil, false)
 		assert.Equal(t, reply, OptionInt64Slice(1))
 	}
 
@@ -360,7 +352,7 @@ func redisPTTL(t *testing.T, client Connecter) {
 		assert.Equal(t, result.NeverExpire, false)
 		assert.Equal(t, result.KeyDoesNotExist, false)
 		assert.Equal(t, result.TTL > time.Second, true)
-		assert.Equal(t, result.TTL < time.Second*2, true)
+		assert.Equal(t, result.TTL <= time.Second*2, true)
 	}
 }
 
@@ -559,7 +551,7 @@ func redisGetEx(t *testing.T, client Connecter) {
 		assert.Equal(t, value, "hi")
 		result, err := PTTL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, result.TTL.Milliseconds() > 900, true)
-		assert.Equal(t, result.TTL.Milliseconds() < 1000, true)
+		assert.Equal(t, result.TTL.Milliseconds() <= 1000, true)
 	}
 }
 

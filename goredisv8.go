@@ -39,12 +39,9 @@ func (r GoRedisV8) DoIntegerReply(ctx context.Context, args []string) (reply int
 	return
 }
 
-func (r GoRedisV8) DoArrayIntegerReply(ctx context.Context, args []string)(reply ArrayInteger, isNil bool, err error) {
+func (r GoRedisV8) DoArrayIntegerReply(ctx context.Context, args []string)(reply ArrayInteger, err error) {
 	cmd := r.Core.Do(ctx, ArgsToInterfaces(args)...)
 	err = cmd.Err() ; if err != nil {
-		if errors.Is(err, redis.Nil) {
-			return nil, true, nil
-		}
 		return
 	}
 	values := cmd.Val().([]interface{})
@@ -58,12 +55,9 @@ func (r GoRedisV8) DoArrayIntegerReply(ctx context.Context, args []string)(reply
 	return
 }
 
-func (r GoRedisV8) DoArrayStringReply(ctx context.Context, args []string)(reply ArrayString, isNil bool, err error) {
+func (r GoRedisV8) DoArrayStringReply(ctx context.Context, args []string)(reply ArrayString, err error) {
 	cmd := r.Core.Do(ctx, ArgsToInterfaces(args)...)
 	err = cmd.Err() ; if err != nil {
-		if errors.Is(err, redis.Nil) {
-			return nil, true, nil
-		}
 		return
 	}
 	values := cmd.Val().([]interface{})
