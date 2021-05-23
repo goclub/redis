@@ -17,10 +17,11 @@ type API struct {
 	BitPos BITPOS
 	Decr DECR
 	DecrBy DECRBY
-	Set SET
-	SetBit SETBIT
 	Get GET
 	GetBit GETBIT
+	GetDel GETDEL
+	Set SET
+	SetBit SETBIT
 	Del DEL
 	PTTL PTTL
 }

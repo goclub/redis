@@ -302,52 +302,6 @@ func redisDecrBy(t *testing.T, client Connecter) {
 		assert.Equal(t, newValue, int64(-2))
 	}
 }
-func TestDel(t *testing.T) {
-	for _, client := range Connecters {
-		redisDel(t, client)
-	}
-}
-func redisDel(t *testing.T, client Connecter) {
-	ctx := context.TODO()
-	key := "del"
-	key2 := "del2"
-	{// SET key v
-		_, _, err := client.DoStringReply(ctx, []string{"SET", key, "v"}) ; assert.NoError(t, err)
-	}
-	{// DEL key
-		delCount, err := DEL{Key: key}.Do(ctx, client)
-		assert.NoError(t, err)
-		assert.Equal(t, delCount, uint64(1))
-		reply, isNil, err := client.DoStringReply(ctx, []string{"GET", key})
-		assert.NoError(t, err)
-		assert.Equal(t, reply, "")
-		assert.Equal(t, isNil, true)}
-	{
-		// MSET key "nimo" key2 "nico"
-		_, _, err := client.DoStringReply(ctx, []string{"MSET", key, "nimo", key2, "nico"}) ; assert.NoError(t, err)
-	}
-	{// DEL key key2
-		delCount, err := DEL{Keys: []string{key, key2}}.Do(ctx, client)
-		assert.Equal(t, delCount, uint64(2))
-		assert.NoError(t, err)
-		// GET key
-		{
-			reply, isNil, err := client.DoStringReply(ctx, []string{"GET", key})
-			assert.Equal(t, reply, "")
-			assert.Equal(t, isNil, true)
-			assert.NoError(t, err)
-		}
-		// GET key2
-		{
-			reply, isNil, err := client.DoStringReply(ctx, []string{"GET", key2})
-			assert.Equal(t, reply, "")
-			assert.Equal(t, isNil, true)
-			assert.NoError(t, err)
-		}
-	}
-
-
-}
 
 func TestPTTL(t *testing.T) {
 	for _, client := range Connecters {
@@ -505,7 +459,7 @@ func redisGet(t *testing.T,  client Connecter) {
 
 func TestGetBit(t *testing.T) {
 	for _, client := range Connecters {
-		redisGet(t, client)
+		redisGetBit(t, client)
 	}
 }
 func redisGetBit(t *testing.T, client Connecter) {
@@ -536,3 +490,33 @@ func redisGetBit(t *testing.T, client Connecter) {
 	}
 }
 
+
+func TestGetDel(t *testing.T) {
+	for _, client := range Connecters {
+		redisGetDel(t, client)
+	}
+}
+func redisGetDel(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "getdel"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	isNil, err := SET{Key: key, Value: "Hello",NeverExpire:true}.Do(ctx, client) ; assert.NoError(t, err)
+	assert.Equal(t, isNil, false)
+	{
+		value,hasValue, err := GETDEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, hasValue, true)
+		assert.Equal(t, value, "Hello")
+	}
+	{
+		value,hasValue, err := GETDEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, hasValue, false)
+		assert.Equal(t, value, "")
+	}
+	{
+		_, err := DEL{Key: key+"inexistence"}.Do(ctx, client) ; assert.NoError(t, err)
+		value,hasValue, err := GETDEL{Key: key+"inexistence"}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, hasValue, false)
+		assert.Equal(t, value, "")
+	}
+
+}

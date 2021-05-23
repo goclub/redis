@@ -132,23 +132,6 @@ func (data DECRBY) Do(ctx context.Context, client Connecter) (newValue int64, er
 	}
 	return
 }
-type DEL struct {
-	Key string
-	Keys []string
-}
-func (data DEL) Do(ctx context.Context, client Connecter) (delCount uint64, err error) {
-	args := []string{"DEL"}
-	if data.Key != "" {
-		data.Keys = []string{data.Key}
-	}
-	args = append(args, data.Keys...)
-	var value int64
-	value,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
-		return
-	}
-	delCount = uint64(value)
-	return
-}
 
 type GET struct {
 	Key string
@@ -169,8 +152,6 @@ func (data GET) Do(ctx context.Context, client Connecter) (value string, hasValu
 	}
 }
 
-
-
 type GETBIT struct {
 	Key string
 	Offset uint64
@@ -185,15 +166,25 @@ func (data GETBIT) Do(ctx context.Context, client Connecter) (value uint8, err e
 	return
 }
 
-
+type GETDEL struct {
+	Key string
+}
+func (data GETDEL) Do(ctx context.Context, client Connecter) (value string,hasValue bool, err error) {
+	args := []string{"GETDEL", data.Key}
+	value, isNil, err := client.DoStringReply(ctx, args) ; if err != nil {
+		return
+	}
+	hasValue = isNil == false
+	return
+}
 
 type SET struct {
+	NeverExpire bool
 	Key string
 	Value string
 	Expire time.Duration
 	ExpireAt time.Time // >= 6.2: Added the GET, EXAT and PXAT option. (ExpireAt)
 	KeepTTL bool // >= 6.0: Added the KEEPTTL option.
-	NeverExpire bool
 	XX bool
 	NX bool
 }
