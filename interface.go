@@ -22,6 +22,10 @@ type API struct {
 	GetDel GETDEL
 	GetEx GETEX
 	GetRange GETRANGE
+	GetSet GETSET
+	Incr INCR
+	IncrBy INCRBY
+	IncrByFloat INCRBYFLOAT
 	Set SET
 	SetBit SETBIT
 	Del DEL

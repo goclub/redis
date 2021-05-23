@@ -25,8 +25,8 @@ func redisAppend(t *testing.T, client Connecter) {
 			Value: "a",
 		}.Do(ctx, client) ; assert.NoError(t ,err)
 		assert.Equal(t, length, uint64(1))
-		value, hasValue, err := GET{Key:key}.Do(ctx, client) ; assert.NoError(t,err)
-		assert.Equal(t, hasValue, true)
+		value, isNil, err := GET{Key:key}.Do(ctx, client) ; assert.NoError(t,err)
+		assert.Equal(t, isNil, false)
 		assert.Equal(t, value, "a")
 	}
 	{
@@ -35,8 +35,8 @@ func redisAppend(t *testing.T, client Connecter) {
 			Value: "b",
 		}.Do(ctx, client) ; assert.NoError(t ,err)
 		assert.Equal(t, length, uint64(2))
-		value, hasValue, err := GET{Key:key}.Do(ctx, client) ; assert.NoError(t,err)
-		assert.Equal(t, hasValue, true)
+		value, isNil, err := GET{Key:key}.Do(ctx, client) ; assert.NoError(t,err)
+		assert.Equal(t, isNil, false)
 		assert.Equal(t, value, "ab")
 	}
 	{
@@ -45,8 +45,8 @@ func redisAppend(t *testing.T, client Connecter) {
 			Value: "cd",
 		}.Do(ctx, client) ; assert.NoError(t ,err)
 		assert.Equal(t, length, uint64(4))
-		value, hasValue, err := GET{Key:key}.Do(ctx, client) ; assert.NoError(t,err)
-		assert.Equal(t, hasValue, true)
+		value, isNil, err := GET{Key:key}.Do(ctx, client) ; assert.NoError(t,err)
+		assert.Equal(t, isNil, false)
 		assert.Equal(t, value, "abcd")
 	}
 }
@@ -202,8 +202,8 @@ func redisBitop(t *testing.T, client Connecter) {
 		Keys: []string{key+"1",key+"2"},
 	}.Do(ctx, client) ; assert.NoError(t, err)
 	assert.Equal(t, size, uint64(6))
-	value, hasValue, err := GET{Key: "bittop_dest"}.Do(ctx, client) ; assert.NoError(t, err)
-	assert.Equal(t, hasValue, true)
+	value, isNil, err := GET{Key: "bittop_dest"}.Do(ctx, client) ; assert.NoError(t, err)
+	assert.Equal(t, isNil, false)
 	assert.Equal(t, value, "`bc`ab")
 }
 
@@ -360,11 +360,11 @@ func redisSet(t *testing.T, client Connecter) {
 	key := "set"
 	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
 	{// GET key
-		value, hasValue, err := GET{
+		value, isNil, err := GET{
 			Key: key,
 		}.Do(ctx, client)
 		assert.Equal(t, value, "")
-		assert.Equal(t, hasValue, false)
+		assert.Equal(t, isNil, true)
 		assert.NoError(t, err)
 	}
 	{// SET key value
@@ -376,11 +376,11 @@ func redisSet(t *testing.T, client Connecter) {
 		assert.Equal(t, isNil, false)
 	}
 	{// GET key
-		value, hasValue, err := GET{
+		value, isNil, err := GET{
 			Key: key,
 		}.Do(ctx, client)
 		assert.Equal(t, value, "goclub")
-		assert.Equal(t, hasValue, true)
+		assert.Equal(t, isNil, false)
 		assert.NoError(t, err)
 	}
 	// @NEXT 写上 SET 的测试
@@ -436,22 +436,22 @@ func redisGet(t *testing.T,  client Connecter) {
 	// DEL key
 	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
 	{// GET key
-		value, hasValue, err := GET{
+		value, isNil, err := GET{
 			Key: key,
 		}.Do(ctx, client)
 		assert.Equal(t, value, "")
-		assert.Equal(t, hasValue, false)
+		assert.Equal(t, isNil, true)
 		assert.NoError(t, err)
 	}
 	{// SET key value
 		newValue := "nimo" + strconv.Itoa(time.Now().Nanosecond())
 		_, _, err = client.DoStringReply(ctx, []string{"SET", key, newValue}) ; assert.NoError(t, err)
 		_="GET key"
-		value, hasValue, err := GET{
+		value, isNil, err := GET{
 			Key: key,
 		}.Do(ctx, client)
 		assert.Equal(t, value, newValue)
-		assert.Equal(t, hasValue, true)
+		assert.Equal(t, isNil, false)
 		assert.NoError(t, err)
 	}
 
@@ -504,19 +504,19 @@ func redisGetDel(t *testing.T, client Connecter) {
 	isNil, err := SET{Key: key, Value: "Hello",NeverExpire:true}.Do(ctx, client) ; assert.NoError(t, err)
 	assert.Equal(t, isNil, false)
 	{
-		value,hasValue, err := GETDEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, hasValue, true)
+		value,isNil, err := GETDEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, isNil, false)
 		assert.Equal(t, value, "Hello")
 	}
 	{
-		value,hasValue, err := GETDEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, hasValue, false)
+		value,isNil, err := GETDEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, isNil, true)
 		assert.Equal(t, value, "")
 	}
 	{
 		_, err := DEL{Key: key+"inexistence"}.Do(ctx, client) ; assert.NoError(t, err)
-		value,hasValue, err := GETDEL{Key: key+"inexistence"}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, hasValue, false)
+		value,isNil, err := GETDEL{Key: key+"inexistence"}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, isNil, true)
 		assert.Equal(t, value, "")
 	}
 
@@ -532,16 +532,16 @@ func redisGetEx(t *testing.T, client Connecter) {
 	key := "getex"
 	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
 	{
-		value, hasValue, err := GETEX{Key: key, Expire: time.Second}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, hasValue, false)
+		value, isNil, err := GETEX{Key: key, Expire: time.Second}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, isNil, true)
 		assert.Equal(t, value, "")
 	}
 	{
 		_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
 		isNil, err := SET{Key: key, Value: "hi",NeverExpire:true}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, isNil, false)
-		value, hasValue, err := GETEX{Key: key, Expire: time.Second}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, hasValue, true)
+		value, isNil, err := GETEX{Key: key, Expire: time.Second}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, isNil, false)
 		assert.Equal(t, value, "hi")
 		result, err := PTTL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
 		log.Print(result.TTL.Milliseconds())
@@ -579,5 +579,111 @@ func redisGetRange(t *testing.T, client Connecter) {
 	{
 		value, err := GETRANGE{Key: key, Start: 10, End: 100}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, value, "string")
+	}
+}
+
+
+func TestGetSet(t *testing.T) {
+	for _, client := range Connecters {
+		redisGetSet(t, client)
+	}
+}
+func redisGetSet(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "getset"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		oldValue, isNil, err := GETSET{Key: key, Value: "a"}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, isNil, true)
+		assert.Equal(t, oldValue, "")
+	}
+	{
+		oldValue, isNil, err := GETSET{Key: key, Value: "b"}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, isNil, false)
+		assert.Equal(t, oldValue, "a")
+	}
+
+}
+
+
+func TestIncr(t *testing.T) {
+	for _, client := range Connecters {
+		redisIncr(t, client)
+	}
+}
+func redisIncr(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "incr"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		newValue, err := INCR{Key:key}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, int64(1))
+	}
+	{
+		newValue, err := INCR{Key:key}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, int64(2))
+	}
+}
+func TestIncrBy(t *testing.T) {
+	for _, client := range Connecters {
+		redisIncrBy(t, client)
+	}
+}
+func redisIncrBy(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "incrby"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		newValue, err := INCRBY{Key:key,Increment: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, int64(1))
+	}
+	{
+		newValue, err := INCRBY{Key:key,Increment: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, int64(2))
+	}
+	{
+		newValue, err := INCRBY{Key:key,Increment: 2}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, int64(4))
+	}
+	{
+		newValue, err := INCRBY{Key:key,Increment: -2}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, int64(2))
+	}
+}
+
+func TestIncrByFloat(t *testing.T) {
+	for _, client := range Connecters {
+		redisIncrByFloat(t, client)
+	}
+}
+func redisIncrByFloat(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "incrbyfloat"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		newValue, err := INCRBYFLOAT{Key:key,Increment: "1.1"}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, float64(1.1))
+	}
+	{
+		newValue, err := INCRBYFLOAT{Key:key,Increment: "1.3"}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, float64(2.4))
+	}
+	{
+		newValue, err := INCRBYFLOAT{Key:key,Increment: "-0.1"}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, float64(2.3))
+	}
+	{
+		newValue, err := INCRBYFLOAT{Key:key,Increment: "-.1"}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, float64(2.2))
+	}
+	{
+		value := strconv.FormatFloat(1.333333, 'f', 2, 64)
+		newValue, err := INCRBYFLOAT{Key:key,Increment: value}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, float64(3.53))
+	}
+	{
+		value := strconv.FormatFloat(1.333333, 'f', 5, 64)
+		newValue, err := INCRBYFLOAT{Key:key,Increment: value}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, float64(4.86333))
 	}
 }

@@ -19,6 +19,7 @@ func (data APPEND) Do(ctx context.Context, client Connecter) (length uint64, err
 	length = uint64(value)
 	return
 }
+
 type BITCOUNT struct {
 	Key string
 	// start and end offset unit byte (8bit)
@@ -137,19 +138,9 @@ type GET struct {
 	Key string
 }
 
-func (data GET) Do(ctx context.Context, client Connecter) (value string, hasValue bool, err error) {
+func (data GET) Do(ctx context.Context, client Connecter) (value string, isNil bool, err error) {
 	args := []string{"GET", data.Key}
-	value, isNil, err := client.DoStringReply(ctx, args) ; if err != nil {
-		// error
-		return "", false, err
-	}
-	if isNil {
-		// key 不存在
-		return "", false, nil
-	} else {
-		// key 存在
-		return value, true, nil
-	}
+	return client.DoStringReply(ctx, args)
 }
 
 type GETBIT struct {
@@ -169,13 +160,9 @@ func (data GETBIT) Do(ctx context.Context, client Connecter) (value uint8, err e
 type GETDEL struct {
 	Key string
 }
-func (data GETDEL) Do(ctx context.Context, client Connecter) (value string,hasValue bool, err error) {
+func (data GETDEL) Do(ctx context.Context, client Connecter) (value string,isNil bool, err error) {
 	args := []string{"GETDEL", data.Key}
-	value, isNil, err := client.DoStringReply(ctx, args) ; if err != nil {
-		return
-	}
-	hasValue = isNil == false
-	return
+	return client.DoStringReply(ctx, args)
 }
 type GETEX struct {
 	Key string
@@ -183,7 +170,7 @@ type GETEX struct {
 	ExpireAt time.Time
 	PERSIST bool
 }
-func (data GETEX) Do(ctx context.Context, client Connecter) (value string,hasValue bool, err error) {
+func (data GETEX) Do(ctx context.Context, client Connecter) (value string,isNil bool, err error) {
 	args := []string{"GETEX", data.Key}
 	if data.Expire != 0 {
 		px := strconv.FormatInt(data.Expire.Milliseconds(), 10)
@@ -195,11 +182,7 @@ func (data GETEX) Do(ctx context.Context, client Connecter) (value string,hasVal
 	if data.PERSIST {
 		args = append(args, "PERSIST")
 	}
-	value, isNil, err := client.DoStringReply(ctx, args) ; if err != nil {
-		return
-	}
-	hasValue = isNil == false
-	return
+	return client.DoStringReply(ctx, args)
 }
 
 
@@ -212,18 +195,7 @@ type SET struct {
 	KeepTTL bool // >= 6.0: Added the KEEPTTL option.
 	XX bool
 	NX bool
-}
-type GETRANGE struct {
-	Key string
-	Start int64
-	End int64
-}
-func (data GETRANGE) Do(ctx context.Context, client Connecter) (value string, err error) {
-	args := []string{"GETRANGE", data.Key, strconv.FormatInt(data.Start, 10), strconv.FormatInt(data.End, 10)}
-	value, _, err = client.DoStringReply(ctx, args) ; if err != nil {
-		return
-	}
-	return
+	GET bool
 }
 var ErrSetForgetTimeToLive = errors.New("goclub/redis: SET maybe you forget set field Expire or ExpireAt or KeepTTL or NeverExpire")
 func (data SET) Do(ctx context.Context, client Connecter) (isNil bool ,err error) {
@@ -252,6 +224,61 @@ func (data SET) Do(ctx context.Context, client Connecter) (isNil bool ,err error
 		return
 	}
 	return
+}
+
+type GETRANGE struct {
+	Key string
+	Start int64
+	End int64
+}
+func (data GETRANGE) Do(ctx context.Context, client Connecter) (value string, err error) {
+	args := []string{"GETRANGE", data.Key, strconv.FormatInt(data.Start, 10), strconv.FormatInt(data.End, 10)}
+	value, _, err = client.DoStringReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
+type GETSET struct {
+	Key string
+	Value string
+}
+func (data GETSET) Do(ctx context.Context, client Connecter) (oldValue string,isNil bool, err error) {
+	args := []string{"GETSET", data.Key, data.Value}
+	return client.DoStringReply(ctx, args)
+}
+
+type INCR struct {
+	Key string
+}
+func (data INCR) Do(ctx context.Context, client Connecter) (newValue int64, err error) {
+	args := []string{"INCR", data.Key}
+	newValue,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
+type INCRBY struct {
+	Key string
+	Increment int64
+}
+func (data INCRBY) Do(ctx context.Context, client Connecter) (newValue int64, err error) {
+	args := []string{"INCRBY", data.Key, strconv.FormatInt(data.Increment, 10)}
+	newValue,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
+
+type INCRBYFLOAT struct {
+	Key string
+	Increment string `eg:"strconv.FormatFloat(value, 'f', 2, 64)"`
+}
+func (data INCRBYFLOAT) Do(ctx context.Context, client Connecter) (newValue float64, err error) {
+	args := []string{"INCRBYFLOAT", data.Key, data.Increment}
+	reply, _, err := client.DoStringReply(ctx, args) ; if err != nil {
+		return
+	}
+	return strconv.ParseFloat(reply, 64)
 }
 
 type SETBIT struct {
