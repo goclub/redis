@@ -1,6 +1,8 @@
 package red
 
-import "context"
+import (
+	"context"
+)
 
 // RESP Arrays
 type ArrayInteger []OptionInt64
@@ -34,6 +36,7 @@ type API struct {
 	MGet MGET
 	MSet MSET
 	MSetNX MSETNX
+	// PSETEX: Please use SET
 	Set SET
 	SetBit SETBIT
 	Del DEL

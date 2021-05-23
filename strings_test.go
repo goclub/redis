@@ -59,7 +59,7 @@ func redisBitCount(t *testing.T, client Connecter) {
 	ctx := context.TODO()
 	key := "bitcount"
 	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-	_, err = SET{Key: key, Value:"foobar", NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
+	_, _, err = SET{Key: key, Value:"foobar", NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
 	{
 		length, err := BITCOUNT{
 			Key: key,
@@ -200,8 +200,8 @@ func redisBitop(t *testing.T, client Connecter) {
 	key := "BITOP"
 	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
 	_, err = DEL{Key: "bittop_dest"}.Do(ctx, client) ; assert.NoError(t, err)
-	_, err = SET{Key: key +"1", Value: "foobar",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
-	_, err = SET{Key: key +"2", Value: "abcdef",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
+	_, _, err = SET{Key: key +"1", Value: "foobar",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
+	_, _, err = SET{Key: key +"2", Value: "abcdef",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
 	size, err := BITOP{
 		AND: true,
 		DestKey: "bittop_dest",
@@ -223,7 +223,7 @@ func redisBitpos(t *testing.T, client Connecter) {
 	key := "bitpos"
 	{
 		_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-		_, err = SET{Key: key, Value: "\xff\xf0\x00",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
+		_, _, err = SET{Key: key, Value: "\xff\xf0\x00",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
 		position, err := BITPOS{
 			Key: key,
 			Bit:0,
@@ -232,7 +232,7 @@ func redisBitpos(t *testing.T, client Connecter) {
 	}
 	{
 		_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-		_, err = SET{Key: key, Value: "\x00\xff\xf0",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
+		_, _, err = SET{Key: key, Value: "\x00\xff\xf0",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
 		position, err := BITPOS{
 			Key: key,
 			Bit:1,
@@ -248,7 +248,7 @@ func redisBitpos(t *testing.T, client Connecter) {
 	}
 	{
 		_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-		_, err = SET{Key: key, Value: "\x00\x00\x00",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
+		_, _, err = SET{Key: key, Value: "\x00\x00\x00",NeverExpire: true}.Do(ctx, client) ; assert.NoError(t, err)
 		position, err := BITPOS{
 			Key: key,
 			Bit:1,
@@ -356,79 +356,6 @@ func redisPTTL(t *testing.T, client Connecter) {
 	}
 }
 
-func TestSet(t *testing.T) {
-	for _, client := range Connecters {
-		redisSet(t, client)
-	}
-}
-func redisSet(t *testing.T, client Connecter) {
-	ctx := context.TODO()
-	key := "set"
-	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-	{// GET key
-		value, isNil, err := GET{
-			Key: key,
-		}.Do(ctx, client)
-		assert.Equal(t, value, "")
-		assert.Equal(t, isNil, true)
-		assert.NoError(t, err)
-	}
-	{// SET key value
-		isNil, err := SET{
-			Key:         key,
-			Value:       "goclub",
-			NeverExpire: true,
-		}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, isNil, false)
-	}
-	{// GET key
-		value, isNil, err := GET{
-			Key: key,
-		}.Do(ctx, client)
-		assert.Equal(t, value, "goclub")
-		assert.Equal(t, isNil, false)
-		assert.NoError(t, err)
-	}
-	// @NEXT 写上 SET 的测试
-
-}
-
-func TestSetBit(t *testing.T) {
-	for _, client := range Connecters {
-		redisSetBit(t, client)
-	}
-}
-func redisSetBit(t *testing.T, client Connecter) {
-	ctx := context.TODO()
-	key := "setbit"
-	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-	{
-		value, err := SETBIT{Key: key, Offset: 0, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, value, uint8(0))
-
-		value, err = SETBIT{Key: key, Offset: 0, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, value, uint8(1))
-
-		value, err = GETBIT{Key: key, Offset: 10}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, value, uint8(0))
-	}
-	{
-		value, err := SETBIT{Key: key, Offset: 20, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, value, uint8(0))
-
-		value, err = SETBIT{Key: key, Offset: 20, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, value, uint8(1))
-
-		value, err = SETBIT{Key: key, Offset: 20, Value: 0}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, value, uint8(1))
-
-		value, err = SETBIT{Key: key, Offset: 20, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, value, uint8(0))
-
-		value, err = GETBIT{Key: key, Offset: 20}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, value, uint8(1))
-	}
-}
 
 func TestGet(t *testing.T) {
 	for _, client := range Connecters {
@@ -507,7 +434,7 @@ func redisGetDel(t *testing.T, client Connecter) {
 	ctx := context.TODO()
 	key := "getdel"
 	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-	isNil, err := SET{Key: key, Value: "Hello",NeverExpire:true}.Do(ctx, client) ; assert.NoError(t, err)
+	_, isNil, err := SET{Key: key, Value: "Hello",NeverExpire:true}.Do(ctx, client) ; assert.NoError(t, err)
 	assert.Equal(t, isNil, false)
 	{
 		value,isNil, err := GETDEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
@@ -544,7 +471,7 @@ func redisGetEx(t *testing.T, client Connecter) {
 	}
 	{
 		_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-		isNil, err := SET{Key: key, Value: "hi",NeverExpire:true}.Do(ctx, client) ; assert.NoError(t, err)
+		_, isNil, err := SET{Key: key, Value: "hi",NeverExpire:true}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, isNil, false)
 		value, isNil, err := GETEX{Key: key, Expire: time.Second}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, isNil, false)
@@ -564,7 +491,7 @@ func redisGetRange(t *testing.T, client Connecter) {
 	ctx := context.TODO()
 	key := "getrange"
 	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-	_, err = SET{NeverExpire: true, Key: key, Value: "This is a string"}.Do(ctx, client) ; assert.NoError(t, err)
+	_, _, err = SET{NeverExpire: true, Key: key, Value: "This is a string"}.Do(ctx, client) ; assert.NoError(t, err)
 	value, err := GETRANGE{Key: key, Start: 0, End: 3}.Do(ctx, client) ; if err != nil {
 	    return
 	}
@@ -709,7 +636,7 @@ func redisMGet(t *testing.T, client Connecter) {
 		{Valid: false,String:""},
 	})
 	{
-		_, err := SET{NeverExpire: true, Key: keys[0], Value:"a"}.Do(ctx, client) ; assert.NoError(t, err)
+		_, _, err := SET{NeverExpire: true, Key: keys[0], Value:"a"}.Do(ctx, client) ; assert.NoError(t, err)
 		values, err := MGET{Keys: keys}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, values, ArrayString{
 			{Valid: true,String:"a"},
@@ -796,5 +723,178 @@ func redisMSetNX(t *testing.T, client Connecter) {
 			{Valid: false, String: ""},
 			{Valid: false, String: ""},
 		})
+	}
+}
+
+func TestSet(t *testing.T) {
+	for _, client := range Connecters {
+		redisSet(t, client)
+	}
+}
+func redisSet(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "set"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{// GET key
+		value, isNil, err := GET{
+			Key: key,
+		}.Do(ctx, client)
+		assert.Equal(t, value, "")
+		assert.Equal(t, isNil, true)
+		assert.NoError(t, err)
+	}
+	{// SET key value
+		_, isNil, err := SET{
+			NeverExpire: true,
+			Key:         key,
+			Value:       "goclub",
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, isNil, false)
+	}
+	{// GET key
+		value, isNil, err := GET{
+			Key: key,
+		}.Do(ctx, client)
+		assert.Equal(t, value, "goclub")
+		assert.Equal(t, isNil, false)
+		assert.NoError(t, err)
+	}
+	// SET key value Expire
+	_, err = DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		_, _, err := SET{
+			Key: key,
+			Value: "v2",
+			Expire: time.Second,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		result, err := PTTL{Key:key}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,result.NeverExpire, false)
+		assert.Equal(t,result.KeyDoesNotExist, false)
+		assert.Equal(t,result.TTL.Milliseconds() > 900, true)
+		assert.Equal(t,result.TTL.Milliseconds() <= 1000, true)
+	}
+	// SET key value ExpireAt
+	_, err = DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		_, _, err := SET{
+			Key: key,
+			Value: "v2",
+			ExpireAt: time.Now().Add(time.Second),
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		result, err := PTTL{Key:key}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,result.NeverExpire, false)
+		assert.Equal(t,result.KeyDoesNotExist, false)
+		assert.Equal(t,result.TTL.Milliseconds() > 900, true)
+	}
+	// SET key value KEEPTTL
+	_, err = DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		_, _, err := SET{
+			Key: key,
+			Value: "v2",
+			Expire: time.Second,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		_, _, err = SET{
+			Key: key,
+			Value: "v2",
+			KeepTTL: true,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		result, err := PTTL{Key:key}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,result.NeverExpire, false)
+		assert.Equal(t,result.KeyDoesNotExist, false)
+		assert.Equal(t,result.TTL.Milliseconds() > 900, true)
+		assert.Equal(t,result.TTL.Milliseconds() <= 1000, true)
+	}
+	// SET key value GET
+	_, err = DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		_, _, err := SET{
+			NeverExpire: true,
+			Key: key,
+			Value:"v4",
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		reply, _, err := SET{
+			NeverExpire: true,
+			Key: key,
+			Value:"v5",
+			GET: true,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,reply, "v4")
+	}
+	// SET key value NX
+	_, err = DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		_, isNil, err := SET{
+			NeverExpire: true,
+			Key:key,
+			NX: true,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,isNil, false)
+		_, isNil, err = SET{
+			NeverExpire: true,
+			Key:key,
+			NX: true,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,isNil, true)
+	}
+	// SET key value XX
+	_, err = DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		_, isNil, err := SET{
+			NeverExpire: true,
+			Key:key,
+			XX: true,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,isNil, true)
+
+		_, _, err = SET{
+			NeverExpire: true,
+			Key:key,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		
+		_, isNil, err = SET{
+			NeverExpire: true,
+			Key:key,
+			XX: true,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,isNil, false)
+	}
+
+
+}
+func TestSetBit(t *testing.T) {
+	for _, client := range Connecters {
+		redisSetBit(t, client)
+	}
+}
+func redisSetBit(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "setbit"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		value, err := SETBIT{Key: key, Offset: 0, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(0))
+
+		value, err = SETBIT{Key: key, Offset: 0, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(1))
+
+		value, err = GETBIT{Key: key, Offset: 10}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(0))
+	}
+	{
+		value, err := SETBIT{Key: key, Offset: 20, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(0))
+
+		value, err = SETBIT{Key: key, Offset: 20, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(1))
+
+		value, err = SETBIT{Key: key, Offset: 20, Value: 0}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(1))
+
+		value, err = SETBIT{Key: key, Offset: 20, Value: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(0))
+
+		value, err = GETBIT{Key: key, Offset: 20}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, value, uint8(1))
 	}
 }

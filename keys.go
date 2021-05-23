@@ -1,6 +1,9 @@
 package red
 
-import "context"
+import (
+	"context"
+	"time"
+)
 type DEL struct {
 	Key string
 	Keys []string
@@ -38,3 +41,29 @@ func (data EXISTS) Do(ctx context.Context, client Connecter) (existsCount uint64
 	return
 }
 
+
+type PTTL struct {
+	Key string
+}
+type ResultTTL struct {
+	TTL time.Duration
+	NeverExpire bool
+	KeyDoesNotExist bool
+}
+
+func (data PTTL) Do(ctx context.Context, client Connecter) (result ResultTTL, err error) {
+	args := []string{"PTTL", data.Key}
+	value, _, err := client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	if value == -1 {
+		result.NeverExpire = true
+		return
+	}
+	if value == -2 {
+		result.KeyDoesNotExist = true
+		return
+	}
+	result.TTL = time.Millisecond * time.Duration(value)
+	return
+}
