@@ -851,7 +851,7 @@ func redisSet(t *testing.T, client Connecter) {
 			NeverExpire: true,
 			Key:key,
 		}.Do(ctx, client) ; assert.NoError(t, err)
-		
+
 		_, isNil, err = SET{
 			NeverExpire: true,
 			Key:key,
@@ -897,4 +897,32 @@ func redisSetBit(t *testing.T, client Connecter) {
 		value, err = GETBIT{Key: key, Offset: 20}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t, value, uint8(1))
 	}
+}
+
+func TestSetRange(t *testing.T) {
+	for _, client := range Connecters {
+		redisSetRange(t, client)
+	}
+}
+func redisSetRange(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "setrange"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	_, _, err = SET{NeverExpire: true, Key:key, Value:"Hello world"}.Do(ctx, client) ; assert.NoError(t, err)
+	length, err := SETRANGE{Key:key, Offset: 6, Value: "Redis"}.Do(ctx, client) ; assert.NoError(t, err)
+	assert.Equal(t,length, int64(11))
+}
+
+func TestStrLen(t *testing.T) {
+	for _, client := range Connecters {
+		redisStrlen(t, client)
+	}
+}
+func redisStrlen(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "strlen"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	_, _, err = SET{NeverExpire: true, Key:key, Value:"Hello world"}.Do(ctx, client) ; assert.NoError(t, err)
+	length, err := STRLEN{Key:key}.Do(ctx, client) ; assert.NoError(t, err)
+	assert.Equal(t,length, int64(11))
 }

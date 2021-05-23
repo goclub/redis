@@ -39,6 +39,9 @@ type API struct {
 	// PSETEX: Please use SET
 	Set SET
 	SetBit SETBIT
+	SetRange SETRANGE
+	// STRALGO TODO
+	StrLen STRLEN
 	Del DEL
 	PTTL PTTL
 }

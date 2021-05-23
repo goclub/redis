@@ -50,10 +50,7 @@ type BITFIELD struct {
 func (data BITFIELD) Do(ctx context.Context, client Connecter) (reply []OptionInt64, err error) {
 	args := []string{"BITFIELD", data.Key}
 	args = append(args, data.Args...)
-	reply, err = client.DoArrayIntegerReply(ctx, args) ; if err != nil {
-		return
-	}
-	return
+	return client.DoArrayIntegerReply(ctx, args)
 }
 
 // bit operation
@@ -333,3 +330,26 @@ func (data SETBIT) Do(ctx context.Context, client Connecter) (originalValue uint
 	return
 }
 
+
+type SETRANGE struct {
+	Key string
+	Offset int64
+	Value string
+}
+func (data SETRANGE) Do(ctx context.Context, client Connecter) (length int64, err error) {
+	args := []string{"SETRANGE", data.Key, strconv.FormatInt(data.Offset, 10), data.Value}
+	length, _, err = client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
+type STRLEN struct {
+	Key string
+}
+func (data STRLEN) Do(ctx context.Context, client Connecter) (length int64, err error) {
+	args := []string{"STRLEN", data.Key}
+	length, _, err = client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
