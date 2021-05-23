@@ -11,7 +11,7 @@ type COPY struct {
 	DB OptionUint8
 	Replace bool
 }
-
+// When Source is exists and Destination is inexistence return 1 Otherwise return 0
 func (data COPY) Do(ctx context.Context, client Connecter) (reply int64, err error) {
 	args := []string{"COPY"}
 

@@ -36,6 +36,41 @@ func redisCopy(t *testing.T, client Connecter) {
 		assert.Equal(t,reply, int64(0))
 	}
 }
+func TestExists(t *testing.T) {
+	for _, client := range Connecters {
+		redisExists(t, client)
+	}
+}
+func redisExists(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	keys := []string{"exist1", "exist2"}
+	_, err := DEL{Keys: keys}.Do(ctx, client) ; assert.NoError(t, err)
+	existsCount, err := EXISTS{
+		Keys: keys,
+	}.Do(ctx, client) ; assert.NoError(t, err)
+	assert.Equal(t,existsCount, uint64(0))
+	_, _, err = SET{NeverExpire: true, Key: keys[0], Value: "a"}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		existsCount, err := EXISTS{
+			Keys: keys,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,existsCount, uint64(1))
+	}
+	_, _, err = SET{NeverExpire: true, Key: keys[1], Value: "b"}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		existsCount, err := EXISTS{
+			Keys: keys,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,existsCount, uint64(2))
+	}
+	_, err = DEL{Key: keys[0]}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		existsCount, err := EXISTS{
+			Keys: keys,
+		}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,existsCount, uint64(1))
+	}
+}
 
 func TestDel(t *testing.T) {
 	for _, client := range Connecters {
