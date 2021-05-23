@@ -55,6 +55,7 @@ func (data BITFIELD) Do(ctx context.Context, client Connecter) (reply []int64, e
 	return
 }
 
+// bit operation
 type BITOP struct {
 	AND bool
 	OR bool
@@ -97,7 +98,6 @@ type BITPOS struct {
 	End OptionUint64
 }
 
-
 func (data BITPOS) Do(ctx context.Context, client Connecter) (position int64, err error) {
 	args := []string{"BITPOS", data.Key, strconv.FormatUint(uint64(data.Bit), 10)}
 	if data.Start.valid {
@@ -111,7 +111,27 @@ func (data BITPOS) Do(ctx context.Context, client Connecter) (position int64, er
 	}
 	return
 }
-
+type DECR struct {
+	Key string
+}
+func (data DECR) Do(ctx context.Context, client Connecter) (newValue int64, err error) {
+	args := []string{"DECR", data.Key}
+	newValue,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
+type DECRBY struct {
+	Key string
+	Decrement int64
+}
+func (data DECRBY) Do(ctx context.Context, client Connecter) (newValue int64, err error) {
+	args := []string{"DECRBY", data.Key, strconv.FormatInt(data.Decrement, 10)}
+	newValue,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
 type DEL struct {
 	Key string
 	Keys []string

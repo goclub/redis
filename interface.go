@@ -12,9 +12,11 @@ type Connecter interface {
 type API struct {
 	Append APPEND
 	BitCount BITCOUNT
-	BitFeild BITFIELD
-	BitOP BITOP
+	BitField BITFIELD
+	BitOp BITOP
 	BitPos BITPOS
+	Decr DECR
+	DecrBy DECRBY
 	Set SET
 	SetBit SETBIT
 	Get GET

@@ -250,6 +250,58 @@ func redisBitpos(t *testing.T, client Connecter) {
 	}
 }
 
+func TestDecr(t *testing.T) {
+	for _, client := range Connecters {
+		redisDecr(t, client)
+	}
+}
+func redisDecr(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "decr"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		newValue, err := DECR{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, int64(-1))
+	}
+	{
+		newValue, err := DECR{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, int64(-2))
+	}
+}
+func TestDecrBy(t *testing.T) {
+	for _, client := range Connecters {
+		redisDecrBy(t, client)
+	}
+}
+func redisDecrBy(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "decrby"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		newValue, err := DECRBY{Key: key, Decrement: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, int64(-1))
+	}
+	{
+		newValue, err := DECRBY{Key: key, Decrement: 1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, int64(-2))
+	}
+	{
+		newValue, err := DECRBY{Key: key, Decrement: -1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, int64(-1))
+	}
+	{
+		newValue, err := DECRBY{Key: key, Decrement: -1}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, int64(0))
+	}
+	{
+		newValue, err := DECRBY{Key: key, Decrement: -2}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, int64(2))
+	}
+	{
+		newValue, err := DECRBY{Key: key, Decrement: 4}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t, newValue, int64(-2))
+	}
+}
 func TestDel(t *testing.T) {
 	for _, client := range Connecters {
 		redisDel(t, client)
