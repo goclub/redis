@@ -654,7 +654,7 @@ func redisMSet(t *testing.T, client Connecter) {
 	keys := []string{"k1", "k2"}
 	_, err := DEL{Keys: keys}.Do(ctx, client) ; assert.NoError(t, err)
 	err = MSET{
-		KeysValues: []KV{
+		KeysValues: []KeyValue{
 			{"k1", "v1"},
 			{"k2", "v2"},
 		},
@@ -679,7 +679,7 @@ func redisMSetNX(t *testing.T, client Connecter) {
 	_, err := DEL{Keys: keys}.Do(ctx, client) ; assert.NoError(t, err)
 	{
 		result, err := MSETNX{
-			KeysValues: []KV{
+			KeysValues: []KeyValue{
 				{"k1", "v1"},
 				{"k2", "v2"},
 			},
@@ -698,7 +698,7 @@ func redisMSetNX(t *testing.T, client Connecter) {
 	_, err = DEL{Keys: []string{"a1", "a2", "a3"}}.Do(ctx, client) ; assert.NoError(t, err)
 	{
 		result, err := MSETNX{
-			KeysValues: []KV{
+			KeysValues: []KeyValue{
 				{"a1", "a1"},
 			},
 		}.Do(ctx, client) ; assert.NoError(t, err)
@@ -706,7 +706,7 @@ func redisMSetNX(t *testing.T, client Connecter) {
 	}
 	{
 		result, err := MSETNX{
-			KeysValues: []KV{
+			KeysValues: []KeyValue{
 				{"a1", "v1"},
 				{"a2", "v2"},
 				{"a3", "v3"},
@@ -928,16 +928,4 @@ func redisStrlen(t *testing.T, client Connecter) {
 }
 
 
-func TestDump(t *testing.T) {
-	for _, client := range Connecters {
-		redisDump(t, client)
-	}
-}
-func redisDump(t *testing.T, client Connecter) {
-	ctx := context.TODO()
-	key := "dump"
-	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-	_, _, err = SET{NeverExpire: true, Key:key, Value:"Hello world"}.Do(ctx, client) ; assert.NoError(t, err)
-	value, err := DUMP{Key:key}.Do(ctx, client)
-	assert.Equal(t, value, "\x00\vHello world\t\x00\xcb!m\xae\x92ef\xe8")
-}
+

@@ -46,6 +46,11 @@ type API struct {
 
 	// keys
 	Copy COPY
+	Dump DUMP
+	Exists EXISTS
+	Keys KEYS
+	// EXPIRE: Please use PEXPIRE
+	PExpire PEXPIRE
 	Del DEL
 	PTTL PTTL
 }

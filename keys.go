@@ -77,6 +77,31 @@ func (data EXISTS) Do(ctx context.Context, client Connecter) (existsCount uint64
 	return
 }
 
+type KEYS struct {
+	Pattern string
+}
+func (data KEYS) Do(ctx context.Context, client Connecter) (keys []string, err error) {
+	args := []string{"KEYS", data.Pattern}
+	reply, err := client.DoArrayStringReply(ctx, args) ; if err != nil {
+		return
+	}
+	for _, v := range reply {
+		keys = append(keys, v.String)
+	}
+	return
+}
+type PEXPIRE struct {
+	Key string
+	Duration time.Duration
+}
+
+func (data PEXPIRE) Do(ctx context.Context, client Connecter) (reply int64, err error) {
+	args := []string{"PEXPIRE", data.Key, strconv.FormatInt(data.Duration.Milliseconds(), 10)}
+	reply,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
 
 type PTTL struct {
 	Key string

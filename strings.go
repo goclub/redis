@@ -249,12 +249,12 @@ func (data MGET) Do(ctx context.Context, client Connecter) (values ArrayString, 
 
 }
 type MSET struct {
-	KeysValues []KV
+	KeysValues []KeyValue
 }
 func (data MSET) Do(ctx context.Context, client Connecter) (err error) {
 	args := []string{"MSET"}
-	for _, kv := range data.KeysValues {
-		args = append(args, kv.Key, kv.Value)
+	for _, KeyValue := range data.KeysValues {
+		args = append(args, KeyValue.Key, KeyValue.Value)
 	}
 	_, _, err = client.DoStringReply(ctx, args) ; if err != nil {
 	    return
@@ -262,12 +262,12 @@ func (data MSET) Do(ctx context.Context, client Connecter) (err error) {
 	return
 }
 type MSETNX struct {
-	KeysValues []KV
+	KeysValues []KeyValue
 }
 func (data MSETNX) Do(ctx context.Context, client Connecter) (result int8, err error) {
 	args := []string{"MSETNX"}
-	for _, kv := range data.KeysValues {
-		args = append(args, kv.Key, kv.Value)
+	for _, KeyValue := range data.KeysValues {
+		args = append(args, KeyValue.Key, KeyValue.Value)
 	}
 	reply, _, err := client.DoIntegerReply(ctx, args) ; if err != nil {
 		return

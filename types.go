@@ -77,7 +77,7 @@ type OptionString struct {
 	String string
 }
 
-type KV struct {
+type KeyValue struct {
 	Key string
 	Value string
 }
