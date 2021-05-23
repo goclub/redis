@@ -926,3 +926,18 @@ func redisStrlen(t *testing.T, client Connecter) {
 	length, err := STRLEN{Key:key}.Do(ctx, client) ; assert.NoError(t, err)
 	assert.Equal(t,length, int64(11))
 }
+
+
+func TestDump(t *testing.T) {
+	for _, client := range Connecters {
+		redisDump(t, client)
+	}
+}
+func redisDump(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "dump"
+	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
+	_, _, err = SET{NeverExpire: true, Key:key, Value:"Hello world"}.Do(ctx, client) ; assert.NoError(t, err)
+	value, err := DUMP{Key:key}.Do(ctx, client)
+	assert.Equal(t, value, "\x00\vHello world\t\x00\xcb!m\xae\x92ef\xe8")
+}

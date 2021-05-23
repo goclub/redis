@@ -28,6 +28,16 @@ func (data COPY) Do(ctx context.Context, client Connecter) (reply int64, err err
 	}
 	return
 }
+type DUMP struct {
+	Key string
+}
+func (data DUMP) Do(ctx context.Context, client Connecter) (value string, err error) {
+	args := []string{"DUMP", data.Key}
+	value,_, err = client.DoStringReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
 
 
 type DEL struct {
