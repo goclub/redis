@@ -2,6 +2,7 @@ package red
 
 import (
 	"time"
+	"errors"
 )
 
 
@@ -80,4 +81,16 @@ type OptionString struct {
 type KeyValue struct {
 	Key string
 	Value string
+}
+
+type Retry struct {
+	Times uint8
+	Duration time.Duration
+}
+
+func (data Retry) check() error {
+	if data.Times > 0 && data.Duration == 0 {
+		return errors.New("goclub/redis(ERR_MISSING_RETRY_DURATION) if Retry{}.Times > 0 then Retry{}.Duration can not be zero")
+	}
+	return nil
 }
