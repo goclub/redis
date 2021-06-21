@@ -53,7 +53,7 @@ func (r GoRedisV8) DoArrayStringReply(ctx context.Context, args []string)(reply 
 	err = cmd.Err() ; if err != nil {
 		return
 	}
-	reply = ParseStringIntegerReply(cmd.Val())
+	reply = ParseArrayStringReply(cmd.Val())
 	return
 }
 

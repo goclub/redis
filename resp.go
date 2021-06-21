@@ -11,7 +11,7 @@ func ParseArrayIntegerReply(reply interface{}) (arrayIntegerReply []OptionInt64)
 	}
 	return
 }
-func ParseStringIntegerReply(reply interface{}) (arrayStringReply []OptionString) {
+func ParseArrayStringReply(reply interface{}) (arrayStringReply []OptionString) {
 	values := reply.([]interface{})
 	for _, v := range values {
 		if v == nil {
