@@ -44,14 +44,7 @@ func (r GoRedisV8) DoArrayIntegerReply(ctx context.Context, args []string)(reply
 	err = cmd.Err() ; if err != nil {
 		return
 	}
-	values := cmd.Val().([]interface{})
-	for _, v := range values {
-		if v == nil {
-			reply = append(reply, OptionInt64{})
-		} else {
-			reply = append(reply, NewOptionInt64(v.(int64)))
-		}
-	}
+	reply = ParseArrayIntegerReply(cmd.Val())
 	return
 }
 
@@ -60,14 +53,7 @@ func (r GoRedisV8) DoArrayStringReply(ctx context.Context, args []string)(reply 
 	err = cmd.Err() ; if err != nil {
 		return
 	}
-	values := cmd.Val().([]interface{})
-	for _, v := range values {
-		if v == nil {
-			reply = append(reply, OptionString{})
-		} else {
-			reply = append(reply, NewOptionString(v.(string)))
-		}
-	}
+	reply = ParseStringIntegerReply(cmd.Val())
 	return
 }
 
