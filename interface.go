@@ -49,11 +49,26 @@ type API struct {
 
 	// keys
 	Copy COPY
+	Del DEL
 	Dump DUMP
 	Exists EXISTS
+	Expire EXPIRE
+	ExpireAt EXPIREAT // @needtest
+	ExpireTime EXPIRETIME // @needtest
 	Keys KEYS
-	// EXPIRE: Please use PEXPIRE
 	PExpire PEXPIRE
-	Del DEL
+	// PEXPIREAT
+	// PEXPIRETIME
 	PTTL PTTL
+	// RENAME
+	// RENAMENX
+	// RESTORE
+	// SORT
+	// SORT_RO
+	// TOUCH
+	// TTL
+	// TYPE
+	// UNLINK
+	// WAIT
+	// SCAN
 }

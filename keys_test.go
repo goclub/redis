@@ -156,8 +156,39 @@ func redisPExpire(t *testing.T, client Connecter) {
 		result, err := PTTL{
 			Key: key,
 		}.Do(ctx, client)  ; assert.NoError(t, err)
+		assert.Equal(t, result.TTL.String(), "1s")
 		assert.Equal(t,result.TTL.Milliseconds() > 900, true)
 		assert.Equal(t,result.TTL.Milliseconds() <= 1000, true)
+	}
+}
+
+func TestExpire(t *testing.T) {
+	for _, client := range Connecters {
+		redisExpire(t, client)
+	}
+}
+func redisExpire(t *testing.T, client Connecter) {
+	ctx := context.TODO()
+	key := "expire"
+	_, err := DEL{Key:key}.Do(ctx, client) ; assert.NoError(t, err)
+	{
+		reply, err := EXPIRE{Key: key, Duration: time.Second}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,reply, int64(0))
+		result, err := PTTL{
+			Key: key,
+		}.Do(ctx, client)  ; assert.NoError(t, err)
+		assert.Equal(t,result.KeyDoesNotExist, true)
+	}
+	{
+		_, _, err = SET{NeverExpire: true, Key:key, Value: "a"}.Do(ctx, client) ; assert.NoError(t, err)
+		reply, err := EXPIRE{Key: key, Duration: time.Second*2}.Do(ctx, client) ; assert.NoError(t, err)
+		assert.Equal(t,reply, int64(1))
+		result, err := PTTL{
+			Key: key,
+		}.Do(ctx, client)  ; assert.NoError(t, err)
+		assert.Equal(t, result.TTL.String(), "2s")
+		assert.Equal(t,result.TTL.Milliseconds() > 900, true)
+		assert.Equal(t,result.TTL.Milliseconds() <= 2000, true)
 	}
 }
 

@@ -2,6 +2,8 @@ package red
 
 import (
 	"context"
+	xerr "github.com/goclub/error"
+	xtime "github.com/goclub/time"
 	"strconv"
 	"time"
 )
@@ -93,16 +95,103 @@ func (data KEYS) Do(ctx context.Context, client Connecter) (keys []string, err e
 type PEXPIRE struct {
 	Key string
 	Duration time.Duration
+	NX bool
+	XX bool
+	GT bool
+	LT bool
 }
 
 func (data PEXPIRE) Do(ctx context.Context, client Connecter) (reply int64, err error) {
+	if data.Duration < time.Millisecond-1 {
+		err = xerr.New("red.PEXPIRE{}.Duration can not less than time.Millisecond")
+		return
+	}
 	args := []string{"PEXPIRE", data.Key, strconv.FormatInt(data.Duration.Milliseconds(), 10)}
+	if data.NX {
+		args = append(args, "NX")
+	}
+	if data.XX {
+		args = append(args, "XX")
+	}
+	if data.GT {
+		args = append(args, "GT")
+	}
+	if data.LT {
+		args = append(args, "LT")
+	}
 	reply,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
 		return
 	}
 	return
 }
-
+type EXPIRE struct {
+	Key string
+	Duration time.Duration
+	NX bool
+	XX bool
+	GT bool
+	LT bool
+}
+func (data EXPIRE) Do(ctx context.Context, client Connecter) (reply int64, err error) {
+	if data.Duration < time.Second-1 {
+		err = xerr.New("red.EXPIRE{}.Duration can not less than time.Second")
+		return
+	}
+	args := []string{"EXPIRE", data.Key, strconv.FormatUint(uint64(data.Duration.Seconds()), 10)}
+	if data.NX {
+		args = append(args, "NX")
+	}
+	if data.XX {
+		args = append(args, "XX")
+	}
+	if data.GT {
+		args = append(args, "GT")
+	}
+	if data.LT {
+		args = append(args, "LT")
+	}
+	reply,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
+type EXPIREAT struct {
+	Key string
+	Time time.Time
+	NX bool
+	XX bool
+	GT bool
+	LT bool
+}
+func (data EXPIREAT) Do(ctx context.Context, client Connecter) (reply int64, err error) {
+	args := []string{"EXPIREAT", data.Key, strconv.FormatInt(xtime.UnixMilli(data.Time), 10)}
+	if data.NX {
+		args = append(args, "NX")
+	}
+	if data.XX {
+		args = append(args, "XX")
+	}
+	if data.GT {
+		args = append(args, "GT")
+	}
+	if data.LT {
+		args = append(args, "LT")
+	}
+	reply,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
+type EXPIRETIME struct {
+	Key string
+}
+func (data EXPIRETIME) Do(ctx context.Context, client Connecter) (reply int64, err error) {
+	args := []string{"EXPIRETIME", data.Key}
+	reply,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	return
+}
 type PTTL struct {
 	Key string
 }
