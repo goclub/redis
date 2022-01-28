@@ -3,6 +3,7 @@ package red
 import (
 	"context"
 	"errors"
+	xerr "github.com/goclub/error"
 	xtime "github.com/goclub/time"
 	"strconv"
 	"time"
@@ -12,6 +13,7 @@ type APPEND struct {
 	Value string
 }
 func (data APPEND) Do(ctx context.Context, client Connecter) (length uint64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"APPEND", data.Key, data.Value}
 	value, _, err := client.DoIntegerReply(ctx, args) ; if err != nil {
 	    return
@@ -28,6 +30,7 @@ type BITCOUNT struct {
 }
 
 func (data BITCOUNT) Do(ctx context.Context, client Connecter) (length uint64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"BITCOUNT", data.Key}
 	if data.StartByte.Valid {
 		args = append(args, strconv.FormatInt(data.StartByte.Int64, 10))
@@ -48,6 +51,7 @@ type BITFIELD struct {
 }
 
 func (data BITFIELD) Do(ctx context.Context, client Connecter) (reply []OptionInt64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"BITFIELD", data.Key}
 	args = append(args, data.Args...)
 	return client.DoArrayIntegerReply(ctx, args)
@@ -81,6 +85,7 @@ func (data BITOP) Do(ctx context.Context, client Connecter) (size uint64, err er
 	if data.Key != "" {
 		data.Keys = []string{data.Key}
 	}
+	if len(data.Keys) == 0 { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args = append(args, data.Keys...)
 	value,_, err := client.DoIntegerReply(ctx, args) ; if err != nil {
 		return
@@ -97,6 +102,7 @@ type BITPOS struct {
 }
 
 func (data BITPOS) Do(ctx context.Context, client Connecter) (position int64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"BITPOS", data.Key, strconv.FormatUint(uint64(data.Bit), 10)}
 	if data.Start.Valid {
 		args = append(args, strconv.FormatUint(data.Start.Uint64, 10))
@@ -113,6 +119,7 @@ type DECR struct {
 	Key string
 }
 func (data DECR) Do(ctx context.Context, client Connecter) (newValue int64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"DECR", data.Key}
 	newValue,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
 		return
@@ -124,6 +131,7 @@ type DECRBY struct {
 	Decrement int64
 }
 func (data DECRBY) Do(ctx context.Context, client Connecter) (newValue int64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"DECRBY", data.Key, strconv.FormatInt(data.Decrement, 10)}
 	newValue,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
 		return
@@ -134,8 +142,8 @@ func (data DECRBY) Do(ctx context.Context, client Connecter) (newValue int64, er
 type GET struct {
 	Key string
 }
-
 func (data GET) Do(ctx context.Context, client Connecter) (value string, isNil bool, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"GET", data.Key}
 	return client.DoStringReply(ctx, args)
 }
@@ -146,6 +154,7 @@ type GETBIT struct {
 }
 
 func (data GETBIT) Do(ctx context.Context, client Connecter) (value uint8, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"GETBIT", data.Key, strconv.FormatUint(data.Offset, 10)}
 	reply, _, err := client.DoIntegerReply(ctx, args) ; if err != nil {
 		return
@@ -158,6 +167,7 @@ type GETDEL struct {
 	Key string
 }
 func (data GETDEL) Do(ctx context.Context, client Connecter) (value string,isNil bool, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"GETDEL", data.Key}
 	return client.DoStringReply(ctx, args)
 }
@@ -168,6 +178,7 @@ type GETEX struct {
 	PERSIST bool
 }
 func (data GETEX) Do(ctx context.Context, client Connecter) (value string,isNil bool, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"GETEX", data.Key}
 	if data.Expire != 0 {
 		px := strconv.FormatInt(data.Expire.Milliseconds(), 10)
@@ -188,6 +199,7 @@ type GETRANGE struct {
 	End int64
 }
 func (data GETRANGE) Do(ctx context.Context, client Connecter) (value string, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"GETRANGE", data.Key, strconv.FormatInt(data.Start, 10), strconv.FormatInt(data.End, 10)}
 	value, _, err = client.DoStringReply(ctx, args) ; if err != nil {
 		return
@@ -199,6 +211,7 @@ type GETSET struct {
 	Value string
 }
 func (data GETSET) Do(ctx context.Context, client Connecter) (oldValue string,isNil bool, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"GETSET", data.Key, data.Value}
 	return client.DoStringReply(ctx, args)
 }
@@ -207,6 +220,7 @@ type INCR struct {
 	Key string
 }
 func (data INCR) Do(ctx context.Context, client Connecter) (newValue int64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"INCR", data.Key}
 	newValue,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
 		return
@@ -218,6 +232,7 @@ type INCRBY struct {
 	Increment int64
 }
 func (data INCRBY) Do(ctx context.Context, client Connecter) (newValue int64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"INCRBY", data.Key, strconv.FormatInt(data.Increment, 10)}
 	newValue,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
 		return
@@ -230,6 +245,7 @@ type INCRBYFLOAT struct {
 	Increment string `eg:"strconv.FormatFloat(value, 'f', 2, 64)"`
 }
 func (data INCRBYFLOAT) Do(ctx context.Context, client Connecter) (newValue float64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"INCRBYFLOAT", data.Key, data.Increment}
 	reply, _, err := client.DoStringReply(ctx, args) ; if err != nil {
 		return
@@ -240,6 +256,7 @@ type MGET struct {
 	Keys []string
 }
 func (data MGET) Do(ctx context.Context, client Connecter) (values ArrayString, err error) {
+	if len(data.Keys) == 0 { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"MGET"}
 	args = append(args, data.Keys...)
 	values, err = client.DoArrayStringReply(ctx, args) ; if err != nil {
@@ -253,6 +270,7 @@ type MSET struct {
 }
 func (data MSET) Do(ctx context.Context, client Connecter) (err error) {
 	args := []string{"MSET"}
+	if len(data.KeysValues) == 0 { err = xerr.New("goclub/redis: KeysValues can not be empty slice") ; return}
 	for _, KeyValue := range data.KeysValues {
 		args = append(args, KeyValue.Key, KeyValue.Value)
 	}
@@ -265,6 +283,7 @@ type MSETNX struct {
 	KeysValues []KeyValue
 }
 func (data MSETNX) Do(ctx context.Context, client Connecter) (result int8, err error) {
+	if len(data.KeysValues) == 0 { err = xerr.New("goclub/redis: KeysValues can not be empty slice") ; return}
 	args := []string{"MSETNX"}
 	for _, KeyValue := range data.KeysValues {
 		args = append(args, KeyValue.Key, KeyValue.Value)
@@ -288,6 +307,7 @@ type SET struct {
 }
 var ErrSetForgetTimeToLive = errors.New("goclub/redis: SET maybe you forget set field Expire or ExpireAt or KeepTTL or NeverExpire")
 func (data SET) Do(ctx context.Context, client Connecter) (reply string, isNil bool ,err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"SET", data.Key, data.Value}
 	// 只有在明确 NeverExpire 时候才允许 Expire 留空
 	if data.NeverExpire == false && data.Expire == 0 && data.ExpireAt.IsZero() && data.KeepTTL == false {
@@ -322,6 +342,7 @@ type SETBIT struct {
 }
 
 func (data SETBIT) Do(ctx context.Context, client Connecter) (originalValue uint8, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"SETBIT", data.Key, strconv.FormatUint(data.Offset, 10), strconv.FormatUint(uint64(data.Value), 10)}
 	reply, _, err := client.DoIntegerReply(ctx, args) ; if err != nil {
 		return
@@ -337,6 +358,7 @@ type SETRANGE struct {
 	Value string
 }
 func (data SETRANGE) Do(ctx context.Context, client Connecter) (length int64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"SETRANGE", data.Key, strconv.FormatInt(data.Offset, 10), data.Value}
 	length, _, err = client.DoIntegerReply(ctx, args) ; if err != nil {
 		return
@@ -347,6 +369,7 @@ type STRLEN struct {
 	Key string
 }
 func (data STRLEN) Do(ctx context.Context, client Connecter) (length int64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"STRLEN", data.Key}
 	length, _, err = client.DoIntegerReply(ctx, args) ; if err != nil {
 		return

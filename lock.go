@@ -2,6 +2,7 @@ package red
 
 import (
 	"context"
+	xerr "github.com/goclub/error"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"strconv"
@@ -78,6 +79,7 @@ end
 	}
 }
 func (data *Mutex) Lock(ctx context.Context, client Connecter) ( ok bool, unlock func(ctx context.Context) (err error), err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	err = data.Retry.check() ; if err != nil {
 		return
 	}

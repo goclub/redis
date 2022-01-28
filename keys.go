@@ -34,6 +34,7 @@ type DUMP struct {
 	Key string
 }
 func (data DUMP) Do(ctx context.Context, client Connecter) (value string, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"DUMP", data.Key}
 	value,_, err = client.DoStringReply(ctx, args) ; if err != nil {
 		return
@@ -51,6 +52,7 @@ func (data DEL) Do(ctx context.Context, client Connecter) (delCount uint64, err 
 	if data.Key != "" {
 		data.Keys = []string{data.Key}
 	}
+	if len(data.Keys) == 0 { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args = append(args, data.Keys...)
 	var value int64
 	value,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
@@ -70,6 +72,7 @@ func (data EXISTS) Do(ctx context.Context, client Connecter) (existsCount uint64
 	if data.Key != "" {
 		data.Keys = []string{data.Key}
 	}
+	if len(data.Keys) == 0 { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args = append(args, data.Keys...)
 	var value int64
 	value,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
@@ -102,6 +105,7 @@ type PEXPIRE struct {
 }
 
 func (data PEXPIRE) Do(ctx context.Context, client Connecter) (reply int64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	if data.Duration < time.Millisecond-1 {
 		err = xerr.New("red.PEXPIRE{}.Duration can not less than time.Millisecond")
 		return
@@ -133,6 +137,7 @@ type EXPIRE struct {
 	LT bool
 }
 func (data EXPIRE) Do(ctx context.Context, client Connecter) (reply int64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	if data.Duration < time.Second-1 {
 		err = xerr.New("red.EXPIRE{}.Duration can not less than time.Second")
 		return
@@ -164,6 +169,7 @@ type EXPIREAT struct {
 	LT bool
 }
 func (data EXPIREAT) Do(ctx context.Context, client Connecter) (reply int64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"EXPIREAT", data.Key, strconv.FormatInt(xtime.UnixMilli(data.Time), 10)}
 	if data.NX {
 		args = append(args, "NX")
@@ -186,6 +192,7 @@ type EXPIRETIME struct {
 	Key string
 }
 func (data EXPIRETIME) Do(ctx context.Context, client Connecter) (reply int64, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"EXPIRETIME", data.Key}
 	reply,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
 		return
@@ -202,6 +209,7 @@ type ResultTTL struct {
 }
 
 func (data PTTL) Do(ctx context.Context, client Connecter) (result ResultTTL, err error) {
+	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"PTTL", data.Key}
 	value, _, err := client.DoIntegerReply(ctx, args) ; if err != nil {
 		return

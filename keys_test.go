@@ -156,7 +156,6 @@ func redisPExpire(t *testing.T, client Connecter) {
 		result, err := PTTL{
 			Key: key,
 		}.Do(ctx, client)  ; assert.NoError(t, err)
-		assert.Equal(t, result.TTL.String(), "1s")
 		assert.Equal(t,result.TTL.Milliseconds() > 900, true)
 		assert.Equal(t,result.TTL.Milliseconds() <= 1000, true)
 	}
@@ -186,7 +185,6 @@ func redisExpire(t *testing.T, client Connecter) {
 		result, err := PTTL{
 			Key: key,
 		}.Do(ctx, client)  ; assert.NoError(t, err)
-		assert.Equal(t, result.TTL.String(), "2s")
 		assert.Equal(t,result.TTL.Milliseconds() > 900, true)
 		assert.Equal(t,result.TTL.Milliseconds() <= 2000, true)
 	}
