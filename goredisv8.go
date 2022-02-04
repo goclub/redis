@@ -120,7 +120,7 @@ func (r GoRedisV8) EvalWithoutNil(ctx context.Context, data Script) (reply inter
 		return
 	}
 	if isNil == true {
-		err = xerr.New("DoIntegerReply(ctx, args) args exec result can not be nil")
+		err = xerr.New("EvalWithoutNil(ctx, data) script exec result can not be nil")
 		return
 	}
 	return
