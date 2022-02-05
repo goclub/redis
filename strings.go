@@ -255,7 +255,7 @@ func (data INCRBYFLOAT) Do(ctx context.Context, client Connecter) (newValue floa
 type MGET struct {
 	Keys []string
 }
-func (data MGET) Do(ctx context.Context, client Connecter) (values ArrayString, err error) {
+func (data MGET) Do(ctx context.Context, client Connecter) (values []OptionString, err error) {
 	if len(data.Keys) == 0 { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	args := []string{"MGET"}
 	args = append(args, data.Keys...)

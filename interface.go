@@ -5,17 +5,15 @@ import (
 )
 
 // RESP Arrays
-type ArrayInteger []OptionInt64
-type ArrayString []OptionString
 type Connecter interface {
 	DoStringReply(ctx context.Context, args []string) (reply string, isNil bool, err error)
 	DoStringReplyWithoutNil(ctx context.Context, args []string) (reply string, err error)
 	DoIntegerReply(ctx context.Context, args []string) (reply int64, isNil bool, err error)
 	DoIntegerReplyWithoutNil(ctx context.Context, args []string) (reply int64,  err error)
-	DoArrayIntegerReply(ctx context.Context, args []string)(reply ArrayInteger, err error)
-	DoArrayStringReply(ctx context.Context, args []string)(reply ArrayString, err error)
-	Eval(ctx context.Context, script Script) (reply interface{}, isNil bool, err error)
-	EvalWithoutNil(ctx context.Context, script Script) (reply interface{}, err error)
+	DoArrayIntegerReply(ctx context.Context, args []string)(reply []OptionInt64, err error)
+	DoArrayStringReply(ctx context.Context, args []string)(reply []OptionString, err error)
+	Eval(ctx context.Context, script Script) (reply Reply, isNil bool, err error)
+	EvalWithoutNil(ctx context.Context, script Script) (reply Reply, err error)
 }
 
 

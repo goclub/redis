@@ -631,14 +631,14 @@ func redisMGet(t *testing.T, client Connecter) {
 	keys := []string{"k1", "k2"}
 	_, err := DEL{Keys: keys}.Do(ctx, client) ; assert.NoError(t, err)
 	values, err := MGET{Keys: keys}.Do(ctx, client) ; assert.NoError(t, err)
-	assert.Equal(t, values, ArrayString{
+	assert.Equal(t, values, []OptionString{
 		{Valid: false,String:""},
 		{Valid: false,String:""},
 	})
 	{
 		_, _, err := SET{NeverExpire: true, Key: keys[0], Value:"a"}.Do(ctx, client) ; assert.NoError(t, err)
 		values, err := MGET{Keys: keys}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, values, ArrayString{
+		assert.Equal(t, values, []OptionString{
 			{Valid: true,String:"a"},
 			{Valid: false,String:""},
 		})
@@ -662,7 +662,7 @@ func redisMSet(t *testing.T, client Connecter) {
 	values, err := MGET{
 		Keys: []string{"k1", "k2"},
 	}.Do(ctx, client) ; assert.NoError(t, err)
-	assert.Equal(t,values, ArrayString{
+	assert.Equal(t,values, []OptionString{
 		{Valid: true, String: "v1"},
 		{Valid: true, String: "v2"},
 	})
@@ -690,7 +690,7 @@ func redisMSetNX(t *testing.T, client Connecter) {
 		values, err := MGET{
 			Keys: []string{"k1", "k2"},
 		}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t,values, ArrayString{
+		assert.Equal(t,values, []OptionString{
 			{Valid: true, String: "v1"},
 			{Valid: true, String: "v2"},
 		})
@@ -718,7 +718,7 @@ func redisMSetNX(t *testing.T, client Connecter) {
 		values, err := MGET{
 			Keys: []string{"a1", "a2", "a3"},
 		}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t,values, ArrayString{
+		assert.Equal(t,values, []OptionString{
 			{Valid: true, String: "a1"},
 			{Valid: false, String: ""},
 			{Valid: false, String: ""},
@@ -802,7 +802,7 @@ func redisSet(t *testing.T, client Connecter) {
 		result, err := PTTL{Key:key}.Do(ctx, client) ; assert.NoError(t, err)
 		assert.Equal(t,result.NeverExpire, false)
 		assert.Equal(t,result.KeyDoesNotExist, false)
-		assert.Equal(t,result.TTL.Milliseconds() > 900, true)
+		assert.Equal(t,result.TTL.Milliseconds() > 800, true)
 		assert.Equal(t,result.TTL.Milliseconds() <= 1000, true)
 	}
 	// SET key value GET

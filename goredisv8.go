@@ -31,7 +31,9 @@ func (r GoRedisV8) DoStringReply(ctx context.Context, args []string) (reply stri
 		}
 		return
 	}
-	reply = cmd.Val().(string)
+	reply, err = Reply{cmd.Val()}.String() ; if err != nil {
+	    return
+	}
 	return
 }
 func (r GoRedisV8) DoStringReplyWithoutNil(ctx context.Context, args []string) (reply string, err error) {
@@ -57,7 +59,9 @@ func (r GoRedisV8) DoIntegerReply(ctx context.Context, args []string) (reply int
 		}
 		return
 	}
-	reply = cmd.Val().(int64)
+	reply, err = Reply{cmd.Val()}.Int64() ; if err != nil {
+		return
+	}
 	return
 }
 func (r GoRedisV8) DoIntegerReplyWithoutNil(ctx context.Context, args []string) (reply int64, err error) {
@@ -66,12 +70,12 @@ func (r GoRedisV8) DoIntegerReplyWithoutNil(ctx context.Context, args []string) 
 		return
 	}
 	if isNil == true {
-		err = xerr.New("DoIntegerReply(ctx, args) args exec result can not be nil")
+		err = xerr.New("DoIntegerReplyWithoutNil(ctx, args) args exec result can not be nil")
 		return
 	}
 	return
 }
-func (r GoRedisV8) DoArrayIntegerReply(ctx context.Context, args []string)(reply ArrayInteger, err error) {
+func (r GoRedisV8) DoArrayIntegerReply(ctx context.Context, args []string)(reply []OptionInt64, err error) {
 	defer func() {
 		if err != nil { err = xerr.WithStack(err) }
 	}()
@@ -79,11 +83,10 @@ func (r GoRedisV8) DoArrayIntegerReply(ctx context.Context, args []string)(reply
 	err = cmd.Err() ; if err != nil {
 		return
 	}
-	reply = ParseArrayIntegerReply(cmd.Val())
-	return
+	return Reply{cmd.Val()}.Int64Slice()
 }
 
-func (r GoRedisV8) DoArrayStringReply(ctx context.Context, args []string)(reply ArrayString, err error) {
+func (r GoRedisV8) DoArrayStringReply(ctx context.Context, args []string)(reply []OptionString, err error) {
 	defer func() {
 		if err != nil { err = xerr.WithStack(err) }
 	}()
@@ -91,11 +94,10 @@ func (r GoRedisV8) DoArrayStringReply(ctx context.Context, args []string)(reply 
 	err = cmd.Err() ; if err != nil {
 		return
 	}
-	reply = ParseArrayStringReply(cmd.Val())
-	return
+	return Reply{cmd.Val()}.StringSlice()
 }
 
-func (r GoRedisV8) Eval(ctx context.Context, data Script) (reply interface{}, isNil bool, err error) {
+func (r GoRedisV8) Eval(ctx context.Context, data Script) (reply Reply, isNil bool, err error) {
 	defer func() {
 		if err != nil { err = xerr.WithStack(err) }
 	}()
@@ -106,15 +108,15 @@ func (r GoRedisV8) Eval(ctx context.Context, data Script) (reply interface{}, is
 	cmd := r.Core.Eval(ctx, data.Script, data.Keys, argv...)
 	err = cmd.Err() ; if err != nil {
 		if xerr.Is(err, redis.Nil) {
-			return "",true, nil
+			return Reply{},true, nil
 		} else {
-			return "",false, err
+			return Reply{},false, err
 		}
 	}
-	reply = cmd.Val()
+	reply = Reply{cmd.Val()}
 	return
 }
-func (r GoRedisV8) EvalWithoutNil(ctx context.Context, data Script) (reply interface{}, err error) {
+func (r GoRedisV8) EvalWithoutNil(ctx context.Context, data Script) (reply Reply, err error) {
 	var isNil bool
 	reply, isNil, err = r.Eval(ctx, data) ; if err != nil {
 		return

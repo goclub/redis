@@ -62,7 +62,10 @@ end
 			Err: err,
 		}
 	}
-	delCount = reply.(int64)
+
+	delCount, err = reply.Int64() ; if err != nil {
+	    return
+	}
 	switch delCount {
 	case 0:
 		return &ErrUnlock{
