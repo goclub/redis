@@ -34,19 +34,14 @@ func (r Reply) Int64() (v int64, err error) {
 	}
 }
 func (r Reply) Uint64() (v uint64, err error) {
-	defer func() { if err != nil { err = xerr.WithStack(err) } }()
-	switch value := r.Value.(type) {
-	case int64:
-		if value < 0 {
-			return 0, xerr.New("goclub/redis: reply value lt 0, can bot convert to uint64")
-		}
-		return uint64(value), nil
-	case string:
-		return strconv.ParseUint(value, 10, 64)
-	default:
-		err := fmt.Errorf("goclub/redis: unexpected type(%T) value(%+v) convert uint64", value, value)
-		return 0, err
+	int64Value, err :=  r.Int64() ; if err != nil {
+	    return
 	}
+	if int64Value < 0 {
+		return 0, xerr.Errorf("goclub/redis: %#v can not convert to uint64", int64Value)
+	}
+	v = uint64(int64Value)
+	return
 }
 // func (r Reply) InterfaceSlice() (interfaceSlice []interface{}, err error) {
 // 	switch value := r.Value.(type) {

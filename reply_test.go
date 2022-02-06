@@ -32,6 +32,10 @@ func redisReply(t *testing.T, client Connecter) {
 			assert.Equal(t, v, int64(1))
 		}
 		{
+			v, err := reply.Uint64() ; assert.NoError(t, err)
+			assert.Equal(t, v, uint64(1))
+		}
+		{
 			v, err := reply.Int64Slice()
 			assert.EqualError(t, err, "goclub/redis: unexpected type(string) value(1) convert []OptionInt64")
 			assert.Nil(t, v)
@@ -87,6 +91,11 @@ func redisReply(t *testing.T, client Connecter) {
 		{
 			v, err := reply.Int64() ; assert.NoError(t, err)
 			assert.Equal(t, v, int64(-2))
+		}
+		{
+			v, err := reply.Uint64()
+			assert.Equal(t, v, uint64(0))
+			assert.EqualError(t, err, "goclub/redis: -2 can not convert to uint64")
 		}
 		{
 			v, err := reply.Int64Slice()
