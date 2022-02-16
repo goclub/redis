@@ -53,8 +53,8 @@ else
 end
 `
 	reply, _, err := data.client.Eval(ctx, Script{
-		Keys: []string{data.Key},
-		Argv: []string{data.lockValue},
+		KEYS: []string{data.Key},
+		ARGV: []string{data.lockValue},
 		Script: script,
 	}) ; if err != nil {
 		return &ErrUnlock{

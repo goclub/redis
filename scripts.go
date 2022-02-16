@@ -1,7 +1,7 @@
 package red
 
 type Script struct {
-	Keys []string
-	Argv []string
+	KEYS []string
+	ARGV []string
 	Script string
 }

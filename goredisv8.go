@@ -102,10 +102,10 @@ func (r GoRedisV8) Eval(ctx context.Context, data Script) (reply Reply, isNil bo
 		if err != nil { err = xerr.WithStack(err) }
 	}()
 	var argv []interface{}
-	for _, s := range data.Argv {
+	for _, s := range data.ARGV {
 		argv = append(argv, s)
 	}
-	cmd := r.Core.Eval(ctx, data.Script, data.Keys, argv...)
+	cmd := r.Core.Eval(ctx, data.Script, data.KEYS, argv...)
 	err = cmd.Err() ; if err != nil {
 		if xerr.Is(err, redis.Nil) {
 			return Reply{},true, nil
