@@ -20,8 +20,8 @@ func MutexAction(i int, client Connecter, mutexCount *int,debug bool) {
 		Key: key,
 		Expire: time.Millisecond*100,
 		Retry: Retry{
-			Times: 3,
-			Duration:time.Millisecond*100,
+			Times:    3,
+			Interval: time.Millisecond*100,
 		},
 	}
 	lockSuccess, unlock, err := mutex.Lock(context.TODO(), client) ; if err != nil {

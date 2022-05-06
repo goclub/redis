@@ -57,28 +57,27 @@ end
 		ARGV: []string{data.lockValue},
 		Script: script,
 	}) ; if err != nil {
-		return &ErrUnlock{
+		return xerr.WithStack(&ErrUnlock{
 			IsConnectErr: true,
 			Err: err,
-		}
+		})
 	}
-
 	delCount, err = reply.Int64() ; if err != nil {
 	    return
 	}
 	switch delCount {
 	case 0:
-		return &ErrUnlock{
+		return xerr.WithStack(&ErrUnlock{
 			IsTimeout: true,
 			Err: errors.New("goclub/redis:  IsTimeout Mutex{}.Unlock() key:" + data.Key  + " is timeout"),
-		}
+		})
 	case 1:
 		return nil
 	default:
-		return &ErrUnlock{
+		return xerr.WithStack(&ErrUnlock{
 			IsUnexpectedError: true,
 			Err: errors.New("goclub/redis:  IsUnexpectedError Mutex{}.Unlock() del " + data.Key + " count:" + strconv.Itoa(int(delCount))),
-		}
+		})
 	}
 }
 func (data *Mutex) Lock(ctx context.Context, client Connecter) ( ok bool, unlock func(ctx context.Context) (err error), err error) {
@@ -107,7 +106,7 @@ func mutexLock(ctx context.Context, client Connecter, data *Mutex, retryCount *i
 		if *retryCount == -1 {
 			return
 		}
-		time.Sleep(data.Retry.Duration)
+		time.Sleep(data.Retry.Interval)
 		return mutexLock(ctx, client, data, retryCount)
 	}
 	ok = true

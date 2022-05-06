@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-// RESP Arrays
+// Connecter RESP
 type Connecter interface {
 	DoStringReply(ctx context.Context, args []string) (reply string, isNil bool, err error)
 	DoStringReplyWithoutNil(ctx context.Context, args []string) (reply string, err error)

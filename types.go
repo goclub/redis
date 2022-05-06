@@ -1,8 +1,8 @@
 package red
 
 import (
-	"time"
 	"errors"
+	"time"
 )
 
 
@@ -84,13 +84,13 @@ type KeyValue struct {
 }
 
 type Retry struct {
-	Times uint8
-	Duration time.Duration
+	Times    uint8
+	Interval time.Duration
 }
 
 func (data Retry) check() error {
-	if data.Times > 0 && data.Duration == 0 {
-		return errors.New("goclub/redis(ERR_MISSING_RETRY_DURATION) if Retry{}.Times > 0 then Retry{}.Duration can not be zero")
+	if data.Times > 0 && data.Interval == 0 {
+		return errors.New("goclub/redis(ERR_MISSING_RETRY_DURATION) if Retry{}.Times > 0 then Retry{}.Interval can not be zero")
 	}
 	return nil
 }

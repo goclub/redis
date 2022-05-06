@@ -107,7 +107,7 @@ type PEXPIRE struct {
 func (data PEXPIRE) Do(ctx context.Context, client Connecter) (reply int64, err error) {
 	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	if data.Duration < time.Millisecond-1 {
-		err = xerr.New("red.PEXPIRE{}.Duration can not less than time.Millisecond")
+		err = xerr.New("red.PEXPIRE{}.Interval can not less than time.Millisecond")
 		return
 	}
 	args := []string{"PEXPIRE", data.Key, strconv.FormatInt(data.Duration.Milliseconds(), 10)}
@@ -139,7 +139,7 @@ type EXPIRE struct {
 func (data EXPIRE) Do(ctx context.Context, client Connecter) (reply int64, err error) {
 	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
 	if data.Duration < time.Second-1 {
-		err = xerr.New("red.EXPIRE{}.Duration can not less than time.Second")
+		err = xerr.New("red.EXPIRE{}.Interval can not less than time.Second")
 		return
 	}
 	args := []string{"EXPIRE", data.Key, strconv.FormatUint(uint64(data.Duration.Seconds()), 10)}
