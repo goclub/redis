@@ -119,8 +119,11 @@ goclub/redis 能通过接口适配 go 社区的说有 redis 库.
 ![](./start.jpg)
 
 [连接redis    | NewClient](./example/internal/new_client_test.go?embed)
+
 [字符串增删改查 | StringsCRUD](./example/internal/strings_crud_test.go?embed)
+
 [eval执行脚本 | Eval](./example/internal/eval_test.go?embed)
+
 [直接写命令 |l DoIntegerReply ](./example/internal/do_interger_reply_test.go?embed)
 
 
