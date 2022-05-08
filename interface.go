@@ -30,7 +30,7 @@ type API struct {
 	GetDel      GETDEL
 	GetEx       GETEX
 	GetRange    GETRANGE
-	GetSet      GETSET
+	// GETSET: Please use SET (GETSET有清空TTL的"隐患")
 	Incr        INCR
 	IncrBy      INCRBY
 	IncrByFloat INCRBYFLOAT

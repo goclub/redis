@@ -206,15 +206,6 @@ func (data GETRANGE) Do(ctx context.Context, client Connecter) (value string, er
 	}
 	return
 }
-type GETSET struct {
-	Key string
-	Value string
-}
-func (data GETSET) Do(ctx context.Context, client Connecter) (oldValue string,isNil bool, err error) {
-	if data.Key == "" { err = xerr.New("goclub/redis: key can not be empty string") ; return}
-	args := []string{"GETSET", data.Key, data.Value}
-	return client.DoStringReply(ctx, args)
-}
 
 type INCR struct {
 	Key string

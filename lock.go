@@ -52,7 +52,7 @@ else
 	return 0
 end
 `
-	reply, _, err := data.client.Eval(ctx, Script{
+	reply, err := data.client.EvalWithoutNil(ctx, Script{
 		KEYS: []string{data.Key},
 		ARGV: []string{data.lockValue},
 		Script: script,

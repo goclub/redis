@@ -47,7 +47,7 @@ type DEL struct {
 	Key string
 	Keys []string
 }
-func (data DEL) Do(ctx context.Context, client Connecter) (delCount uint64, err error) {
+func (data DEL) Do(ctx context.Context, client Connecter) (delTotal uint64, err error) {
 	args := []string{"DEL"}
 	if data.Key != "" {
 		data.Keys = []string{data.Key}
@@ -58,7 +58,7 @@ func (data DEL) Do(ctx context.Context, client Connecter) (delCount uint64, err 
 	value,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
 		return
 	}
-	delCount = uint64(value)
+	delTotal = uint64(value)
 	return
 }
 

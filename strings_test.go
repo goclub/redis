@@ -515,29 +515,6 @@ func redisGetRange(t *testing.T, client Connecter) {
 }
 
 
-func TestGetSet(t *testing.T) {
-	for _, client := range Connecters {
-		redisGetSet(t, client)
-	}
-}
-func redisGetSet(t *testing.T, client Connecter) {
-	ctx := context.TODO()
-	key := "getset"
-	_, err := DEL{Key: key}.Do(ctx, client) ; assert.NoError(t, err)
-	{
-		oldValue, isNil, err := GETSET{Key: key, Value: "a"}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, isNil, true)
-		assert.Equal(t, oldValue, "")
-	}
-	{
-		oldValue, isNil, err := GETSET{Key: key, Value: "b"}.Do(ctx, client) ; assert.NoError(t, err)
-		assert.Equal(t, isNil, false)
-		assert.Equal(t, oldValue, "a")
-	}
-
-}
-
-
 func TestIncr(t *testing.T) {
 	for _, client := range Connecters {
 		redisIncr(t, client)
