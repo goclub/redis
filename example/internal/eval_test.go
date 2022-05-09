@@ -32,7 +32,8 @@ local expireMill = ARGV[2]
 local oldCount = redis.call("GET", countKey)
 
 -- redis 返回的 nil 在 lua 中会被转换为 false
-if oldCount ~= false then
+local countExisted = oldCount ~= false
+if countExisted then
 	if tonumber(oldCount) >= threshold then
 		return false
 	end
