@@ -43,6 +43,7 @@ func (data DUMP) Do(ctx context.Context, client Connecter) (value string, err er
 }
 
 
+// DEL If your redis version >= 4.0.0, use UNLINK whenever possible
 type DEL struct {
 	Key string
 	Keys []string
@@ -59,6 +60,24 @@ func (data DEL) Do(ctx context.Context, client Connecter) (delTotal uint64, err 
 		return
 	}
 	delTotal = uint64(value)
+	return
+}
+type UNLINK struct {
+	Key string
+	Keys []string
+}
+func (data UNLINK) Do(ctx context.Context, client Connecter) (unlinkTotal uint64, err error) {
+	args := []string{"UNLINK"}
+	if data.Key != "" {
+		data.Keys = []string{data.Key}
+	}
+	if len(data.Keys) == 0 { err = xerr.New("goclub/redis: key can not be empty string") ; return}
+	args = append(args, data.Keys...)
+	var value int64
+	value,_, err = client.DoIntegerReply(ctx, args) ; if err != nil {
+		return
+	}
+	unlinkTotal = uint64(value)
 	return
 }
 

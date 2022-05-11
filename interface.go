@@ -47,6 +47,7 @@ type API struct {
 	// keys
 	Copy       COPY
 	Del        DEL
+	Unlink UNLINK
 	Dump       DUMP
 	Exists     EXISTS
 	Expire     EXPIRE
