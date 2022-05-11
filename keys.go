@@ -43,9 +43,8 @@ func (data DUMP) Do(ctx context.Context, client Connecter) (value string, err er
 }
 
 
-// DEL If your redis version >= 4.0.0, use UNLINK whenever possible
 type DEL struct {
-	Key string
+	Key string `note:"DEL If your redis version >= 4.0.0, use UNLINK whenever possible"`
 	Keys []string
 }
 func (data DEL) Do(ctx context.Context, client Connecter) (delTotal uint64, err error) {
