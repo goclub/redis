@@ -10,17 +10,18 @@ import (
 )
 
 func TestEval(t *testing.T) {
-	err := func() (err error){
+	err := func() (err error) {
 		ctx := context.Background()
-		client, err := NewClient(ctx) ; if err != nil {
+		client, err := NewClient(ctx)
+		if err != nil {
 			return
 		}
-		log.Print("使用redis lua 脚本进行计数器递增,一分钟内最多递增10次")
+		log.Print("使用redis lua 脚本进行计数器递增,一分钟内最多递增3次")
 		reply, isNil, err := client.Eval(ctx, red.Script{
-			KEYS:   []string{
+			KEYS: []string{
 				/* 1 */ "example_count",
 			},
-			ARGV:   []string{
+			ARGV: []string{
 				/* 1 */ "3",
 				/* 2 */ strconv.FormatInt(time.Minute.Milliseconds(), 10),
 			},
@@ -31,7 +32,8 @@ local expireMill = ARGV[2]
 local oldCount = redis.call("GET", countKey)
 
 -- redis 返回的 nil 在 lua 中会被转换为 false
-if oldCount ~= false then
+local countExisted = oldCount ~= false
+if countExisted then
 	if tonumber(oldCount) >= threshold then
 		return false
 	end
@@ -42,8 +44,9 @@ if newIncrValue == 1 then
 end
 return newIncrValue
 `,
-		}) ; if err != nil {
-		    return
+		})
+		if err != nil {
+			return
 		}
 		// lua 返回的 false 在 redis 中会被转换为 nil
 		if isNil {
@@ -54,7 +57,8 @@ return newIncrValue
 		}
 
 		return
-	}() ; if err != nil {
-		log.Printf("%+v",err)
+	}()
+	if err != nil {
+		log.Printf("%+v", err)
 	}
 }

@@ -1,3 +1,8 @@
+---
+permalink: /
+sidebarBasedOnContent: true
+---
+
 # goclub/redis
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/goclub/redis.svg)](https://pkg.go.dev/github.com/goclub/redis)
