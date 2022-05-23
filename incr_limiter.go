@@ -3,7 +3,6 @@ package red
 import (
 	"context"
 	xerr "github.com/goclub/error"
-	"log"
 	"strconv"
 	"time"
 )
@@ -28,9 +27,8 @@ func (v IncrLimiter) Do(ctx context.Context, client Connecter) (limited bool, er
 		return false, xerr.New("goclub/redis: IncrLimiter{}.Maximum can not less 1")
 	}
 	// 递增脚本
-	var reply Reply
 	var isNil bool
-	reply, isNil, err = client.Eval(ctx, Script{
+	_, isNil, err = client.Eval(ctx, Script{
 		KEYS: []string{
 			/*1*/ v.Namespace,
 		},
@@ -60,18 +58,5 @@ func (v IncrLimiter) Do(ctx context.Context, client Connecter) (limited bool, er
 		limited = true
 		return
 	}
-	// 成功递增
-	replyString, err := reply.String()
-	if err != nil {
-		return
-	}
-	switch replyString {
-	case "OK":
-		limited = false
-		return
-	default:
-		err = xerr.Errorf("goclub/redis: IncrLimiter{}.Do() redis eval reply unexpected", replyString)
-	}
-	log.Printf("reply: %+v , %#v , %+v, %+v, %+v", reply, reply, isNil, reply.Value == "OK", reply.Value == false)
 	return
 }

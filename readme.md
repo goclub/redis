@@ -136,7 +136,9 @@ goclub/redis 能通过接口适配 go 社区的说有 redis 库.
 
 goclub/redis 还基于redis实现了了一些实用的方法,帮助开发人员提高开发效率.防止重复造轮子.
 
-### Trigger 触发器
+### Trigger
+
+> 触发器
 
 ```go
 // Trigger 触发器
@@ -156,7 +158,9 @@ func exmaple () {
 }
 ```
 
-### Mutex 互斥锁
+### Mutex
+
+> 互斥锁
 
 ```go
 mutex := red.Mutex{
@@ -187,4 +191,35 @@ err = unlock(context.TODO()) ; if err != nil {
     return
 }
 // 解锁成功
+```
+
+### IncrLimiter
+
+> 递增限制器
+
+```go
+alarm_1 := IncrLimiter{
+    Namespace: "incr_limiter_alarm_1",
+    Expire:    time.Second * 10,
+    Maximum:   3,
+}
+/* 第1次 */
+limited, err := alarm_1.Do(ctx, client) ; if err != nil {
+    return
+} // limited = false
+
+/* 第2次 */
+limited, err := alarm_1.Do(ctx, client) ; if err != nil {
+    return
+} // limited = false
+
+/* 第3次 */
+limited, err := alarm_1.Do(ctx, client) ; if err != nil {
+    return
+} // limited = false
+
+/* 第4次 */
+limited, err := alarm_1.Do(ctx, client) ; if err != nil {
+    return
+} // limited = true
 ```
