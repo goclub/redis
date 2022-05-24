@@ -23,9 +23,9 @@ func TestIncrLimiter_Do(t *testing.T) {
 func incrLimiter_Do(t *testing.T, client Connecter) {
 	ctx := context.TODO()
 	alarm_1 := IncrLimiter{
-		Namespace: "incr_limiter_alarm_1",
-		Expire:    time.Second * 10,
-		Maximum:   3,
+		Key:     "incr_limiter_alarm_1",
+		Expire:  time.Second * 10,
+		Maximum: 3,
 	}
 	/* 第1次 */
 	limited, err := alarm_1.Do(ctx, client);assert.NoError(t, err)
