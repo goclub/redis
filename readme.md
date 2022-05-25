@@ -229,51 +229,55 @@ limited, err := alarm_1.Do(ctx, client) ; if err != nil {
 
 > 设值限制器
 
+使用场景: 限制用户每天只能试读3个章节(如果不允许一天内反复试读相同章节则可以使用 IncrLimiter )        
+注意:     
+如果 Key = free_trial:{userID}        Expire = 24h 是限制24小时      
+如果 Key = free_trial:2022-01-01:{userID}     Expire = 24h 是限制每天
 ```go
-/* 第1次 */
+/* 第1次 用户1访问了章节1 */
 limited, err := SetLimiter{
-    Namespace: "set_limiter_alarm_1",
-    Member:    "a"
+    Key:       "free_trial:2022-05-25:userID:1",
+    Member:    "1"
     Expire:    time.Second * 10,
     Maximum:   3,
 }.Do(ctx, client) ; if err != nil {
     return
 } // limited = false
 
-/* 第1次 重复 */
+/* 第2次 用户1重复访问了章节1 */
 limited, err := SetLimiter{
-    Namespace: "set_limiter_alarm_1",
-    Member:    "a"
+    Key:       "free_trial:2022-05-25:userID:1",
+    Member:    "1"
     Expire:    time.Second * 10,
     Maximum:   3,
 }.Do(ctx, client) ; if err != nil {
     return
 } // limited = false
 
-/* 第2次 */
+/* 第3次 用户1访问了章节2 */
 limited, err := SetLimiter{
-    Namespace: "set_limiter_alarm_1",
-    Member:    "b"
+    Key:       "free_trial:2022-05-25:userID:1",
+    Member:    "2"
     Expire:    time.Second * 10,
     Maximum:   3,
 }.Do(ctx, client) ; if err != nil {
     return
 } // limited = false
 
-/* 第3次 */
+/* 第4次 用户1访问了章节3 */
 limited, err := SetLimiter{
-    Namespace: "set_limiter_alarm_1",
-    Member:    "c"
+    Key:       "free_trial:2022-05-25:userID:1",
+    Member:    "3"
     Expire:    time.Second * 10,
     Maximum:   3,
 }.Do(ctx, client) ; if err != nil {
     return
 } // limited = false
 
-/* 第4次 */
+/* 第5次 用户1访问了章节4 */
 limited, err := SetLimiter{
-    Namespace: "set_limiter_alarm_1",
-    Member:    "d"
+    Key:       "free_trial:2022-05-25:userID:1",
+    Member:    "4"
     Expire:    time.Second * 10,
     Maximum:   3,
 }.Do(ctx, client) ; if err != nil {

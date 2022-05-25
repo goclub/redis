@@ -8,9 +8,6 @@ import (
 )
 // SetLimiter 集合限制器
 // 使用场景: 限制用户每天只能试读3个章节(如果不允许一天内反复试读相同章节则可以使用 IncrLimiter )
-// 注意:
-// 如果 key = free_trial:{userID} 			  Expire = 24h 是限制24小时
-// 如果 key = free_trial:2022-01-01:{userID}   Expire = 24h 是限制每天
 type SetLimiter struct {
 	Key      string        `eg:"free_trial:2022-01-01:{userID}"`
 	Member   string         `eg:"{chapterID}"`
@@ -44,24 +41,24 @@ func (v SetLimiter) Do(ctx context.Context, client Connecter) (limited bool, err
 			/*3*/ strconv.FormatUint(v.Maximum, 10),
 		},
 		Script: `
-			local namespace = KEYS[1]
+			local key = KEYS[1]
 			local member = ARGV[1]
 			local expire = ARGV[2]
 			local maximun = tonumber(ARGV[3])	
 			
-			local exist = redis.call("SISMEMBER", namespace, member)
+			local exist = redis.call("SISMEMBER", key, member)
 			if exist == 1 then
 				return "OK"
 			end
 
-			local num = redis.call("SCARD", namespace)
+			local num = redis.call("SCARD", key)
 			if num ~= false and tonumber(num) >= maximun then
 				return false
 			end
 
-			local newNum = redis.call("SADD", namespace, member)
+			redis.call("SADD", key, member)
 			if num == 0 then
-				redis.call("PEXPIRE", namespace, expire)
+				redis.call("PEXPIRE", key, expire)
 			end
 			return "OK"
 		`,
