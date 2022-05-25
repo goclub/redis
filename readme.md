@@ -223,3 +223,60 @@ limited, err := alarm_1.Do(ctx, client) ; if err != nil {
     return
 } // limited = true
 ```
+
+
+### SetLimiter
+
+> 设值限制器
+
+```go
+/* 第1次 */
+limited, err := SetLimiter{
+    Namespace: "set_limiter_alarm_1",
+    Member:    "a"
+    Expire:    time.Second * 10,
+    Maximum:   3,
+}.Do(ctx, client) ; if err != nil {
+    return
+} // limited = false
+
+/* 第1次 重复 */
+limited, err := SetLimiter{
+    Namespace: "set_limiter_alarm_1",
+    Member:    "a"
+    Expire:    time.Second * 10,
+    Maximum:   3,
+}.Do(ctx, client) ; if err != nil {
+    return
+} // limited = false
+
+/* 第2次 */
+limited, err := SetLimiter{
+    Namespace: "set_limiter_alarm_1",
+    Member:    "b"
+    Expire:    time.Second * 10,
+    Maximum:   3,
+}.Do(ctx, client) ; if err != nil {
+    return
+} // limited = false
+
+/* 第3次 */
+limited, err := SetLimiter{
+    Namespace: "set_limiter_alarm_1",
+    Member:    "c"
+    Expire:    time.Second * 10,
+    Maximum:   3,
+}.Do(ctx, client) ; if err != nil {
+    return
+} // limited = false
+
+/* 第4次 */
+limited, err := SetLimiter{
+    Namespace: "set_limiter_alarm_1",
+    Member:    "d"
+    Expire:    time.Second * 10,
+    Maximum:   3,
+}.Do(ctx, client) ; if err != nil {
+    return
+} // limited = true
+```

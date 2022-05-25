@@ -2,6 +2,8 @@ package red
 
 import (
 	"context"
+	xerr "github.com/goclub/error"
+	"strconv"
 	"time"
 )
 // SetLimiter 集合限制器
@@ -17,7 +19,57 @@ type SetLimiter struct {
 }
 
 func (v SetLimiter) Do(ctx context.Context, client Connecter) (limited bool, err error) {
-	// 涉及命令 SISMEMBER SCARD SADD PEXPIRE
-	panic("TODO")
+	// 参数校验
+	if v.Key == "" {
+		return false, xerr.New("goclub/redis: SetLimiter{}.Key can not be empty string")
+	}
+	if v.Member == "" {
+		return false, xerr.New("goclub/redis: SetLimiter{}.Member can not be empty string")
+	}
+	if v.Expire.Milliseconds() < 1 {
+		return false, xerr.New("goclub/redis: SetLimiter{}.Expire can not less 1 millisecond")
+	}
+	if v.Maximum < 1 {
+		return false, xerr.New("goclub/redis: SetLimiter{}.Maximum can not less 1")
+	}
+	// 递增脚本
+	var isNil bool
+	_, isNil, err = client.Eval(ctx, Script{
+		KEYS: []string{
+			/*1*/ v.Key,
+		},
+		ARGV: []string{
+			/*1*/ v.Member,
+			/*2*/ strconv.FormatInt(v.Expire.Milliseconds(), 10),
+			/*3*/ strconv.FormatUint(v.Maximum, 10),
+		},
+		Script: `
+			local namespace = KEYS[1]
+			local member = ARGV[1]
+			local expire = ARGV[2]
+			local maximun = tonumber(ARGV[3])	
+			
+			local exist = redis.call("SISMEMBER", namespace, member)
+			if exist == 1 then
+				return "OK"
+			end
+
+			local num = redis.call("SCARD", namespace)
+			if num ~= false and tonumber(num) >= maximun then
+				return false
+			end
+
+			local newNum = redis.call("SADD", namespace, member)
+			if num == 0 then
+				redis.call("PEXPIRE", namespace, expire)
+			end
+			return "OK"
+		`,
+	})
+	// 没有成功递增
+	if isNil {
+		limited = true
+		return
+	}
 	return
 }
