@@ -13,6 +13,7 @@ type IncrLimiter struct {
 	Key    string        	`note:"key" eg:"mq_requeue:{messageID}"`
 	Expire time.Duration 	`note:"有效期" eg:"time.Minute"`
 	Maximum   uint64        `note:"最大限制" eg:"3"`
+	Increment uint64        `note:"递增值" default:"1"`
 }
 
 func (v IncrLimiter) Do(ctx context.Context, client Connecter) (limited bool, err error) {
@@ -26,6 +27,7 @@ func (v IncrLimiter) Do(ctx context.Context, client Connecter) (limited bool, er
 	if v.Maximum < 1 {
 		return false, xerr.New("goclub/redis: IncrLimiter{}.Maximum can not less 1")
 	}
+	if v.Increment == 0 { v.Increment = 1 }
 	// 递增脚本
 	var isNil bool
 	_, isNil, err = client.Eval(ctx, Script{
@@ -35,19 +37,21 @@ func (v IncrLimiter) Do(ctx context.Context, client Connecter) (limited bool, er
 		ARGV: []string{
 			/*1*/ strconv.FormatInt(v.Expire.Milliseconds(), 10),
 			/*2*/ strconv.FormatUint(v.Maximum, 10),
+			/*3*/ strconv.FormatUint(v.Increment, 10),
 		},
 		Script: `
 			local namespace = KEYS[1]
 			local expire = ARGV[1]
 			local maximun = tonumber(ARGV[2])
+			local increment =  tonumber(ARGV[3])
 			
 			local num = redis.call("GET", namespace)
-			if num ~= false and tonumber(num) >= maximun then
+			if num ~= false and tonumber(num) + increment > maximun then
 				return false
 			end
 
-			local newNum = redis.call("INCR", namespace)
-			if newNum == 1 then
+			local newNum = redis.call("INCRBY", namespace, increment)
+			if newNum == increment then
 				redis.call("PEXPIRE", namespace, expire)
 			end
 			return "OK"

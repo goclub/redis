@@ -9,23 +9,20 @@ import (
 )
 
 func TestSetLimiter_Do(t *testing.T) {
-	ctx := context.TODO()
-	for i, client := range Connecters {
-		if i == 0 {
-			_, err := DEL{
-				Keys: []string{"set_Limiter_1"},
-			}.Do(ctx, client)
-			_, err = DEL{
-				Keys: []string{"set_Limiter_2"},
-			}.Do(ctx, client)
-			assert.NoError(t, err)
-		}
+	for _, client := range Connecters {
 		setLimiter_Do(t, client)
 	}
 }
 
 func setLimiter_Do(t *testing.T, client Connecter) {
 	ctx := context.TODO()
+	_, err := DEL{
+		Keys: []string{"set_Limiter_1"},
+	}.Do(ctx, client)
+	_, err = DEL{
+		Keys: []string{"set_Limiter_2"},
+	}.Do(ctx, client)
+	assert.NoError(t, err)
 	/* 第1组 第1个 第1次 */
 	limited, err := SetLimiter{
 		Key:     "set_Limiter_1",

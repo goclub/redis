@@ -5,8 +5,19 @@ import (
 	xerr "github.com/goclub/error"
 	xtime "github.com/goclub/time"
 	"strconv"
+	"strings"
 	"time"
 )
+
+// MakeKey MakeKey("user", today, "count") // "user:2022-01-01:count"
+func MakeKey(elems... string) (key string) {
+	key = strings.Join(elems, ":")
+	if key == "" {
+		panic(xerr.New("goclub/redis: MakeKey(elems... string) elems can not be empty"))
+	}
+	return
+}
+
 type COPY struct {
 	Source string
 	Destination string

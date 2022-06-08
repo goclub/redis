@@ -3,9 +3,26 @@ package red
 import (
 	"context"
 	"github.com/stretchr/testify/assert"
+	"log"
 	"testing"
 	"time"
 )
+
+func TestMakeKey(t *testing.T)  {
+	assert.Equal(t,MakeKey("user", "count"), "user:count")
+	assert.Equal(t,MakeKey("user"), "user")
+	var panicValue interface{}
+	func () {
+		defer func() {
+			panicValue = recover()
+		}()
+		assert.Equal(t,MakeKey(), "")
+	}()
+	log.Println(panicValue)
+	err := panicValue.(error)
+	errString := err.Error()
+	assert.Equal(t, errString, "goclub/redis: MakeKey(elems... string) elems can not be empty")
+}
 
 func TestCopy(t *testing.T) {
 	for _, client := range Connecters {
