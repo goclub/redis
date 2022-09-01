@@ -2,6 +2,7 @@ package red
 
 import (
 	"context"
+	"fmt"
 	xerr "github.com/goclub/error"
 	"strconv"
 	"time"
@@ -84,7 +85,7 @@ return 0
 	case 0:
 		triggered = false
 	default:
-		err = xerr.Errorf("goclub/redis: Trigger{}.Do() redis eval reply unexpected", replyInt)
+		err = xerr.New(fmt.Sprintf("goclub/redis: Trigger{}.Do() redis eval reply unexpected", replyInt))
 	}
 	return
 }

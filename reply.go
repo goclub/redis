@@ -38,7 +38,7 @@ func (r Reply) Uint64() (v uint64, err error) {
 	    return
 	}
 	if int64Value < 0 {
-		return 0, xerr.Errorf("goclub/redis: %#v can not convert to uint64", int64Value)
+		return 0, xerr.New(fmt.Sprintf("goclub/redis: %#v can not convert to uint64", int64Value))
 	}
 	v = uint64(int64Value)
 	return
