@@ -238,7 +238,7 @@ limited, err := alarm_1.Do(ctx, client) ; if err != nil {
 limited, err := SetLimiter{
     Key:       "free_trial:2022-05-25:userID:1",
     Member:    "1"
-    Expire:    time.Second * 10,
+    Expire:    time.Hour * 24,
     Maximum:   3,
 }.Do(ctx, client) ; if err != nil {
     return
@@ -248,7 +248,7 @@ limited, err := SetLimiter{
 limited, err := SetLimiter{
     Key:       "free_trial:2022-05-25:userID:1",
     Member:    "1"
-    Expire:    time.Second * 10,
+    Expire:    time.Hour * 24,
     Maximum:   3,
 }.Do(ctx, client) ; if err != nil {
     return
@@ -258,7 +258,7 @@ limited, err := SetLimiter{
 limited, err := SetLimiter{
     Key:       "free_trial:2022-05-25:userID:1",
     Member:    "2"
-    Expire:    time.Second * 10,
+    Expire:    time.Hour * 24,
     Maximum:   3,
 }.Do(ctx, client) ; if err != nil {
     return
@@ -268,7 +268,7 @@ limited, err := SetLimiter{
 limited, err := SetLimiter{
     Key:       "free_trial:2022-05-25:userID:1",
     Member:    "3"
-    Expire:    time.Second * 10,
+    Expire:    time.Hour * 24,
     Maximum:   3,
 }.Do(ctx, client) ; if err != nil {
     return
@@ -278,7 +278,7 @@ limited, err := SetLimiter{
 limited, err := SetLimiter{
     Key:       "free_trial:2022-05-25:userID:1",
     Member:    "4"
-    Expire:    time.Second * 10,
+    Expire:    time.Hour * 24,
     Maximum:   3,
 }.Do(ctx, client) ; if err != nil {
     return
